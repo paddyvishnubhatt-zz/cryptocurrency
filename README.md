@@ -2,7 +2,7 @@
 
 Project is on Google appengine
 Needs a google / gcloud project and ID
-Populate app.yaml with it.
+Populate project id (right now set to 'shenba') in app.yaml with it.
 
 - Description of files
  - static/ -> css 
@@ -15,3 +15,9 @@ Populate app.yaml with it.
   - the form is inputt-ed in table.html and the output is taken into submitted_table.html
 
 Edited/built using pycharm 2016.3.2
+
+To run from command line.
+cd to the folder where this repo is cloned/checked-out
+<gae-directory>/google-cloud-sdk/bin/dev_appserver.py app.yaml
+Point browser to http://localhost:8080/form
+Select some check-boxes and Submit
