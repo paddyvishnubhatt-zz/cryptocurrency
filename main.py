@@ -25,7 +25,7 @@ def get_requirements():
     requirement_items = []
     requirement_items.append("size")
     requirement_items.append("cost")
-    requirement_items.append("smart_apps")
+    requirement_items.append("smartapps")
     requirements = {'requirements' : requirement_items}
     return requirements
 
