@@ -23,7 +23,9 @@ Edited/built using pycharm 2016.3.2
 - Select some check-boxes and Submit
 
 Example Input:
+
 ![Example Input](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Input.png)
 
 Example Output:
+
 ![Example Output](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Output.png)
