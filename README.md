@@ -21,3 +21,6 @@ Edited/built using pycharm 2016.3.2
 - <gae-directory>/google-cloud-sdk/bin/dev_appserver.py app.yaml
 - Point browser to http://localhost:8080/form
 - Select some check-boxes and Submit
+
+![Example Input](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Input.png)
+![Example Output](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Output.png)
