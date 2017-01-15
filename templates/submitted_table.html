@@ -15,7 +15,7 @@
          <table border = 1>
             {% for key in cbname %}
                 <tr>
-                    <th> {{ key }} </th>
+                    <th> {{ key | replace("_",", ")}} </th>
                     <td> on </td>
                 </tr>
              {% endfor %}

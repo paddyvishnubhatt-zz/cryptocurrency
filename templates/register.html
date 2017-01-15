@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <head>
+    <title>Register</title>
+   <link rel="stylesheet" type="text/css" href="/static/style.css">
+  </head>
+  <body>
+    <div class="pagetitle"
+      <h1>Register</h1>
+    </div>
+    <div class="container">
+        Welcome {{  user }}
+         <blockquote>RegisterId = {{ register.registerId }}</blockquote></a>
+        <blockquote>Requirements = {{ register.requirements }}</blockquote>
+        <blockquote>Users = {{ register.users }}</blockquote>
+        {%  set url1 = "/show_entrys/" + register.registerId %}
+        <a href={{  url1 }}> Form Entrys</a>
+        {%  set url2 = "/form_entry/" + register.registerId %}
+        <br>
+        <a href={{  url2 }}> Form Entry</a>
+      <!-- [END greetings] -->
+    </div>
+  </body>
+</html>
+

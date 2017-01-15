@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <head>
+    <title>Registers</title>
+   <link rel="stylesheet" type="text/css" href="/static/style.css">
+  </head>
+  <body>
+    <div class="pagetitle"
+      <h1>Registers</h1>
+    </div>
+    <div class="container">
+        Welcome {{  user }}
+      <!-- [START greetings] -->
+      {% for register in registers %}
+        <div class="row">
+            {%  set urlx = "/show_register/" + register.registerId %}
+            <a href={{ urlx }}> <blockquote>RegisterId = {{ register.registerId }}</blockquote></a>
+        </div>
+      {% endfor %}
+      <!-- [END greetings] -->
+    </div>
+  </body>
+</html>
+
+

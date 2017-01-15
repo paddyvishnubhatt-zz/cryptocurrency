@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <head>
+    <title>Entrys</title>
+   <link rel="stylesheet" type="text/css" href="/static/style.css">
+  </head>
+  <body>
+    <div class="pagetitle"
+      <h1>Entrys</h1>
+    </div>
+    <div class="container">
+      <!-- [START greetings] -->
+      {% for entry in entrys %}
+          <div class="row">
+          {% set datestr = entry.date.strftime("%Y-%m-%d% %H:%M:%S.%f") %}
+          {% set url = "/show_entry/" + datestr | urlencode %}
+          <a href={{  url }}><blockquote>Author= {{ entry.author }}, Date= {{ entry.date }}</blockquote></a>
+          </div>
+      {% endfor %}
+      <!-- [END greetings] -->
+    </div>
+  </body>
+</html>
+
+
