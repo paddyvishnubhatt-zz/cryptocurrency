@@ -29,3 +29,34 @@ Example Input:
 Example Output:
 
 ![Example Output](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Output.png)
+
+1/16/2017:
+ - Add persistence
+   - Use Google data store
+   - Create a template for Register - this contains the requirements fields to be displayed in the table.
+   - For now create a singleton and store in DB and use this
+   - If one exists - use it for Entrys, if not create a hard-coded one for now. Register contains
+     - A name/ID
+     - Requirements list (e.g. size, cost, smartapps)
+     - Users list
+     - Create Entrys using the form. Each Entry contains
+       - Back pointer to the Register where it is derived/built from
+       - Author - user/author who created this entry
+       - Date when entered/created
+       - requirements as selected by the user/author
+ - Add API and bare-bone/basic UI
+   - /register-debug/<registerId>
+    - For now read-only and debug - show the singleton 
+      - Json only
+    - / or /show_registers
+      - Display list of Registers
+      - If none exists, create a Singleton default 
+      - For now allow selection of singleton 
+      - Upon selecting register (<registerId>)
+        - /show_register/<registerId> -> display register details
+        - /show_entrys/<registerId> -> display existing, current entries from diff users
+        - Upon selecting an entry - show details
+        - /form_entry/<registerId> -> launch form_entry for the register
+        - /form_entry/<registerId>
+        - Given a register, it should display the table for the user to pick
+        - Submit will create the form entry 
