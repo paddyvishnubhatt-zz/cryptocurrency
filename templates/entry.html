@@ -5,17 +5,51 @@
     <title>Entry</title>
    <link rel="stylesheet" type="text/css" href="/static/style.css">
   </head>
-  <body>
+    <style>
+    table, th, td {
+        border: 1px solid black;
+    }
+    </style>
+   <body>
     <div class="pagetitle"
       <h1>Entry</h1>
     </div>
-    <div class="container">
-        Welcome {{  user }}
-         <blockquote>Author = {{ entry.author }}</blockquote>
-        <blockquote>Date = {{ entry.date }}</blockquote>
-        <blockquote>Requirements = {{ entry.requirements }}</blockquote>
-        <blockquote>Register = {{ entry.register.registerId }}</blockquote>
-      <!-- [END greetings] -->
+    <h2>Welcome {{  user }}</h2>
+    <div id="main">
+      <table style="width:100%">
+          <tr>
+            <td>
+                User - who created this entry
+            </td>
+            <td>
+                {{ entry.author }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+                Date when created
+            </td>
+            <td>
+                {{ entry.date }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+                Requirements as chosen by user
+            </td>
+            <td>
+                {{ entry.requirements }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+                Requirement ID
+            </td>
+            <td>
+                {{ entry.register.registerId }}
+            </td>
+          </tr>
+      </table>
     </div>
   </body>
 </html>

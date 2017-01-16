@@ -1,24 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
   <head>
     <title>Registers</title>
    <link rel="stylesheet" type="text/css" href="/static/style.css">
   </head>
+  <style>
+    table, th, td {
+        border: 1px solid black;
+    }
+  </style>
   <body>
     <div class="pagetitle"
       <h1>Registers</h1>
     </div>
-    <div class="container">
-        Welcome {{  user }}
-      <!-- [START greetings] -->
-      {% for register in registers %}
-        <div class="row">
-            {%  set urlx = "/show_register/" + register.registerId %}
-            <a href={{ urlx }}> <blockquote>RegisterId = {{ register.registerId }}</blockquote></a>
+    <h2>Welcome {{  user }}</h2>
+    <div id="main">
+      <table style="width:100%">
+        <div class="container">
+          {%  set idx = 1 %}
+          {% for register in registers %}
+
+             <TR>
+                <td align="left"> {{ idx }} </td>
+                 <td align="left">
+                    {%  set urlx = "/show_register/" + register.registerId %}
+                    <div class="row">
+                        <a href={{ urlx }}> <blockquote>RegisterId = {{ register.registerId }}</blockquote></a>
+                    </div>
+                 </td>
+            </TR>
+              {% set idx = idx + 1 %}
+          {% endfor %}
+          </table>
         </div>
-      {% endfor %}
-      <!-- [END greetings] -->
     </div>
   </body>
 </html>

@@ -5,22 +5,79 @@
     <title>Register</title>
    <link rel="stylesheet" type="text/css" href="/static/style.css">
   </head>
+    <style>
+    table, th, td {
+        border: 1px solid black;
+    }
+    </style>
   <body>
     <div class="pagetitle"
       <h1>Register</h1>
     </div>
-    <div class="container">
-        Welcome {{  user }}
-         <blockquote>RegisterId = {{ register.registerId }}</blockquote></a>
-        <blockquote>Requirements = {{ register.requirements }}</blockquote>
-        <blockquote>Users = {{ register.users }}</blockquote>
-        {%  set url1 = "/show_entrys/" + register.registerId %}
-        <a href={{  url1 }}> Form Entrys</a>
-        {%  set url2 = "/form_entry/" + register.registerId %}
-        <br>
-        <a href={{  url2 }}> Form Entry</a>
-      <!-- [END greetings] -->
-    </div>
+    <h2>Welcome {{  user }}</h2>
+    <div id="main">
+      <table style="width:100%">
+          <tr>
+               <th>
+                   Requirement
+               </th>
+              <th>
+                  Details
+              </th>
+          </tr>
+          <tr>
+            <td>
+                {{  register.registerId }}
+            </td>
+            <td>
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            Requirement Id - this is the requirement
+                        </td>
+                        <td>
+                            RegisterId = {{ register.registerId }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Requirements - these are the requirements for this requirement
+                        </td>
+                        <td>
+                            Requirements = {{ register.requirements }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Users - these are the users for this requirement
+                        </td>
+                        <td>
+                            Users = {{ register.users }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="30%">
+                            Show Entrys for the Requirement
+                        </td>
+                        <td>
+                           {%  set url1 = "/show_entrys/" + register.registerId %}
+                           <a href={{  url1 }}> Form Entrys</a>
+                           {%  set url2 = "/form_entry/" + register.registerId %}
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="30%">
+                            Create Entry for this Requirement
+                        </td>
+                        <td>
+                           <a href={{  url2 }}> Form Entry</a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+      </table>
   </body>
 </html>
 
