@@ -86,7 +86,6 @@ List of all Registers.
    - From here you can also create users in the system and associate them to the Register
     - Upon creating a user - it comes back w/ a screen w/ what was created
     - You can also edit user list associated w/ a Requirement
-    - 
   - For each Register - you can perform the following actions on that (from above screen)
    - List form entries 
      - Clicking on entry shows details of each Entry - they being:
