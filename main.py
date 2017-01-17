@@ -35,7 +35,7 @@ def submitted_register():
     # register is singleton
     registerId = request.form.get('registerId')
     userIds = request.form.getlist('userIds[]')
-    requirements = request.form.getlist('requirements[]')
+    requirements = request.form.get('requirements')
     print "regis: " + str(registerId) + ", users: " + str(userIds) + ", reqs: " + str(requirements)
     utils.create_register(registerId, userIds, requirements)
     return render_template(

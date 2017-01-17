@@ -113,7 +113,8 @@ def create_register(registerId, userIds, requirements):
     register_name = get_register_name()
     register = Register(parent=register_key(register_name))
     register.registerId = registerId
-    register.requirements = requirements
+    print requirements
+    register.requirements = requirements.split(",")
     users = []
     for userName in userIds:
         user = get_user_from_db(userName)
