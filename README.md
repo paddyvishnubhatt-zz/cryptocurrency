@@ -61,6 +61,14 @@ Edited/built using pycharm 2016.3.2
       - /show_users/<registerId> -> display users
         - Upon selecting a user 
           - /show_user/<user> -> display user details
+      - /create_register -> Create a new register
+      - /create_user -> Create new user
+      - /edit_users -> 
+
+1/17/2017
+---------
+ - Clean up code, models
+ - UI Perk ups
 
 Example Input:
 
