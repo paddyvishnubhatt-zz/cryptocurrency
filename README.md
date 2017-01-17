@@ -74,6 +74,44 @@ Edited/built using pycharm 2016.3.2
     - Requirements - right now this is a list - make this an object on its own.
     - Entry(s)
  - UI Perk ups
+ 
+List of all Registers.
+  - This lists all the existing registers and also has a link to create a new one
+  - Register contains
+    - Name/ID
+    - Users to enter forms
+    - Requirements list
+  - Create Register allows to create a new one w/ above attributes
+   - Upon creating a register - it comes back w/ a screen w/ what was created
+   - From here you can also create users in the system and associate them to the Register
+    - Upon creating a user - it comes back w/ a screen w/ what was created
+    - You can also edit user list associated w/ a Requirement
+    - 
+  - For each Register - you can perform the following actions on that (from above screen)
+   - List form entries 
+     - Clicking on entry shows details of each Entry - they being:
+      - User who created it
+      - Date when created
+      - Requirements selected by/for this entry
+     - Create a new Entry
+      - This will force a user to be selected - if not the default is chosen
+      - Creates an entry
+       - Upon creating a entry - it comes back w/ a screen w/ what was created
+ 
+ Schema: There're three abstractions. Pls review and help augment if anything needed
+  - Register
+  - User
+  - Entry
+  - Requirements is flat list of strings
+
+Deletes - are not available. But you should use the database viewer running port 8000 to list entities of each kind of class (Register, User, Entry)
+
+The code - Mainly three files and one folder:
+- main.py -> this has the webservice/REST end-points, url-routing and View logic integration w/ models
+- register.py -> models
+- utils.py -> db access layer
+- templates folder -> jinja2 based which have logic to parse the models sent by main.py to display
+- Rest is all ancilliary for/from gae, flask, etc
 
 Example Input:
 
