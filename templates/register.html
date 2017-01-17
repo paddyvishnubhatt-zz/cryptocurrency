@@ -52,7 +52,8 @@
                             Users - these are the users for this requirement
                         </td>
                         <td>
-                            Users = {{ register.users }}
+                            {% set url = "/show_users/" + register.registerId %}
+                            <a href={{  url }}>Show Users</a>
                         </td>
                     </tr>
                     <tr>

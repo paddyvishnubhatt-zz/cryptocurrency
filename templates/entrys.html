@@ -12,7 +12,7 @@
   </style>
   <body>
     <div class="pagetitle"
-      <h1>Entrys</h1>
+      <h1>Entrys for {{  registerId }}</h1>
     </div>
     <div class="container">
       <table style="width:100%">
@@ -30,10 +30,22 @@
                     Entry
                 </td>
                 <td>
-                    <div class="row">
-                      {% set datestr = entry.date.strftime("%Y-%m-%d% %H:%M:%S.%f") %}
-                      {% set url = "/show_entry/" + datestr | urlencode %}
-                      <a href={{  url }}><blockquote>Author= {{ entry.author }}, Date= {{ entry.date }}</blockquote></a>
+                  {% set datestr = entry.date.strftime("%Y-%m-%d% %H:%M:%S.%f") %}
+                  {% set url = "/show_entry_given_date/" + datestr | urlencode %}
+                    {%  set userId = entry.user.identity %}
+                    {%  set urlstr = "/show_entry_given_user/" + userId %}
+                    <table style="width:100%">
+                        <tr>
+                           <td>
+                              <a href={{  urlstr }}>Entity = {{ entry.user.identity }}</a>
+                           </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {{ entry.date }}
+                            </td>
+                        </tr>
+                    </table>
                     </div>
                 </td>
             </tr>
