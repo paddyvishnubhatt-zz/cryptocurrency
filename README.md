@@ -68,6 +68,11 @@ Edited/built using pycharm 2016.3.2
 1/17/2017
 ---------
  - Clean up code, models
+  - Use CRUD functions and model APIs around that for
+    - Register
+    - User
+    - Requirements - right now this is a list - make this an object on its own.
+    - Entry(s)
  - UI Perk ups
 
 Example Input:
