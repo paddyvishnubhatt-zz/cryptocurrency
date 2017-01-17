@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>Submit a form</title>
+   <link rel="stylesheet" type="text/css" href="/static/style.css">
+  </head>
+  <style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+  <body>
+    <div id="container">
+      <div class="pagetitle">
+        <h1>Form for creating register</h1>
+      </div>
+      <div id="main">
+          <form method="post" action="{{ url_for('submitted_register') }}">
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        Enter Register/Requirement ID
+                    </td>
+                    <td>
+                        <input type="text" name="registerId">
+                    </td>
+                </tr>
+                <TR>
+                    <td align="left">
+                        Add users
+                        <br>Select Users to add (Hold down the Ctrl (windows) / Command (Mac)
+                        <br>button to select multiple options)
+                        <br><a href="/create_user"> Click on link button to add new user</a>
+                    </td>
+                    <td>
+                        <select name="userIds[]" multiple size={{ users |length }}style='height: 100%;'>
+                            {% for user in users %}
+                                <option value="{{  user.identity }}"> {{ user.identity }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </TR>
+                <TR>
+                    <td>
+                        Add Requirements - Enter comma separated list of requirements
+                    </td>
+                    <td>
+                        <input type="text" name="requirements[]">
+                    </td>
+                </TR>
+            </table>
+            <input type="submit">
+          </form>
+      </div>
+    </div>
+  </body>
+</html>

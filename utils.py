@@ -69,10 +69,17 @@ def get_entrys_from_db(registerId):
 
     return returnEntrys
 
-def get_users_from_db(registerId):
-    register = get_register_from_db(registerId)
-    returnUsers = register.users
-    return returnUsers
+def get_users_from_db(registerId=None):
+    if registerId:
+        register = get_register_from_db(registerId)
+        returnUsers = register.users
+        return returnUsers
+    else:
+        register_name = get_register_name()
+        users_query = User.query(
+            ancestor=register_key(register_name))
+        users = users_query.fetch(100)
+        return users
 
 def get_user_from_db(userId):
     register_name = get_register_name()
@@ -85,6 +92,34 @@ def get_user_from_db(userId):
             return user
 
     return None
+
+def update_users_register(registerId, userIds):
+    register = get_register_from_db(registerId)
+    users = []
+    for userName in userIds:
+        user = get_user_from_db(userName)
+        users.append(user)
+    register.users = users
+    register.put()
+
+def create_user(userId, email):
+    register_name = get_register_name()
+    user = User(parent=register_key(register_name))
+    user.identity = userId
+    user.email = email
+    user.put()
+
+def create_register(registerId, userIds, requirements):
+    register_name = get_register_name()
+    register = Register(parent=register_key(register_name))
+    register.registerId = registerId
+    register.requirements = requirements
+    users = []
+    for userName in userIds:
+        user = get_user_from_db(userName)
+        users.append(user)
+    register.users = users
+    register.put()
 
 def register_factory(registerId):
     # We know it is a singleton for now

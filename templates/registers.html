@@ -17,20 +17,21 @@
     <div id="main">
       <table style="width:100%">
         <div class="container">
-          {%  set idx = 1 %}
           {% for register in registers %}
-
              <TR>
-                <td align="left"> {{ idx }} </td>
                  <td align="left">
                     {%  set urlx = "/show_register/" + register.registerId %}
                     <div class="row">
-                        <a href={{ urlx }}> <blockquote>RegisterId = {{ register.registerId }}</blockquote></a>
+                        <a href={{ urlx }}> RegisterId = {{ register.registerId }}</a>
                     </div>
                  </td>
             </TR>
-              {% set idx = idx + 1 %}
           {% endfor %}
+            <TR>
+                <td align="left">
+                    <a href="/create_register">Create New Requirement</a>
+                </td>
+            </TR>
           </table>
         </div>
     </div>

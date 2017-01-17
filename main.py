@@ -22,6 +22,28 @@ def show_registers():
         user = user,
         registers= registers)
 
+@app.route('/create_register')
+def create_register():
+    users = utils.get_users_from_db(None)
+    return render_template(
+        'register_form.html',
+        users=users)
+
+@app.route('/submitted_register', methods=['POST'])
+def submitted_register():
+    # Do not forget to bring in register from UI back here to store entry against it - until then
+    # register is singleton
+    registerId = request.form.get('registerId')
+    userIds = request.form.getlist('userIds[]')
+    requirements = request.form.getlist('requirements[]')
+    print "regis: " + str(registerId) + ", users: " + str(userIds) + ", reqs: " + str(requirements)
+    utils.create_register(registerId, userIds, requirements)
+    return render_template(
+        'submitted_register.html',
+        registerId=registerId,
+        userIds = userIds,
+        requirements = requirements)
+
 @app.route('/show_register/<registerId>')
 def show_register(registerId):
     register = utils.register_factory(registerId)
@@ -51,10 +73,10 @@ def show_entry_given_user(userId):
     entry = utils.get_entry_from_db_given_user(userId)
     if entry is None:
         return
-    user = None
+    user = userId
     return render_template(
        'entry.html',
-        user = user,
+        user = userId,
         entry= entry)
 
     # return error
@@ -96,7 +118,6 @@ def submitted_entry(registerId):
     # Do not forget to bring in register from UI back here to store entry against it - until then
     # register is singleton
     userId = request.form.get('userId')
-    print "In submitted_entry " + str(registerId) + ", "  + str(userId)
     cbname = request.form
     utils.store_entry(registerId, userId, cbname)
     return render_template(
@@ -105,6 +126,44 @@ def submitted_entry(registerId):
         userId = userId,
         cbname = cbname)
 
+@app.route('/create_user')
+def create_user():
+    return render_template(
+        'user.html')
+
+@app.route('/submitted_user', methods=['POST'])
+def submitted_user():
+    # Do not forget to bring in register from UI back here to store entry against it - until then
+    # register is singleton
+    userId = request.form.get('identity')
+    email = request.form.get('email')
+    utils.create_user(userId, email)
+    return render_template(
+        'submitted_user.html',
+        userId = userId,
+        email = email)
+
+@app.route('/submitted_edit_users_register/<registerId>', methods=['POST'])
+def submitted_edit_users_register(registerId):
+    # Do not forget to bring in register from UI back here to store entry against it - until then
+    # register is singleton
+    userIds = request.form.getlist('userIds[]')
+    register = utils.get_register_from_db(registerId)
+    utils.update_users_register(registerId, userIds)
+    return render_template(
+        'submitted_register.html',
+        registerId=registerId,
+        userIds=userIds,
+        requirements=register.requirements)
+
+@app.route('/edit_users/<registerId>')
+def edit_users(registerId):
+    register = utils.get_register_from_db(registerId)
+    users = utils.get_users_from_db(None)
+    return render_template(
+        'edit_users.html',
+        users = users,
+        registerId=registerId)
 
 @app.errorhandler(500)
 def server_error(e):

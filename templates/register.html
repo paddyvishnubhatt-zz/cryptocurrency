@@ -49,30 +49,38 @@
                     </tr>
                     <tr>
                         <td>
-                            Users - these are the users for this requirement
+                            Users
                         </td>
                         <td>
-                            {% set url = "/show_users/" + register.registerId %}
-                            <a href={{  url }}>Show Users</a>
+                            <table style="width:100%">
+                                <tr>
+                                    <td>
+                                        {% set url = "/show_users/" + register.registerId %}
+                                        <a href={{  url }}>Users</a>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     <tr>
-                        <td width="30%">
-                            Show Entrys for the Requirement
+                        <td>
+                            Entrys
                         </td>
                         <td>
-                           {%  set url1 = "/show_entrys/" + register.registerId %}
-                           <a href={{  url1 }}> Form Entrys</a>
-                           {%  set url2 = "/form_entry/" + register.registerId %}
-
-                        </td>
-                    </tr>
-                    <tr>
-                        <td width="30%">
-                            Create Entry for this Requirement
-                        </td>
-                        <td>
-                           <a href={{  url2 }}> Form Entry</a>
+                            <table style="width:100%">
+                                <tr>
+                                    <td>
+                                       {%  set url1 = "/show_entrys/" + register.registerId %}
+                                       <a href={{  url1 }}> Form Entrys</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                       {%  set url2 = "/form_entry/" + register.registerId %}
+                                       <a href={{  url2 }}> Form  to create Entry</a>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>

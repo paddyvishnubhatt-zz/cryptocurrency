@@ -24,8 +24,8 @@
           <th>
               Details
           </th>
-      </tr>
-      {% for iuser in users %}
+        </tr>
+        {% for iuser in users %}
             <tr>
                 <div class="row">
                 <td>
@@ -47,7 +47,13 @@
                     </table>
                 </td>
             </tr>
-      {% endfor %}
+        {% endfor %}
+        <TR>
+          <td>
+            {% set url = "/edit_users/" + registerId  %}
+            <br><a href={{ url }}> Edit User for Register</a>
+          </td>
+        </TR>
       </table>
       <!-- [END greetings] -->
     </div>

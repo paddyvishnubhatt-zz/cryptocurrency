@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <title>Submit a form</title>
+   <link rel="stylesheet" type="text/css" href="/static/style.css">
+  </head>
+  <style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+  <body>
+    <div id="container">
+      <div class="pagetitle">
+        <h1>Form for creating user</h1>
+      </div>
+      <div id="main">
+          <form method="post" action="{{ url_for('submitted_user') }}">
+            <table style="width:100%">
+                <TR>
+                    <td align="left">
+                        Identity (name)
+                    </td>
+                    <td>
+                        <input type="text" name="identity">
+                    </td>
+                </TR>
+                <TR>
+                    <td>
+                        Email
+                    </td>
+                    <td>
+                        <input type="text" name="email">
+                    </td>
+                </TR>
+            </table>
+            <input type="submit">
+          </form>
+      </div>
+    </div>
+  </body>
+</html>
