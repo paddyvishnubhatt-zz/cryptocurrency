@@ -38,7 +38,15 @@
                 Requirements as chosen by user
             </td>
             <td>
-                {{ entry.requirements }}
+               <table style="width:100%">
+                {% for req in entry.requirements %}
+                    <tr>
+                        <td>
+                            {{ req }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
             </td>
           </tr>
           <tr>

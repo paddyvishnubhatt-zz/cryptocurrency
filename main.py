@@ -119,12 +119,16 @@ def submitted_entry(registerId):
     # register is singleton
     userId = request.form.get('userId')
     cbname = request.form
-    utils.store_entry(registerId, userId, cbname)
+    requirements_input = []
+    for key in cbname:
+        if key != 'userId':
+            requirements_input.append(key)
+    utils.store_entry(registerId, userId, requirements_input)
     return render_template(
         'submitted_table.html',
         registerId=registerId,
         userId = userId,
-        cbname = cbname)
+        cbname = requirements_input)
 
 @app.route('/create_user')
 def create_user():

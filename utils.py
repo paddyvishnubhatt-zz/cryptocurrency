@@ -148,13 +148,13 @@ def register_factory(registerId):
         register.put()
         return register
 
-def store_entry(registerId, userId, cbname):
+def store_entry(registerId, userId, requirements_input):
     register_name =  DEFAULT_REGISTER_NAME
     entry = Entry(parent=register_key(register_name))
     entry.user = get_user_from_db(userId)
     entry.register = get_register_from_db(registerId)
     requirements = []
-    for key in cbname:
+    for key in requirements_input:
         requirements.append(key)
     entry.requirements = requirements
     entry.put()

@@ -44,7 +44,15 @@
                             Requirements - these are the requirements for this requirement
                         </td>
                         <td>
-                            Requirements = {{ register.requirements }}
+                            <table style="width:100%">
+                            {% for req in register.requirements %}
+                                <tr>
+                                    <td>
+                                        {{ req }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </table>
                         </td>
                     </tr>
                     <tr>
