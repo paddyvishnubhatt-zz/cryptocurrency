@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <head>
+    <title>Entrys</title>
+   <link rel="stylesheet" type="text/css" href="/static/style.css">
+  </head>
+  <style>
+    table, th, td {
+        border: 1px solid black;
+    }
+  </style>
+  <body>
+    <div class="pagetitle"
+      <h1>Users for {{  registerId }}</h1>
+      <br>
+    </div>
+    <div class="container">
+      <table style="width:100%">
+        <tr>
+           <th>
+               User
+           </th>
+          <th>
+              Details
+          </th>
+      </tr>
+      {% for iuser in users %}
+            <tr>
+                <div class="row">
+                <td>
+                    {{  iuser.identity }}
+                </td>
+                </div>
+                <td>
+                    <table style="width:100%">
+                        <tr>
+                            <td>
+                                Identity = {{ iuser.identity }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Email = {{ iuser.email }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+      {% endfor %}
+      </table>
+      <!-- [END greetings] -->
+    </div>
+  </body>
+</html>
+
+
