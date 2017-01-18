@@ -3,20 +3,20 @@
 <head>
   <head>
     <title>Entry</title>
-   <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
-    <style>
-    table, th, td {
-        border: 1px solid black;
-    }
-    </style>
    <body>
     <div class="pagetitle"
       <h1>Entry</h1>
     </div>
     <h2>Welcome {{  user }}</h2>
     <div id="main">
-      <table style="width:100%">
+      <table class="table table-striped">
           <tr>
             <td>
                 User - who created this entry
@@ -38,7 +38,7 @@
                 Requirements as chosen by user
             </td>
             <td>
-               <table style="width:100%">
+               <table class="table table-striped">
                 {% for req in entry.requirements %}
                     <tr>
                         <td>

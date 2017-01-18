@@ -2,33 +2,33 @@
 <html lang="en">
   <head>
     <title>Registers</title>
-   <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
-  <style>
-    table, th, td {
-        border: 1px solid black;
-    }
-  </style>
   <body>
     <div class="pagetitle"
-      <h1>Registers</h1>
     </div>
-    <h2>Welcome {{  user }}</h2>
+    <h2>Registers</h2>
     <div id="main">
-      <table style="width:100%">
-        <div class="container">
+      <div class="container">
+        <table class="table table-striped">
+          <th>
+            Registers
+          </th>
           {% for register in registers %}
              <TR>
-                 <td align="left">
+                 <td>
                     {%  set urlx = "/show_register/" + register.registerId %}
-                    <div class="row">
-                        <a href={{ urlx }}> RegisterId = {{ register.registerId }}</a>
-                    </div>
+                    <a href={{ urlx }}>RegisterId = {{ register.registerId }}</a>
                  </td>
             </TR>
           {% endfor %}
             <TR>
-                <td align="left">
+                <td>
                     <a href="/create_register">Create New Requirement</a>
                 </td>
             </TR>
