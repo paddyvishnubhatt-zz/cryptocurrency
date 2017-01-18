@@ -25,7 +25,7 @@
                         Register/Requirement ID
                     </td>
                     <td>
-                        <input type="text" name="registerId" value="{{ regId }}">
+                        <input type="text" class="form-control" name="registerId" value="{{ regId }}">
                     </td>
                 </tr>
                 <TR>
@@ -36,7 +36,8 @@
                         <br><a href="/create_user"> Click on link button to add new user</a>
                     </td>
                     <td>
-                        <select name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
+
+                        <select class="form-control" name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
 
                         {% for user in users %}
                             {% if register is defined %}
@@ -61,7 +62,7 @@
                         {% if register is defined %}
                             {%  set reqs = requirements | join(',') %}
                         {% endif %}
-                        <input type="text" name="requirements" value={{ reqs }}>
+                        <input type="text" class="form-control" name="requirements" value={{ reqs }}>
                     </td>
                 </TR>
             </table>

@@ -24,7 +24,7 @@
                         <br><a href="/create_user"> Click on link button to add new user</a>
                     </td>
                     <td>
-                        <select name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
+                        <select class="form-control" name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
                             {% for user in users %}
                                 <option value="{{  user.identity }}"> {{ user.identity }}</option>
                             {% endfor %}

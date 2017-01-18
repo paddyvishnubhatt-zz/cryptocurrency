@@ -15,17 +15,23 @@
       </div>
       <div id="main">
           <form method="post" action="{{ url_for('submitted_entry', registerId=registerId ) }}">
-              Select User:
-              <select name="userId">
-                {% for user in users %}
-                      <option value="{{  user.identity }}"> {{ user.identity }}</option>
-                {% endfor %}
-              </select>
             <table class="table table-striped">
+                <tr>
+                  <td>
+                  <div class="col-sm-4">
+                    <label>Select User:</label>
+                        <select name="userId" class="form-control" >
+                        {% for user in users %}
+                            <option value="{{  user.identity }}"> {{ user.identity }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                </td>
+                </tr>
                 <TR>
                     <th>  </th>
                     {% for item in items %}
-                        <th> {{ item }} </th>
+                        <th style="text-align: center"> {{ item }} </th>
                     {% endfor %}
                 </TR>
                 {% for item in items %}
@@ -36,7 +42,7 @@
                                 <td align="center"> x </td>
                             {%  else %}
                                 {% set cbname = item + "_" + item1 %}
-                                <td style="text-align: center; vertical-align: middle;">
+                                <td style="text-align: center;">
                                     <input type="checkbox" name={{ cbname }}>
                                 </td>
                             {%  endif %}
