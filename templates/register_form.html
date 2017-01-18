@@ -15,7 +15,7 @@
           {% if register is defined %}
             {% set regId = register.registerId %}
           {% endif %}
-        <h1>Form for creating or updating register {{  regId }}</h1>
+        <h1>Upsert register {{  regId }}</h1>
       </div>
       <div id="main">
           <form method="post" action="{{ url_for('submitted_register') }}">
