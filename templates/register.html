@@ -27,7 +27,8 @@
           </tr>
           <tr>
             <td>
-                {{  register.registerId }}
+                {% set url = "/update_register/" + register.registerId %}
+                <a href={{  url }}>{{  register.registerId }} (Click to Edit)</a>
             </td>
             <td>
                 <table style="width:100%">

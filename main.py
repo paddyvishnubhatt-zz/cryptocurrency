@@ -5,7 +5,6 @@ from flask import Flask, render_template, request, url_for
 from register import DEFAULT_REGISTER_NAME
 from register import register_key
 
-
 app = Flask(__name__)
 
 @app.route('/')
@@ -27,6 +26,21 @@ def create_register():
     users = utils.get_users_from_db(None)
     return render_template(
         'register_form.html',
+        users=users)
+
+@app.route('/update_register/<registerId>')
+def update_register(registerId):
+    users = utils.get_users_from_db(None)
+    register = utils.get_register_from_db(registerId)
+    requirements = register.requirements
+    userlist = []
+    for user in register.users:
+        userlist.append(user.identity)
+    return render_template(
+        'register_form.html',
+        register=register,
+        userlist = userlist,
+        requirements=requirements,
         users=users)
 
 @app.route('/submitted_register', methods=['POST'])
@@ -52,19 +66,6 @@ def show_register(registerId):
        'register.html',
         user = user,
         register= register)
-
-    # return error
-
-@app.route('/show_entry_given_date/<date>')
-def show_entry_given_date(date):
-    entry = utils.get_entry_from_db_given_date(date)
-    if entry is None:
-        return
-    user = None
-    return render_template(
-       'entry.html',
-        user = user,
-        entry= entry)
 
     # return error
 

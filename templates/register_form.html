@@ -11,17 +11,21 @@
   <body>
     <div id="container">
       <div class="pagetitle">
-        <h1>Form for creating register</h1>
+          {% set regId = "" %}
+          {% if register is defined %}
+            {% set regId = register.registerId %}
+          {% endif %}
+        <h1>Form for creating or updating register {{  regId }}</h1>
       </div>
       <div id="main">
           <form method="post" action="{{ url_for('submitted_register') }}">
             <table style="width:100%">
                 <tr>
                     <td>
-                        Enter Register/Requirement ID
+                        Register/Requirement ID
                     </td>
                     <td>
-                        <input type="text" name="registerId">
+                        <input type="text" name="registerId" value="{{ regId }}">
                     </td>
                 </tr>
                 <TR>
@@ -32,10 +36,19 @@
                         <br><a href="/create_user"> Click on link button to add new user</a>
                     </td>
                     <td>
-                        <select name="userIds[]" multiple size={{ users |length }}style='height: 100%;'>
-                            {% for user in users %}
+                        <select name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
+
+                        {% for user in users %}
+                            {% if register is defined %}
+                                {%  if user.identity in userlist %}
+                                    <option value="{{  user.identity }}" selected> {{ user.identity }}</option>
+                                {% else %}
+                                    <option value="{{  user.identity }}"> {{ user.identity }}</option>
+                                {% endif %}
+                            {% else %}
                                 <option value="{{  user.identity }}"> {{ user.identity }}</option>
-                            {% endfor %}
+                            {% endif %}
+                        {% endfor %}
                         </select>
                     </td>
                 </TR>
@@ -44,7 +57,11 @@
                         Add Requirements - Enter comma separated list of requirements
                     </td>
                     <td>
-                        <input type="text" name="requirements">
+                        {% set reqs = "" %}
+                        {% if register is defined %}
+                            {%  set reqs = requirements | join(',') %}
+                        {% endif %}
+                        <input type="text" name="requirements" value={{ reqs }}>
                     </td>
                 </TR>
             </table>

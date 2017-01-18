@@ -111,9 +111,11 @@ def create_user(userId, email):
 
 def create_register(registerId, userIds, requirements):
     register_name = get_register_name()
-    register = Register(parent=register_key(register_name))
-    register.registerId = registerId
-    print requirements
+    register = get_register_from_db(registerId)
+    if register is None:
+        register = Register(parent=register_key(register_name))
+        register.registerId = registerId
+
     register.requirements = requirements.split(",")
     users = []
     for userName in userIds:

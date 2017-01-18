@@ -7,9 +7,8 @@ DEFAULT_REGISTER_NAME = 'default_register'
 def register_key(register_name=DEFAULT_REGISTER_NAME):
     return ndb.Key('Register', register_name)
 
-# [START Author]
+# [START User]
 class User(ndb.Model):
-    """Sub model for representing an author."""
     identity = ndb.StringProperty(indexed=True,required=True)
     email = ndb.StringProperty(indexed=True,required=True)
 
