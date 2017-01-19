@@ -55,7 +55,7 @@
           {% for register in registers %}
              <TR>
                  <td>
-                    {%  set urlx = "/update_register/" + register.registerId %}
+                    {%  set urlx = "/show_register/" + register.registerId %}
                     <a href={{ urlx }}>RegisterId = {{ register.registerId }}</a>
                  </td>
             </TR>

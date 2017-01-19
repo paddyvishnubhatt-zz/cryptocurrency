@@ -3,14 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="378846ea-38ad-4eed-94ce-8427403477c7" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/register.py" afterPath="$PROJECT_DIR$/register.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/register.html" afterPath="$PROJECT_DIR$/templates/register.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/register_form.html" afterPath="$PROJECT_DIR$/templates/register_form.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/registers.html" afterPath="$PROJECT_DIR$/templates/registers.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/user.html" afterPath="$PROJECT_DIR$/templates/user.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/users.html" afterPath="$PROJECT_DIR$/templates/users.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utils.py" afterPath="$PROJECT_DIR$/utils.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -70,11 +63,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="register.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="register.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/templates/register.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="47" column="8" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="47" selection-end-column="8" />
+            <state relative-caret-position="-15">
+              <caret line="47" column="8" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="47" selection-end-column="8" />
               <folding />
             </state>
           </provider>
@@ -112,10 +105,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="registers.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="registers.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/registers.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
+            <state relative-caret-position="45">
               <caret line="47" column="8" lean-forward="false" selection-start-line="47" selection-start-column="8" selection-end-line="47" selection-end-column="8" />
               <folding />
             </state>
@@ -915,14 +908,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/register.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="47" column="8" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="47" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/user.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -933,8 +918,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/registers.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
+        <state relative-caret-position="45">
           <caret line="47" column="8" lean-forward="false" selection-start-line="47" selection-start-column="8" selection-end-line="47" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/register.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-15">
+          <caret line="47" column="8" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="47" selection-end-column="8" />
           <folding />
         </state>
       </provider>
