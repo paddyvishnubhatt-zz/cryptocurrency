@@ -11,12 +11,20 @@ def register_key(register_name=DEFAULT_REGISTER_NAME):
 class User(ndb.Model):
     identity = ndb.StringProperty(indexed=True,required=True)
     email = ndb.StringProperty(indexed=True,required=True)
+    defaultRegisterId = ndb.StringProperty()
+    type = ndb.StringProperty()
+    isFirstLogin = ndb.BooleanProperty(default=True)
+    password = ndb.StringProperty()
 
 # [START Register]
 class Register(ndb.Model):
     registerId = ndb.StringProperty(indexed=True,required=True)
     users = ndb.StructuredProperty(User, repeated=True)
     requirements = ndb.StringProperty(repeated=True)
+    defaultPassword = ndb.StringProperty()
+    department = ndb.StringProperty()
+    group = ndb.StringProperty()
+    description = ndb.StringProperty()
 
 # [START Entry]
 class Entry(ndb.Model):

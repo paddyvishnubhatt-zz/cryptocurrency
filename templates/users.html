@@ -36,7 +36,8 @@
                     <table class="table table-striped">
                         <tr>
                             <td>
-                                Identity = {{ iuser.identity }}
+                                {%  set urlx = "/edit_user/" + iuser.identity %}
+                                <a href={{ urlx }}>Identity = {{ iuser.identity }}</a>
                             </td>
                         </tr>
                         <tr>
@@ -44,6 +45,12 @@
                                 Email = {{ iuser.email }}
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                Type = {{ iuser.type }}
+                            </td>
+                        </tr>
+
                     </table>
                 </td>
             </tr>

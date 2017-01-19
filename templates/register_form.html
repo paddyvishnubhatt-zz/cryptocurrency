@@ -8,15 +8,37 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
-  <body>
-    <div id="container">
-      <div class="pagetitle">
-          {% set regId = "" %}
-          {% if register is defined %}
-            {% set regId = register.registerId %}
-          {% endif %}
-        <h1>Upsert register {{  regId }}</h1>
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Entrys</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Home</a></li>
+          <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Entrys <span class="caret"></span></a>
+             <ul class="dropdown-menu">
+              <li><a href="#">By User</a></li>
+              <li><a href="#">By Register</a></li>
+              <li><a href="#">All</a></li>
+            </ul>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        </ul>
+
       </div>
+  </nav>
+
+  <body>
+  <script>
+    $(document).ready(function(){
+        $('#checkbox').on('change', function(){
+            $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
+        });
+    });
+    </script>
+    <div id="container">
       <div id="main">
           <form method="post" action="{{ url_for('submitted_register') }}">
             <table class="table table-striped">
@@ -28,6 +50,54 @@
                         <input type="text" class="form-control" name="registerId" value="{{ regId }}">
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        Description
+                    </td>
+                    <td>
+                        {% set desc = "" %}
+                        {% if register is defined %}
+                            {% set desc = register.description %}
+                        {% endif %}
+                        <input type="text" class="form-control" name="description" value="{{ desc }}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Department
+                    </td>
+                    <td>
+                        {% set dept = "" %}
+                        {% if register is defined %}
+                            {% set dept = register.department %}
+                        {% endif %}
+                        <input type="text" class="form-control" name="department" value="{{ dept }}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Group
+                    </td>
+                    <td>
+                        {% set grp = "" %}
+                        {% if register is defined %}
+                            {% set grp = register.group %}
+                        {% endif %}
+                        <input type="text" class="form-control" name="group" value="{{ grp }}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Defaualt Password
+                    <td>
+                        {% set defp = "" %}
+                        {% if register is defined %}
+                            {% set defp = register.defaultPassword %}
+                        {% endif %}
+                        <input class="form-control" id="password" type="password" name="password" value="{{ defp }}">
+                        <input type="checkbox" id="checkbox"> Show Password
+                    </td>
+                </tr>
                 <TR>
                     <td align="left">
                         Add users
@@ -36,7 +106,6 @@
                         <br><a href="/create_user"> Click on link button to add new user</a>
                     </td>
                     <td>
-
                         <select class="form-control" name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
 
                         {% for user in users %}

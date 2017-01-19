@@ -4,7 +4,9 @@ from register import User
 from register import Register
 from register import DEFAULT_REGISTER_NAME
 from register import register_key
+from functools import wraps
 
+from flask import request, Response, url_for, redirect
 def get_register_name(rname=DEFAULT_REGISTER_NAME):
     return rname
 
@@ -134,16 +136,27 @@ def register_factory(registerId):
         requirement_items.append("size")
         requirement_items.append("cost")
         requirement_items.append("smartapps")
+        requirement_items.append("popularity")
         register_name = get_register_name()
         register = Register(parent=register_key(register_name))
         register.registerId = registerId
         register.requirements = requirement_items
+        register.department = "Department-Q"
+        register.group = "lawn-mowers"
+        register.description = "This requirement is for lawn mowers but could be applied to dish washers also"
+        register.defaultPassword = "nowisthetime"
         userstrings = ["user1", "user2", "user3", "user4"]
         users = []
         for userName in userstrings:
             user = User(parent=register_key(register_name))
             user.identity = userName
             user.email = userName + "@sellerforce.com"
+            user.password = register.defaultPassword
+            user.defaultRegisterId = registerId
+            if user.identity == "user2":
+                user.type = "Admin"
+            else:
+                user.type = "User"
             user.put()
             users.append(user)
         register.users = users
@@ -160,3 +173,40 @@ def store_entry(registerId, userId, requirements_input):
         requirements.append(key)
     entry.requirements = requirements
     entry.put()
+
+def check_auth(identity, password):
+    """This function is called to check if a username /
+        password combination is valid.
+        """
+    user = get_user_from_db(identity)
+    if user:
+        return True
+    else:
+        return identity == 'admin' and password == 'password'
+
+def get_user_type_from_db(identity):
+    user = get_user_from_db(identity)
+    return user.type
+
+def is_user_first_login(identity):
+    user = get_user_from_db(identity)
+    return user.isFirstLogin
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            print "*** Enter ***"
+            return authenticate()
+        else:
+            return f(*args, **kwargs)
+
+    return decorated

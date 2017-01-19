@@ -4,15 +4,37 @@
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
-  <body>
-    <div id="container">
-      <div class="pagetitle">
-        <h1>Create user</h1>
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">DAR</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Home</a></li>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        </ul>
       </div>
+  </nav>
+  <body>
+  <script>
+    $(document).ready(function(){
+        $('#checkbox').on('change', function(){
+            $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
+        });
+    });
+    </script>
+  {% if show_example_modal %}
+    <span class="example"  data-toggle="modal" data-target="#myModal"> <a href="/login">Back to Login</a></span>
+  {% endif %}
+
+    <div id="container">
       <div id="main">
           <form method="post" action="{{ url_for('submitted_user') }}">
             <table class="table table-striped">
@@ -21,7 +43,11 @@
                         Identity (name)
                     </td>
                     <td>
-                        <input class="form-control" type="text" name="identity">
+                        {% set idval = "" %}
+                        {% if user is defined %}
+                            {% set idval = user.identity %}
+                        {% endif %}
+                        <input class="form-control" type="text" name="identity" value= {{ idval }}>
                     </td>
                 </TR>
                 <TR>
@@ -29,7 +55,48 @@
                         Email
                     </td>
                     <td>
-                        <input class="form-control" type="text" name="email">
+                        {% set emailval = "" %}
+                        {% if user is defined %}
+                            {% set emailval = user.email %}
+                        {% endif %}
+                        <input class="form-control" type="text" name="email" value={{ emailval }}>
+                    </td>
+                </TR>
+                <TR>
+                    <td>
+                        Type
+                    </td>
+                    <td>
+                        {% set typeval = "" %}
+                        {% if user is defined %}
+                            {% set typeval = user.type %}
+                        {% endif %}
+                        <input class="form-control" type="text" name="type" value={{ typeval }}>
+                    </td>
+                </TR>
+                <TR>
+                    <td>
+                        Password
+                    </td>
+                    <td>
+                        {% set passval = "" %}
+                        {% if user is defined %}
+                            {% set passval = user.password %}
+                        {% endif %}
+                        <input class="form-control" id="password" type="password" name="password" value={{ passval }}>
+                        <input type="checkbox" id="checkbox"> Show Password
+                    </td>
+                </TR>
+                <TR>
+                    <td>
+                        Default Register
+                    </td>
+                    <td>
+                        {% set regId = "" %}
+                        {% if user is defined %}
+                            {% set regId = user.defaultRegisterId %}
+                        {% endif %}
+                        <input class="form-control" id="registerId" name="registerId" value={{ regId }}>
                     </td>
                 </TR>
             </table>
