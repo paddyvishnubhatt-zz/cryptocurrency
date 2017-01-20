@@ -6,9 +6,7 @@ from register import DEFAULT_REGISTER_NAME
 from register import register_key
 from functools import wraps
 import time
-
 from flask import request, Response, url_for, redirect
-from google.appengine.ext import ndb
 
 def get_register_name(rname=DEFAULT_REGISTER_NAME):
     return rname

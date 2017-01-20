@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html>
   <head>
-    <title>Register</title>
+    <title>Submit a form</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +8,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
-
     <nav class="navbar navbar-inverse navbar-static-top">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -21,6 +18,7 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+          <p class="navbar-text">{{ current_user }}</p>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -32,82 +30,134 @@
   </nav>
 
   <body>
+  <script>
+    $(document).ready(function(){
+        $('#checkbox').on('change', function(){
+            $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
+        });
+    });
+    </script>
     <div id="container">
-      <table class="table" >
-          <tr>
-            <th>
-                 {{ register.registerId }}
-            </th>
-            <th>
-                {% set urlx = "/update_register/" + register.registerId %}
-                <a href={{ urlx }}>
-                    <span class="glyphicon glyphicon-edit"></span>
-                </a>
-            </th>
-          </tr>
-            <tr>
-                <td>
-                    Description
-                </td>
-                <td>
-                    {{ register.description }}
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    Department
-                </td>
-                <td>
-                    {{ register.department }}
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    Group
-                </td>
-                <td>
-                    {{ register.group }}
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    Requirements - these are the requirements for this requirement
-                </td>
-                <td>
-                    <table class="table">
-                    {% for req in register.requirements %}
-                        <tr>
-                            <td>
-                                {{ req }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </table>
-                </td>
-            </tr>
-            {% set url = "/show_users/" + register.registerId %}
-            <tr onclick="location.href='{{ url }}'">
-                <td>
-                    Users
-                </td>
-                <td>
-                    <a href={{ url }}>
-                        <span class="glyphicon glyphicon-chevron-right"></span>
-                    </a>
-                </td>
-            </tr>
-            {% set urlx = "/show_entrys/" + register.registerId %}
-            <tr onclick="location.href='{{ urlx }}'">
-                <td>
-                    Entrys
-                </td>
-                <td>
-                    <a href={{ urlx }}>
-                        <span class="glyphicon glyphicon-chevron-right"></span>
-                    </a>
-                </td>
-            </tr>
-      </table>
+      <div id="main">
+          <form method="post" action="{{ url_for('submitted_register') }}">
+            <table class="table table-striped">
+                <th>
+                    Requirement details
+                </th>
+                <th>
+                    {% if register is defined %}
+                        {% set urlx = "/show_entrys/" + register.registerId %}
+                        <a href={{ urlx }}>
+                            Summary<span class="glyphicon glyphicon-chevron-right"></span>
+                        </a>
+                    {% endif %}
+                </th>
+                <tr>
+                    <td>
+                        Register/Requirement ID
+                    </td>
+                    <td>
+                        {% set regId = "" %}
+                        {% if register is defined %}
+                            {% set regId = register.registerId %}
+                        {% endif %}
+
+                        <input type="text" class="form-control" name="registerId" value="{{ regId }}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Description
+                    </td>
+                    <td>
+                        {% set desc = "" %}
+                        {% if register is defined %}
+                            {% set desc = register.description %}
+                        {% endif %}
+                        <input type="text" class="form-control" name="description" value="{{ desc }}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Department
+                    </td>
+                    <td>
+                        {% set dept = "" %}
+                        {% if register is defined %}
+                            {% set dept = register.department %}
+                        {% endif %}
+                        <input type="text" class="form-control" name="department" value="{{ dept }}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Group
+                    </td>
+                    <td>
+                        {% set grp = "" %}
+                        {% if register is defined %}
+                            {% set grp = register.group %}
+                        {% endif %}
+                        <input type="text" class="form-control" name="group" value="{{ grp }}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Defaualt Password
+                    <td>
+                        {% set defp = "" %}
+                        {% if register is defined %}
+                            {% set defp = register.defaultPassword %}
+                        {% endif %}
+                        <input class="form-control" id="password" type="password" name="password" value="{{ defp }}">
+                        <input type="checkbox" id="checkbox"> Show Password
+                    </td>
+                </tr>
+                <TR>
+                    <td align="left">
+                        Add users
+                        <br>Select Users to add (Hold down the Ctrl (windows) / Command (Mac)
+                        <br>button to select multiple options)
+                        {% if register is defined %}
+                            {% set urlx = "/update_user/" + register.registerId + "/__CREATE__" %}
+                        {% else %}
+                            {% set urlx = "/update_user/__CREATE__/__CREATE__" %}
+                        {% endif %}
+                        <br><a href={{ urlx }}> Click on link button to add new user</a>
+                    </td>
+                    <td>
+                        <select class="form-control" name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
+
+                        {% for user in users %}
+                            {% if register is defined %}
+                                {%  if user.identity in userlist %}
+                                    <option value="{{  user.identity }}" selected> {{ user.identity }}</option>
+                                {% else %}
+                                    <option value="{{  user.identity }}"> {{ user.identity }}</option>
+                                {% endif %}
+                            {% else %}
+                                <option value="{{  user.identity }}"> {{ user.identity }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        </select>
+                    </td>
+                </TR>
+                <TR>
+                    <td>
+                        Add Requirements - Enter comma separated list of requirements
+                    </td>
+                    <td>
+                        {% set reqs = "" %}
+                        {% if register is defined %}
+                            {%  set reqs = requirements | join(',') %}
+                        {% endif %}
+                        <input type="text" class="form-control" name="requirements" value={{ reqs }}>
+                    </td>
+                </TR>
+            </table>
+            <input type="submit">
+          </form>
+      </div>
+    </div>
   </body>
 </html>
-

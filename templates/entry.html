@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html>
   <head>
-    <title>Entry</title>
+    <title>Submit a form</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,6 +18,7 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+          <p class="navbar-text">{{ current_user }}</p>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -28,51 +27,45 @@
         </div>
       </div>
   </nav>
-   <body>
-    <div id="main">
-      <table class="table">
-          <tr>
-            <td>
-                User - who created this entry
-            </td>
-            <td>
-                {{ entry.user }}
-            </td>
-          </tr>
-          <tr>
-            <td>
-                Date when created
-            </td>
-            <td>
-                {{ entry.date }}
-            </td>
-          </tr>
-          <tr>
-            <td>
-                Requirements as chosen by user
-            </td>
-            <td>
-               <table class="table">
-                {% for req in entry.requirements %}
-                    <tr>
-                        <td>
-                            {{ req }}
-                        </td>
-                    </tr>
+  <body>
+    <div id="container">
+      <div class="pagetitle">
+        <label>Register: {{ register.registerId }}</label>
+        <br>
+        <label name="userId">User: {{ userId }}</label>
+        {% if date is defined %}
+            <br>
+            <label name="date">Date: {{ date.strftime("%Y-%m-%d% %H:%M:%S.%f") }} <label>
+        {% endif %}
+      </div>
+      <div id="main">
+          <form method="post" action="{{ url_for('submitted_entry', registerId=register.registerId ) }}">
+            <table class="table table-striped">
+                <TR>
+                    <th></th>
+                    {% for item in register.requirements %}
+                        <th style="text-align: center"> {{ item }} </th>
+                    {% endfor %}
+                </TR>
+                {% for item in register.requirements %}
+                    <TR>
+                        <td align="left"> {{ item }} </td>
+                        {% for item1 in register.requirements %}
+                            {%  if item == item1 %}
+                                <td align="center"> x </td>
+                            {%  else %}
+                                {% set cbname = item + "_" + item1 %}
+                                <td style="text-align: center;">
+                                    <input type="checkbox" name={{ cbname }}>
+                                </td>
+                            {%  endif %}
+                        {% endfor %}
+                    </TR>
                 {% endfor %}
-                </table>
-            </td>
-          </tr>
-          <tr>
-            <td>
-                Requirement ID
-            </td>
-            <td>
-                {{ entry.register.registerId }}
-            </td>
-          </tr>
-      </table>
+            </table>
+            <input type="submit">
+          </form>
+      </div>
     </div>
   </body>
 </html>
-
