@@ -1,0 +1,48 @@
+<HTML>
+    <script>
+        $("#button-back").click(function(){
+         parent.history.back();
+        return false;
+        });
+        function goBack() {
+            window.history.back();
+    }
+    </script>
+  <head>
+    <TITLE>La`Foot</TITLE>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+
+  <nav class="navbar navbar-inverse navbar-static-top" >
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+        </div>
+      </div>
+  </nav>
+
+  <BODY>
+    <div class="panel panel-default">
+            <a href="http://lafoot.com">La`Foot</a>
+            Boutique shop for all kinds of skunk works
+            <H1>La`Foot</H1>
+            <H2>Company Philosophy</H2>
+                Send mail at <a href="mailto:support@yourcompany.com">support@yourcompany.com</a>.
+            <P> Past Projects
+            <P> <B>Current Projects</B>
+            <BR> <B><I>This is a new sentence without a paragraph break, in bold italics.</I></B>
+        <IMG SRC="/static/Vishnubhatt.jpg" ALIGN="BOTTOM">
+    </div>
+  </BODY>
+</HTML>

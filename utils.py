@@ -7,6 +7,8 @@ from register import register_key
 from functools import wraps
 
 from flask import request, Response, url_for, redirect
+from google.appengine.ext import ndb
+
 def get_register_name(rname=DEFAULT_REGISTER_NAME):
     return rname
 
@@ -22,47 +24,21 @@ def get_registers_from_db():
 def get_register_from_db(registerId):
     if registerId is None:
         registerId = "SingletonRegister"
-    register_name = get_register_name()
-    register_query = Register.query(
-        ancestor=register_key(register_name))
+    register_query = Register.query(Register.registerId == registerId)
+    if register_query.count() < 1:
+        return None
+    else:
+        return register_query.fetch(1)[-1]
 
-    for register in register_query:
-        if register.registerId == registerId:
-            return register
-
-    return None
-
-def get_entry_from_db_given_user(userId):
-    print "userId " + userId
-    register_name = get_register_name()
-    entrys_query = Entry.query(
-        ancestor=register_key(register_name)).order(-Entry.date)
-
-    entrys = entrys_query.fetch(100)
-    for entry in entrys:
-        if userId == entry.user.identity:
-            return entry
-
-    return None
-
-def get_entry_from_db_given_date(date):
-    register_name = get_register_name()
-    entrys_query = Entry.query(
-        ancestor=register_key(register_name)).order(-Entry.date)
-
-    entrys = entrys_query.fetch(100)
-    for entry in entrys:
-        datestr = entry.date.strftime("%Y-%m-%d% %H:%M:%S.%f")
-        if date == datestr:
-            return entry
-
-    return None
+def get_entry_from_db_given_user(registerId, userId):
+    entrys_query = Entry.query(Entry.user.identity == userId, Entry.register.registerId == registerId)
+    if entrys_query.count() < 1:
+        return None
+    else:
+        return entrys_query.fetch(1)[-1]
 
 def get_entrys_from_db(registerId):
-    register_name = get_register_name()
-    entrys_query = Entry.query(
-        ancestor=register_key(register_name)).order(-Entry.date)
-
+    entrys_query = Entry.query(Entry.register.registerId == registerId)
     entrys = entrys_query.fetch(100)
     returnEntrys = []
     for entry in entrys:
@@ -77,23 +53,16 @@ def get_users_from_db(registerId=None):
         returnUsers = register.users
         return returnUsers
     else:
-        register_name = get_register_name()
-        users_query = User.query(
-            ancestor=register_key(register_name))
-        users = users_query.fetch(100)
+        users_q = User.query(User.type != "Superuser")
+        users = users_q.fetch(100)
         return users
 
 def get_user_from_db(userId):
-    register_name = get_register_name()
-    users_query = User.query(
-        ancestor=register_key(register_name))
-
-    users = users_query.fetch(100)
-    for user in users:
-        if user.identity == userId:
-            return user
-
-    return None
+    users_q = User.query(User.identity == userId)
+    if users_q.count() < 1:
+        return None
+    else:
+        return users_q.fetch(1)[-1]
 
 def update_users_register(registerId, userIds):
     register = get_register_from_db(registerId)
@@ -103,15 +72,21 @@ def update_users_register(registerId, userIds):
         users.append(user)
     register.users = users
     register.put()
+    return register
 
-def create_user(userId, email):
-    register_name = get_register_name()
-    user = User(parent=register_key(register_name))
-    user.identity = userId
+def update_user(userId, email, type, password):
+    user = get_user_from_db(userId)
+    if user is None:
+        register_name = get_register_name()
+        user = User(parent=register_key(register_name))
+        user.identity = userId
     user.email = email
+    user.type = type
+    user.password = password
     user.put()
+    return user
 
-def create_register(registerId, userIds, requirements):
+def update_register(registerId, department, group, description, userIds, requirements):
     register_name = get_register_name()
     register = get_register_from_db(registerId)
     if register is None:
@@ -119,12 +94,16 @@ def create_register(registerId, userIds, requirements):
         register.registerId = registerId
 
     register.requirements = requirements.split(",")
+    register.department = department
+    register.description = description
+    register.group = group
     users = []
     for userName in userIds:
         user = get_user_from_db(userName)
         users.append(user)
     register.users = users
     register.put()
+    return register
 
 def register_factory(registerId):
     # We know it is a singleton for now
@@ -163,7 +142,7 @@ def register_factory(registerId):
         register.put()
         return register
 
-def store_entry(registerId, userId, requirements_input):
+def create_entry(registerId, userId, requirements_input):
     register_name =  DEFAULT_REGISTER_NAME
     entry = Entry(parent=register_key(register_name))
     entry.user = get_user_from_db(userId)
@@ -173,6 +152,7 @@ def store_entry(registerId, userId, requirements_input):
         requirements.append(key)
     entry.requirements = requirements
     entry.put()
+    return entry
 
 def check_auth(identity, password):
     """This function is called to check if a username /
@@ -182,7 +162,8 @@ def check_auth(identity, password):
     if user:
         return True
     else:
-        return identity == 'admin' and password == 'password'
+        if identity == 'admin' and password == 'password':
+            update_user('admin', 'admin@lafoot.com', 'Superuser', 'password')
 
 def get_user_type_from_db(identity):
     user = get_user_from_db(identity)
@@ -204,7 +185,6 @@ def requires_auth(f):
     def decorated(*args, **kwargs):
         auth = request.authorization
         if not auth or not check_auth(auth.username, auth.password):
-            print "*** Enter ***"
             return authenticate()
         else:
             return f(*args, **kwargs)

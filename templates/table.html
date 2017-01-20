@@ -8,26 +8,34 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
+  <nav class="navbar navbar-inverse navbar-static-top" >
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
+            </ul>
+        </div>
+      </div>
+  </nav>
   <body>
     <div id="container">
       <div class="pagetitle">
-        <h1>Submit a form for {{  registerId    }}</h1>
+        <label>Register: {{ registerId }}</label>
+        <br>
+        <label name="userId">User: {{ userId }}</label>
       </div>
       <div id="main">
           <form method="post" action="{{ url_for('submitted_entry', registerId=registerId ) }}">
             <table class="table table-striped">
-                <tr>
-                  <td>
-                  <div class="col-sm-4">
-                    <label>Select User:</label>
-                        <select name="userId" class="form-control" >
-                        {% for user in users %}
-                            <option value="{{  user.identity }}"> {{ user.identity }}</option>
-                        {% endfor %}
-                        </select>
-                    </div>
-                </td>
-                </tr>
                 <TR>
                     <th>  </th>
                     {% for item in items %}

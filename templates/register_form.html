@@ -11,20 +11,10 @@
     <nav class="navbar navbar-inverse">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">Entrys</a>
+          <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
         </div>
-        <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Entrys <span class="caret"></span></a>
-             <ul class="dropdown-menu">
-              <li><a href="#">By User</a></li>
-              <li><a href="#">By Register</a></li>
-              <li><a href="#">All</a></li>
-            </ul>
-        </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-          <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+          <li><a href="/about_page"><span class="glyphicon glyphicon-log-out"></span> About</a></li>
         </ul>
 
       </div>
@@ -103,7 +93,7 @@
                         Add users
                         <br>Select Users to add (Hold down the Ctrl (windows) / Command (Mac)
                         <br>button to select multiple options)
-                        <br><a href="/create_user"> Click on link button to add new user</a>
+                        <br><a href="/update_user/__CREATE__"> Click on link button to add new user</a>
                     </td>
                     <td>
                         <select class="form-control" name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
