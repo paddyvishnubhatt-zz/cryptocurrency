@@ -128,6 +128,36 @@ Now there's Auth layer to force users to login
 - Every register has a default password, when users are created for a register- they all inherit the same defaultPassword
 - Right now register and user are tied - one user should be able to create form/entrys for more than one requirement/register - i don't think this is feasible.
 
+01/19/2017:
+-----------
+- Start from clean slate
+- Login as superuser - admin/password
+- This will land you in the users screen, where you can add Admin users
+ - Organize one admin per project (register)
+- Login as admin user as created above (if on chrome - use incognito or private-viewing in firefox)
+ - When logged in as admin, you can 
+  - Create Project
+  - Create more users (regular User)
+- Now Login as regular user (use another browser or clear data from browser)
+ - When logged in as user, you can 
+  - Create one entry
+  - Repeat steps 7,8 with more/different users
+- Login back as admin - 
+ - view the registers, 
+ - entrys per register, 
+ - users per register
+- Ancilliary functions
+ - Edit Register
+ - Update requirements
+ - Update Users
+ - Edit User
+- Next todo:
+ - Wire up the summary and requirement analyses code (write a simple python code as functions and call them
+ - Present the results in a summary-page/project as a view
+- Future Todo:
+ - Once a register/requirement is defined - it cannot or should not be allowed to modify if there're user entrys - else it will make modeling and your summary calcs difficult
+ - Introduce versioning of Register or requirements in Register or user has to create new Register for each modified/new set of Requirements
+ 
 Example Input:
 
 ![Example Input](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Input.png)
