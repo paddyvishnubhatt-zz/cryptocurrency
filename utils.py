@@ -5,6 +5,7 @@ from register import Register
 from register import DEFAULT_REGISTER_NAME
 from register import register_key
 from functools import wraps
+import time
 
 from flask import request, Response, url_for, redirect
 from google.appengine.ext import ndb
@@ -48,7 +49,8 @@ def get_entrys_from_db(registerId):
     return returnEntrys
 
 def get_users_from_db(registerId=None):
-    if registerId:
+    if registerId and registerId != "":
+        print registerId
         register = get_register_from_db(registerId)
         returnUsers = register.users
         return returnUsers
@@ -74,7 +76,7 @@ def update_users_register(registerId, userIds):
     register.put()
     return register
 
-def update_user(userId, email, type, password):
+def update_user(userId, email, type, password, registerId):
     user = get_user_from_db(userId)
     if user is None:
         register_name = get_register_name()
@@ -83,7 +85,15 @@ def update_user(userId, email, type, password):
     user.email = email
     user.type = type
     user.password = password
+    user.defaultRegisterId = registerId
     user.put()
+    if registerId and registerId != "__CREATE__":
+        print registerId
+        register = get_register_from_db(registerId)
+        users = register.users
+        users.append(user)
+        register.put()
+    time.sleep(1)
     return user
 
 def update_register(registerId, department, group, description, userIds, requirements):
@@ -163,7 +173,10 @@ def check_auth(identity, password):
         return True
     else:
         if identity == 'admin' and password == 'password':
-            update_user('admin', 'admin@lafoot.com', 'Superuser', 'password')
+            update_user('admin', 'admin@lafoot.com', 'Superuser', 'password', None)
+            return True
+        else:
+            return False
 
 def get_user_type_from_db(identity):
     user = get_user_from_db(identity)

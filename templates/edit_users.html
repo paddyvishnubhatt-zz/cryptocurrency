@@ -35,7 +35,7 @@
                     Add users to {{ registerId }}
                 </th>
                 <th>
-                    {%  set urlx = "/update_user/" + registerId %}
+                    {%  set urlx = "/update_user/" + registerId + "/__CREATE__" %}
                     <a href={{ urlx }}>
                         <span class="glyphicon glyphicon-plus"></span>
                     </a>

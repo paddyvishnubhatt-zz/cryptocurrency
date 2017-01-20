@@ -33,14 +33,31 @@
     <br>
       <table class="table table-striped">
         <th style="text-align:justify">
-            Users for {{ registerId }}
+            {% if registerId is not none %}
+                Users for {{ registerId }}
+            {% else %}
+                Users
+            {% endif %}
         </th>
         <th tyle="text-align:justify">
-            {% set url = "/edit_users/" + registerId  %}
-            <a href={{ url }}>Edit Users for {{ registerId }}</a>
+            {% if registerId is none %}
+               {%  set urlx = "/update_user/__CREATE__/___CREATE___" %}
+                <a href={{ urlx }}>
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
+            {% endif %}
+            {% if registerId is not none %}
+                {% set url = "/edit_users/" + registerId  %}
+                <a href={{ url }}>Edit Users for {{ registerId }}</a>
+            {% endif %}
         </th>
+      {% if users %}
         {% for iuser in users %}
-             {%  set urlx = "/update_user/" + iuser.identity %}
+             {% if registerId %}
+                 {%  set urlx = "/update_user/" + registerId + "/" + iuser.identity %}
+             {% else %}
+                 {%  set urlx = "/update_user/__CREATE__/" + iuser.identity %}
+             {% endif %}
              <TR onclick="location.href='{{ urlx }}'"}>
                 <td>
                     {{  iuser.identity }}
@@ -52,6 +69,7 @@
                 </td>
             </tr>
         {% endfor %}
+      {% endif %}
       </table>
     </div>
   </body>

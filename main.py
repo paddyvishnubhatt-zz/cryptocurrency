@@ -17,23 +17,22 @@ def about_page():
 @requires_auth
 def landing_page():
     user = utils.get_user_from_db(request.authorization.username)
-    if request.authorization.username == "admin" or user.type == "Admin":
+    if user.type == "Admin":
         return show_registers()
+    elif user.type == "Superuser":
+        return show_users(None)
     else:
-        return show_entrys(user.defaultRegisterId)
+        return show_entry_given_user(user.defaultRegisterId, user.identity)
 
 @app.route('/show_registers')
 @requires_auth
 def show_registers():
     registers = utils.get_registers_from_db()
     if registers is None or len(registers) < 1:
-        register = utils.register_factory("SingletonRegister")
-        registers.append(register)
-    user = utils.get_user_from_db(request.authorization.username)
+        pass
 
     return render_template(
         'registers.html',
-        user = user,
         registers= registers)
 
 @app.route('/update_register/<registerId>')
@@ -71,14 +70,12 @@ def submitted_register():
     description = request.form.get('description')
     print "regis: " + str(registerId) + ", users: " + str(userIds) + ", reqs: " + str(requirements)
     register = utils.update_register(registerId, department, group, description, userIds, requirements)
-    return render_template(
-        'register.html',
-        register=register)
+    return show_registers()
 
 @app.route('/show_register/<registerId>')
 @requires_auth
 def show_register(registerId):
-    register = utils.register_factory(registerId)
+    register = utils.get_register_from_db(registerId)
     return render_template(
        'register.html',
         register= register)
@@ -90,19 +87,19 @@ def show_register(registerId):
 def show_entry_given_user(registerId, userId):
     entry = utils.get_entry_from_db_given_user(registerId, userId)
     if entry is None:
-        return
-    user = userId
-    return render_template(
-       'entry.html',
-        user = userId,
-        entry= entry)
+        return form_entry(registerId)
+    else:
+        return render_template(
+            'entry.html',
+            user = userId,
+            entry= entry)
 
     # return error
 
 @app.route('/form_entry/<registerId>')
 @requires_auth
 def form_entry(registerId):
-    register = utils.register_factory(registerId)
+    register = utils.get_register_from_db(registerId)
     reqs = register.requirements
     return render_template(
         'table.html',
@@ -114,7 +111,6 @@ def form_entry(registerId):
 @requires_auth
 def show_entrys(registerId):
     entrys = utils.get_entrys_from_db(registerId)
-
     return render_template(
         'entrys.html',
         registerId = registerId,
@@ -146,13 +142,24 @@ def submitted_entry(registerId):
         user=userId,
         entry=entry)
 
-@app.route('/update_user/<identity>')
+@app.route('/update_user/<registerId>/<identity>')
 @requires_auth
-def update_user(identity):
+def update_user(registerId, identity):
     user = utils.get_user_from_db(identity)
-    return render_template(
-        'user.html',
-        user=user)
+    if user is not None and identity != "___CREATE___" :
+        return render_template(
+            'user.html',
+            registerId=registerId,
+            user=user)
+    else:
+        if registerId and registerId !=  "__CREATE__":
+            return render_template(
+                'user.html',
+                registerId=registerId)
+        else:
+            return render_template(
+                'user.html'
+            )
 
 @app.route('/submitted_user', methods=['POST'])
 @requires_auth
@@ -163,10 +170,13 @@ def submitted_user():
     email = request.form.get('email')
     type = request.form.get('type')
     password = request.form.get('password')
-    user = utils.update_user(userId, email, type, password)
+    registerId = request.form.get('registerId')
+    user = utils.update_user(userId, email, type, password,registerId)
+    users = utils.get_users_from_db(registerId)
     return render_template(
-        'user.html',
-        user=user)
+        'users.html',
+        users=users,
+        registerId=registerId)
 
 @app.route('/submitted_edit_users_register/<registerId>', methods=['POST'])
 @requires_auth
@@ -174,7 +184,6 @@ def submitted_edit_users_register(registerId):
     # Do not forget to bring in register from UI back here to store entry against it - until then
     # register is singleton
     userIds = request.form.getlist('userIds[]')
-    register = utils.get_register_from_db(registerId)
     register = utils.update_users_register(registerId, userIds)
     return render_template(
         'register.html',
@@ -183,8 +192,7 @@ def submitted_edit_users_register(registerId):
 @app.route('/edit_users/<registerId>')
 @requires_auth
 def edit_users(registerId):
-    register = utils.get_register_from_db(registerId)
-    users = utils.get_users_from_db(None)
+    users = utils.get_users_from_db(registerId)
     return render_template(
         'edit_users.html',
         users = users,

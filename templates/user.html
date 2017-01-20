@@ -76,7 +76,18 @@
                         {% if user is defined %}
                             {% set typeval = user.type %}
                         {% endif %}
-                        <input class="form-control" type="text" name="type" value={{ typeval }}>
+                        <select class="form-control" name="type">
+                            {% if typeval == "User" %}
+                                <option value="User" selected="selected">User</option>
+                            {% else %}
+                                <option value="User">User</option>
+                            {% endif %}
+                            {% if typeval == "Admin" %}
+                                <option value="Admin" selected="selected">Admin</option>
+                            {% else %}
+                                <option value="Admin">Admin</option>
+                            {% endif %}
+                        </select>
                     </td>
                 </TR>
                 <TR>
@@ -100,8 +111,14 @@
                         {% set regId = "" %}
                         {% if user is defined %}
                             {% set regId = user.defaultRegisterId %}
+                        {% elif registerId is defined %}
+                            {%  set regId = registerId %}
                         {% endif %}
-                        <input class="form-control" id="registerId" name="registerId" value={{ regId }}>
+                        {% if regId.strip() == "" %}
+                            <input class="form-control" id="registerId" name="registerId" readonly>
+                        {% else %}
+                            <input class="form-control" id="registerId" name="registerId" value={{ regId }}>
+                        {% endif %}
                     </td>
                 </TR>
             </table>
