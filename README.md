@@ -106,7 +106,7 @@ List of all Registers.
 Deletes - are not available. But you should use the database viewer running port 8000 to list entities of each kind of class (Register, User, Entry)
 
 The code - Mainly three files and one folder:
-- main.py -> this has the webservice/REST end-points, url-routing and View logic integration w/ models
+- main.py -> this is the views - it has the webservice/REST end-points, url-routing and View logic integration w/ models
 - register.py -> models
 - utils.py -> db access layer
 - templates folder -> jinja2 based which have logic to parse the models sent by main.py to display
