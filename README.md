@@ -112,6 +112,22 @@ The code - Mainly three files and one folder:
 - templates folder -> jinja2 based which have logic to parse the models sent by main.py to display
 - Rest is all ancilliary for/from gae, flask, etc
 
+01/18/2017
+----------
+Now there's Auth layer to force users to login
+- Three kinds of users
+ - Admin - who can set / create / update Registers view Forms for all, etc
+ - User - who can enter forms and review/edit their own entries
+ - Superuser is admin/password (backdoor still kept open)
+ - Note: if auth fails - no api will work
+- The work flow is:
+- Using SuperUser admin/password user will create the Registers
+- Once registers are created - users will be created along with that
+- Some users will be Admin - some regular/Users
+- Every screen is now auth protected (using basic auth model)
+- Every register has a default password, when users are created for a register- they all inherit the same defaultPassword
+- Right now register and user are tied - one user should be able to create form/entrys for more than one requirement/register - i don't think this is feasible.
+
 Example Input:
 
 ![Example Input](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Input.png)
