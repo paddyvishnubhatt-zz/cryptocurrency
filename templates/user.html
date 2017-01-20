@@ -99,6 +99,9 @@
                         {% set passval = "" %}
                         {% if user is defined %}
                             {% set passval = user.password %}
+                        {% else %}
+                            {% if defaultPassword is defined %}
+                                {% set passval = defaultPassword %}
                         {% endif %}
                         <input class="form-control" id="password" type="password" name="password" value={{ passval }}>
                         <input type="checkbox" id="checkbox"> Show Password

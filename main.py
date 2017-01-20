@@ -154,6 +154,7 @@ def submitted_entry(registerId):
 @requires_auth
 def update_user(registerId, identity):
     user = utils.get_user_from_db(identity)
+    register = utils.get_register_from_db(registerId)
     if user is not None and identity != "___CREATE___" :
         return render_template(
             'user.html',
@@ -165,6 +166,7 @@ def update_user(registerId, identity):
             return render_template(
                 'user.html',
                 current_user=request.authorization.username,
+                defaultPassword=register.defaultPassword,
                 registerId=registerId)
         else:
             return render_template(
