@@ -82,6 +82,8 @@ def submitted_project():
 @requires_auth
 def show_project(projectId):
     project = utils.get_project_from_db(projectId)
+    print "******"
+    print project.requirements
     requirements = project.requirements
     userlist = []
     for user in project.users:

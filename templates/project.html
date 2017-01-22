@@ -103,7 +103,7 @@
                 </tr>
                 <tr>
                     <td>
-                        Defaualt Password
+                        Default Password
                     <td>
                         {% set defp = "" %}
                         {% if project is defined %}
@@ -151,7 +151,7 @@
                         {% if project is defined %}
                             {%  set reqs = requirements | join(',') %}
                         {% endif %}
-                        <input type="text" class="form-control" name="requirements" value={{ reqs }}>
+                        <input type="text" class="form-control" name="requirements" value="{{ reqs }}">
                     </td>
                 </TR>
             </table>

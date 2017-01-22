@@ -44,7 +44,7 @@
           </th>
           {% if projects is defined %}
               {% for project in projects %}
-                 {%  set urlx = "/api/v1/show_project/" + project.projectId %}
+                 {%  set urlx = "/api/v1/show_project/" + project.projectId | urlencode%}
                  <TR onclick="location.href='{{ urlx }}'">
                      <td >
                         {{ project.projectId }}
