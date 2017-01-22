@@ -148,7 +148,7 @@ def submitted_entry(projectId):
         if key != 'userId':
             requirements_input.append(key)
     print ("entry: " + str(projectId) + ", " + userId + ", " + str(requirements_input))
-    ent = utils.create_entry(projectId, userId, requirements_input)
+    ent = utils.update_entry(projectId, userId, requirements_input)
     project = utils.get_project_from_db(projectId)
     return render_template(
             'entry.html',

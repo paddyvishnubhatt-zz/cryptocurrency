@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="378846ea-38ad-4eed-94ce-8427403477c7" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/entrys.html" afterPath="$PROJECT_DIR$/templates/entrys.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/project.html" afterPath="$PROJECT_DIR$/templates/project.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utils.py" afterPath="$PROJECT_DIR$/utils.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -25,11 +21,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="343">
-              <caret line="149" column="87" lean-forward="true" selection-start-line="149" selection-start-column="87" selection-end-line="149" selection-end-column="87" />
+            <state relative-caret-position="208">
+              <caret line="150" column="67" lean-forward="true" selection-start-line="150" selection-start-column="67" selection-end-line="150" selection-end-column="67" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -37,7 +33,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="utils.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="506">
@@ -107,8 +103,8 @@
       <find>project.html</find>
       <find>print</find>
       <find>entry.html</find>
-      <find>submitted_entry</find>
       <find>create_entry</find>
+      <find>submitted_entry</find>
     </findStrings>
     <replaceStrings>
       <replace>@login_required</replace>
@@ -153,10 +149,10 @@
         <option value="$PROJECT_DIR$/templates/users.html" />
         <option value="$PROJECT_DIR$/test/test_data.py" />
         <option value="$PROJECT_DIR$/templates/projects.html" />
-        <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/templates/project.html" />
         <option value="$PROJECT_DIR$/templates/entrys.html" />
         <option value="$PROJECT_DIR$/utils.py" />
+        <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
   </component>
@@ -848,21 +844,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="343">
-          <caret line="149" column="87" lean-forward="true" selection-start-line="149" selection-start-column="87" selection-end-line="149" selection-end-column="87" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="506">
           <caret line="140" column="8" lean-forward="false" selection-start-line="140" selection-start-column="8" selection-end-line="140" selection-end-column="8" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="150" column="67" lean-forward="true" selection-start-line="150" selection-start-column="67" selection-end-line="150" selection-end-column="67" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
