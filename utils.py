@@ -29,7 +29,7 @@ def get_register_from_db(registerId):
     else:
         return register_query.fetch(1)[-1]
 
-def get_entry_from_db_given_user(registerId, userId):
+def get_entry_from_db(registerId, userId):
     entrys_query = Entry.query(Entry.user.identity == userId, Entry.register.registerId == registerId)
     if entrys_query.count() < 1:
         return None
@@ -48,14 +48,15 @@ def get_entrys_from_db(registerId):
 
 def get_users_from_db(registerId=None):
     if registerId and registerId != "":
-        print registerId
         register = get_register_from_db(registerId)
-        returnUsers = register.users
-        return returnUsers
+        if register is not None:
+            return register.users
     else:
         users_q = User.query(User.type != "Superuser")
-        users = users_q.fetch(100)
+        users = users_q.fetch(1000)
         return users
+
+    return None
 
 def get_user_from_db(userId):
     users_q = User.query(User.identity == userId)
@@ -86,11 +87,11 @@ def update_user(userId, email, type, password, registerId):
     user.defaultRegisterId = registerId
     user.put()
     if registerId and registerId != "__CREATE__":
-        print registerId
         register = get_register_from_db(registerId)
-        users = register.users
-        users.append(user)
-        register.put()
+        if register:
+            users = register.users
+            users.append(user)
+            register.put()
     time.sleep(1)
     return user
 
@@ -112,6 +113,28 @@ def update_register(registerId, department, group, description, userIds, require
     register.users = users
     register.put()
     return register
+
+def delete_register_from_db(registerId):
+    register = get_register_from_db(registerId)
+    entrys = get_entrys_from_db(registerId)
+    for entry in entrys:
+        key = entry.key
+        print "entry: " + str(key)
+        if key:
+            key.delete()
+    key = register.key
+    if key:
+        key.delete()
+
+def delete_users_from_db():
+    users = get_users_from_db(None)
+    if users:
+        for user in users:
+            key = user.key
+            print "user: " + str(key)
+            if key:
+                key.delete()
+
 
 def register_factory(registerId):
     # We know it is a singleton for now
@@ -155,10 +178,7 @@ def create_entry(registerId, userId, requirements_input):
     entry = Entry(parent=register_key(register_name))
     entry.user = get_user_from_db(userId)
     entry.register = get_register_from_db(registerId)
-    requirements = []
-    for key in requirements_input:
-        requirements.append(key)
-    entry.requirements = requirements
+    entry.requirements = requirements_input
     entry.put()
     return entry
 

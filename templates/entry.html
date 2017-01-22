@@ -56,7 +56,15 @@
                             {%  else %}
                                 {% set cbname = item + "_" + item1 %}
                                 <td style="text-align: center;">
-                                    <input type="checkbox" name={{ cbname }}>
+                                    {% if requirements is defined %}
+                                        {% if cbname in requirements %}
+                                            <input type="checkbox" name={{ cbname }} checked>
+                                        {% else %}
+                                            <input type="checkbox" name={{ cbname }}>
+                                        {% endif %}
+                                    {% else %}
+                                        <input type="checkbox" name={{ cbname }}>
+                                    {% endif %}
                                 </td>
                             {%  endif %}
                         {% endfor %}

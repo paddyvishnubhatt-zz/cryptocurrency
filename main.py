@@ -102,11 +102,14 @@ def entry(registerId, userId):
             current_user=request.authorization.username,
             register=register)
     else:
+        entry = utils.get_entry_from_db(registerId, userId)
+        print entry.requirements
         return render_template(
             'entry.html',
             current_user=userId,
             userId = userId,
-            register=register)
+            register=register,
+            requirements=entry.requirements)
 
 @app.route('/show_entrys/<registerId>')
 @requires_auth
@@ -120,16 +123,6 @@ def show_entrys(registerId):
         userId = userId,
         entrys= entrys)
 
-@app.route('/show_users/<registerId>')
-@requires_auth
-def show_users(registerId):
-    users = utils.get_users_from_db(registerId)
-    return render_template(
-        'users.html',
-        current_user=request.authorization.username,
-        users= users,
-        registerId = registerId)
-
 @app.route('/submitted_entry/<registerId>', methods=['POST'])
 @requires_auth
 def submitted_entry(registerId):
@@ -141,6 +134,7 @@ def submitted_entry(registerId):
     for key in cbname:
         if key != 'userId':
             requirements_input.append(key)
+    print ("entry: " + str(registerId) + ", " + userId + ", " + str(requirements_input))
     ent = utils.create_entry(registerId, userId, requirements_input)
     register = utils.get_register_from_db(registerId)
     return render_template(
@@ -148,7 +142,18 @@ def submitted_entry(registerId):
             current_user=userId,
             userId = userId,
             date = ent.date,
-            register=register)
+            register=register,
+            requirements=requirements_input)
+
+@app.route('/show_users/<registerId>')
+@requires_auth
+def show_users(registerId):
+    users = utils.get_users_from_db(registerId)
+    return render_template(
+        'users.html',
+        current_user=request.authorization.username,
+        users= users,
+        registerId = registerId)
 
 @app.route('/update_user/<registerId>/<identity>')
 @requires_auth
@@ -183,13 +188,26 @@ def submitted_user():
     type = request.form.get('type')
     password = request.form.get('password')
     registerId = request.form.get('registerId')
+    print "*** " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password) + ", "  + str(registerId)
     user = utils.update_user(userId, email, type, password,registerId)
     users = utils.get_users_from_db(registerId)
     return render_template(
-        'users.html',
-        current_user=request.authorization.username,
-        users=users,
-        registerId=registerId)
+            'users.html',
+            current_user=request.authorization.username,
+            users=users,
+            registerId=registerId)
+
+@app.route('/delete_register/<registerId>', methods=['DELETE'])
+@requires_auth
+def delete_register(registerId):
+    utils.delete_register_from_db(registerId)
+    return "OK", 200
+
+@app.route('/delete_users', methods=['DELETE'])
+@requires_auth
+def delete_users():
+    utils.delete_users_from_db()
+    return "OK", 200
 
 @app.errorhandler(500)
 def server_error(e):
