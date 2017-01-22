@@ -54,11 +54,11 @@
            <tr onclick="location.href='{{ urlstr | urlencode}}'">
                 <td>
                  Entry = {{ entry.user.identity }}
+                </td>
                 <td>
                     <a href={{ urlstr | urlencode}}>
                         <span class="glyphicon glyphicon-chevron-right"></span>
                     </a>
-                </td>
                 </td>
             </tr>
       {% endfor %}
