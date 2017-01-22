@@ -147,7 +147,17 @@ def submitted_entry(projectId):
     requirements_input = []
     for key in cbname:
         if key != 'userId':
-            requirements_input.append(key)
+            splits = key.split("_")
+            swap_key = splits[1] + "_" + splits[0]
+            if swap_key in requirements_input:
+                print " ***** "
+                print swap_key
+                return render_template(
+                        "entry_error.html",
+                        req1=splits[0],
+                        req2=splits[1])
+            else:
+                requirements_input.append(key)
     print ("entry: " + str(projectId) + ", " + userId + ", " + str(requirements_input))
     ent = utils.update_entry(projectId, userId, requirements_input)
     project = utils.get_project_from_db(projectId)
