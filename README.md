@@ -166,6 +166,7 @@ Demo steps:
  1. Either in GAE using GAE deployment scripts (will need an account - most likely the demo will be well within Free tier)
  2. Local : ~/tools/google-cloud-sdk/platform/google_appengine/dev_appserver.py app.yaml
  ![Run Server](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/RunServer.png)
+ 
 2. Create Admin users: Point your phone/ipad/browser(private or incognito) to the URL from above (either the appspot from GAE or localhost)
   1. ~/<url>:8080/
   2. Seed the DB w/ admin password. Login as Superuser (admin/password)
@@ -205,11 +206,3 @@ Demo steps:
   ![Summary of Entrys](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Entrys.png)
 
 6. To repeat - lather/rinse/repeat - Clean up (delete) all data from GAE data store and restart.
-
-Example Input:
-
-![Example Input](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Input.png)
-
-Example Output:
-
-![Example Output](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Output.png)
