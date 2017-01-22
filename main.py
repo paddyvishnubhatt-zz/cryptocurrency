@@ -71,11 +71,15 @@ def submitted_project():
     projectId = request.form.get('projectId')
     userIds = set(request.form.getlist('userIds[]'))
     requirements = request.form.get('requirements')
+    [x.encode('UTF8') for x in requirements]
+    stripped_reqs = ""
+    for req in requirements:
+        stripped_reqs += req.strip()
     department = request.form.get('department')
     group = request.form.get('group')
     description = request.form.get('description')
-    print "project: " + str(projectId) + ", users: " + str(userIds) + ", reqs: " + str(requirements)
-    utils.update_project(projectId, department, group, description, userIds, requirements)
+    print "project: " + str(projectId) + ", users: " + str(userIds) + ", reqs: " + str(stripped_reqs)
+    utils.update_project(projectId, department, group, description, userIds, stripped_reqs)
     return show_projects()
 
 @app.route('/api/v1/show_project/<projectId>')
@@ -117,6 +121,9 @@ def entry(projectId, userId):
                 project=project,
                 requirements=entry.requirements)
         else:
+            print "***"
+            print projectId
+            print project
             return render_template(
                 'entry.html',
                 current_user=userId,

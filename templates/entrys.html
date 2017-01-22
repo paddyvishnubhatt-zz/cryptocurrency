@@ -39,18 +39,18 @@
            </th>
           <th>
               {% if userId is defined %}
-                  {%  set urlx = "/api/v1/entry/" + projectId + "/" + userId%}
+                  {%  set urlx = "/api/v1/entry/" + projectId + "/" + userId %}
               {% else %}
-                  {%  set urlx = "/api/v1/entry/" + projectId + "/__CREATE__"%}
+                  {%  set urlx = "/api/v1/entry/" + projectId + "/__CREATE__" %}
               {% endif %}
-              <a href={{ urlx }}>
+              <a href={{ urlx | urlencode }}>
                  <span class="glyphicon glyphicon-plus"></span>
               </a>
         </th>
       </tr>
       {% for entry in entrys %}
           {%  set userId = entry.user.identity %}
-          {%  set urlstr = "/api/v1/entry/" + projectId + "/" + userId %}
+          {%  set urlstr = "/api/v1/entry/" + projectId + "/" + userId | urlencode %}
            <tr onclick="location.href='{{ urlstr }}'">
                 <td>
                  Entry = {{ entry.user.identity }}

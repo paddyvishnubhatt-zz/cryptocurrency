@@ -99,7 +99,6 @@ def update_project(projectId, department, group, description, userIds, requireme
     if project is None:
         project = Project(parent=project_db_key(project_name))
         project.projectId = projectId
-
     project.requirements = requirements.split(",")
     project.department = department
     project.description = description
