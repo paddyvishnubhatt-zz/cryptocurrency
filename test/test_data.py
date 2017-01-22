@@ -26,7 +26,7 @@ def post_users(projectId):
 
         form_params["email"] = userId + "@sellerforce.com"
         form_params["password"] = "defaultPassword"
-        form_params["projectId"] = "defaultProject"
+        form_params["projectId"] = projectId
         response = requests.post(url,
                                  data=form_params,
                                  headers={"Authorization": "Basic %s" % b64Val})

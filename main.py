@@ -115,6 +115,7 @@ def entry(projectId, userId):
                 'entry.html',
                 current_user=userId,
                 userId = userId,
+                date=entry.date,
                 project=project,
                 requirements=entry.requirements)
         else:
