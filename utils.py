@@ -132,11 +132,13 @@ def delete_users_from_db():
             if key:
                 key.delete()
 
-def create_entry(projectId, userId, requirements_input):
-    project_name =  DEFAULT_PROJECT_NAME
-    entry = Entry(parent=project_db_key(project_name))
-    entry.user = get_user_from_db(userId)
-    entry.project = get_project_from_db(projectId)
+def update_entry(projectId, userId, requirements_input):
+    entry = get_entry_from_db(projectId, userId)
+    if entry is None:
+        project_name =  DEFAULT_PROJECT_NAME
+        entry = Entry(parent=project_db_key(project_name))
+        entry.user = get_user_from_db(userId)
+        entry.project = get_project_from_db(projectId)
     entry.requirements = requirements_input
     entry.put()
     return entry

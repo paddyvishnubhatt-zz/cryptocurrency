@@ -71,10 +71,9 @@ def submitted_project():
     projectId = request.form.get('projectId')
     userIds = set(request.form.getlist('userIds[]'))
     requirements = request.form.get('requirements')
-    [x.encode('UTF8') for x in requirements]
     stripped_reqs = ""
     for req in requirements:
-        stripped_reqs += req.strip()
+        stripped_reqs += str(req.strip())
     department = request.form.get('department')
     group = request.form.get('group')
     description = request.form.get('description')
@@ -86,8 +85,6 @@ def submitted_project():
 @requires_auth
 def show_project(projectId):
     project = utils.get_project_from_db(projectId)
-    print "******"
-    print project.requirements
     requirements = project.requirements
     userlist = []
     for user in project.users:
@@ -121,9 +118,6 @@ def entry(projectId, userId):
                 project=project,
                 requirements=entry.requirements)
         else:
-            print "***"
-            print projectId
-            print project
             return render_template(
                 'entry.html',
                 current_user=userId,

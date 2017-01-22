@@ -50,12 +50,12 @@
       </tr>
       {% for entry in entrys %}
           {%  set userId = entry.user.identity %}
-          {%  set urlstr = "/api/v1/entry/" + projectId + "/" + userId | urlencode %}
-           <tr onclick="location.href='{{ urlstr }}'">
+          {%  set urlstr = "/api/v1/entry/" + projectId + "/" + userId  %}
+           <tr onclick="location.href='{{ urlstr | urlencode}}'">
                 <td>
                  Entry = {{ entry.user.identity }}
                 <td>
-                    <a href={{ urlstr }}>
+                    <a href={{ urlstr | urlencode}}>
                         <span class="glyphicon glyphicon-chevron-right"></span>
                     </a>
                 </td>

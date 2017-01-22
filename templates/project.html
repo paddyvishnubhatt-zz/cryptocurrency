@@ -149,7 +149,7 @@
                     <td>
                         {% set reqs = "" %}
                         {% if project is defined %}
-                            {%  set reqs = requirements %}
+                            {%  set reqs = requirements | list | join("\", \"") %}
                         {% endif %}
                         <input type="text" class="form-control" name="requirements" value="{{ reqs }}">
                     </td>
