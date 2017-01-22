@@ -107,13 +107,19 @@ def entry(projectId, userId):
             project=project)
     else:
         entry = utils.get_entry_from_db(projectId, userId)
-        print entry.requirements
-        return render_template(
-            'entry.html',
-            current_user=userId,
-            userId = userId,
-            project=project,
-            requirements=entry.requirements)
+        if entry:
+            return render_template(
+                'entry.html',
+                current_user=userId,
+                userId = userId,
+                project=project,
+                requirements=entry.requirements)
+        else:
+            return render_template(
+                'entry.html',
+                current_user=userId,
+                userId = userId,
+                project=project)
 
 @app.route('/api/v1/show_entrys/<projectId>')
 @requires_auth
