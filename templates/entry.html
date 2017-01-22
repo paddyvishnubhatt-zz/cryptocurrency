@@ -8,6 +8,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
+  <script>
+    function onCBClick() {
+        alert($(this).val());
+    }
+  </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
       <div class="container">
         <div class="navbar-header">
@@ -58,12 +63,12 @@
                                 <td style="text-align: center;">
                                     {% if requirements is defined %}
                                         {% if cbname in requirements %}
-                                            <input type="checkbox" name={{ cbname }} checked>
+                                            <input type="checkbox" name={{ cbname }} onclick="onCBClick();" checked>
                                         {% else %}
-                                            <input type="checkbox" name={{ cbname }}>
+                                            <input type="checkbox" name={{ cbname }} onclick="onCBClick();" >
                                         {% endif %}
                                     {% else %}
-                                        <input type="checkbox" name={{ cbname }}>
+                                        <input type="checkbox" name={{ cbname }} onclick="onCBClick();" >
                                     {% endif %}
                                 </td>
                             {%  endif %}

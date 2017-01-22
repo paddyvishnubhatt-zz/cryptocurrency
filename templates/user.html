@@ -115,10 +115,10 @@
                         {% elif projectId is defined %}
                             {%  set projId = projectId %}
                         {% endif %}
-                        {% if projId.strip() == "" %}
+                        {% if projId == "" %}
                             <input class="form-control" id="projectId" name="projectId" readonly>
                         {% else %}
-                            <input class="form-control" id="projectId" name="projectId" value={{ projId }}>
+                            <input class="form-control" id="projectId" name="projectId" value="{{ projId }}">
                         {% endif %}
                     </td>
                 </TR>
