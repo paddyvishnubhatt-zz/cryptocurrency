@@ -2,208 +2,212 @@ import logging
 import utils
 from flask import Flask, render_template, request, url_for
 
+app = Flask(__name__)
+import utils
+from flask import Flask, render_template, request, url_for
+
 from utils import requires_auth
 
 app = Flask(__name__)
 
-@app.route('/about_page')
+@app.route('/api/v1/about_page')
 def about_page():
     return render_template(
         'about.html',
         current_user=request.authorization.username)
 
 @app.route('/')
-@app.route('/landing_page')
+@app.route('/api/v1/landing_page')
 @requires_auth
 def landing_page():
     user = utils.get_user_from_db(request.authorization.username)
     if user.type == "Admin":
-        return show_registers()
+        return show_projects()
     elif user.type == "Superuser":
         return show_users(None)
     else:
-        return entry(user.defaultRegisterId, user.identity)
+        return entry(user.defaultProjectId, user.identity)
 
-@app.route('/show_registers')
+@app.route('/api/v1/show_projects')
 @requires_auth
-def show_registers():
-    registers = utils.get_registers_from_db()
-    if registers is None or len(registers) < 1:
+def show_projects():
+    projects = utils.get_projects_from_db()
+    if projects is None or len(projects) < 1:
         pass
 
     return render_template(
-        'registers.html',
+        'projects.html',
         current_user = request.authorization.username,
-        registers= registers)
+        projects= projects)
 
-@app.route('/update_register/<registerId>')
+@app.route('/api/v1/update_project/<projectId>')
 @requires_auth
-def update_register(registerId):
+def update_project(projectId):
     users = utils.get_users_from_db(None)
-    if registerId is not None and registerId != "___CREATE___" :
-        register = utils.get_register_from_db(registerId)
-        requirements = register.requirements
+    if projectId is not None and projectId != "___CREATE___" :
+        project = utils.get_project_from_db(projectId)
+        requirements = project.requirements
         userlist = []
-        for user in register.users:
+        for user in project.users:
             userlist.append(user.identity)
         return render_template(
-            'register.html',
+            'project.html',
             current_user=request.authorization.username,
-            register=register,
+            project=project,
             userlist = userlist,
             requirements=requirements,
             users=users)
     else:
         return render_template(
-            'register.html',
+            'project.html',
             current_user=request.authorization.username,
             users=users)
 
-@app.route('/submitted_register', methods=['POST'])
+@app.route('/api/v1/submitted_project', methods=['POST'])
 @requires_auth
-def submitted_register():
-    # Do not forget to bring in register from UI back here to store entry against it - until then
-    # register is singleton
-    registerId = request.form.get('registerId')
+def submitted_project():
+    # Do not forget to bring in project from UI back here to store entry against it - until then
+    # project is singleton
+    projectId = request.form.get('projectId')
     userIds = set(request.form.getlist('userIds[]'))
     requirements = request.form.get('requirements')
     department = request.form.get('department')
     group = request.form.get('group')
     description = request.form.get('description')
-    print "regis: " + str(registerId) + ", users: " + str(userIds) + ", reqs: " + str(requirements)
-    utils.update_register(registerId, department, group, description, userIds, requirements)
-    return show_registers()
+    print "project: " + str(projectId) + ", users: " + str(userIds) + ", reqs: " + str(requirements)
+    utils.update_project(projectId, department, group, description, userIds, requirements)
+    return show_projects()
 
-@app.route('/show_register/<registerId>')
+@app.route('/api/v1/show_project/<projectId>')
 @requires_auth
-def show_register(registerId):
-    register = utils.get_register_from_db(registerId)
-    requirements = register.requirements
+def show_project(projectId):
+    project = utils.get_project_from_db(projectId)
+    requirements = project.requirements
     userlist = []
-    for user in register.users:
+    for user in project.users:
         userlist.append(user.identity)
     return render_template(
-        'register.html',
+        'project.html',
         current_user = request.authorization.username,
-        register=register,
+        project=project,
         userlist=userlist,
         requirements=requirements,
-        users=register.users)
+        users=project.users)
 
     # return error
 
-@app.route('/entry/<registerId>/<userId>')
+@app.route('/api/v1/entry/<projectId>/<userId>')
 @requires_auth
-def entry(registerId, userId):
-    register = utils.get_register_from_db(registerId)
+def entry(projectId, userId):
+    project = utils.get_project_from_db(projectId)
     if userId == "__CREATE__":
         return render_template(
             'entry.html',
             current_user=request.authorization.username,
-            register=register)
+            project=project)
     else:
-        entry = utils.get_entry_from_db(registerId, userId)
+        entry = utils.get_entry_from_db(projectId, userId)
         print entry.requirements
         return render_template(
             'entry.html',
             current_user=userId,
             userId = userId,
-            register=register,
+            project=project,
             requirements=entry.requirements)
 
-@app.route('/show_entrys/<registerId>')
+@app.route('/api/v1/show_entrys/<projectId>')
 @requires_auth
-def show_entrys(registerId):
-    entrys = utils.get_entrys_from_db(registerId)
+def show_entrys(projectId):
+    entrys = utils.get_entrys_from_db(projectId)
     userId = request.authorization.username
     return render_template(
         'entrys.html',
         current_user=userId,
-        registerId = registerId,
+        projectId = projectId,
         userId = userId,
         entrys= entrys)
 
-@app.route('/submitted_entry/<registerId>', methods=['POST'])
+@app.route('/api/v1/submitted_entry/<projectId>', methods=['POST'])
 @requires_auth
-def submitted_entry(registerId):
-    # Do not forget to bring in register from UI back here to store entry against it - until then
-    # register is singleton
+def submitted_entry(projectId):
+    # Do not forget to bring in project from UI back here to store entry against it - until then
+    # project is singleton
     userId = request.authorization.username
     cbname = request.form
     requirements_input = []
     for key in cbname:
         if key != 'userId':
             requirements_input.append(key)
-    print ("entry: " + str(registerId) + ", " + userId + ", " + str(requirements_input))
-    ent = utils.create_entry(registerId, userId, requirements_input)
-    register = utils.get_register_from_db(registerId)
+    print ("entry: " + str(projectId) + ", " + userId + ", " + str(requirements_input))
+    ent = utils.create_entry(projectId, userId, requirements_input)
+    project = utils.get_project_from_db(projectId)
     return render_template(
             'entry.html',
             current_user=userId,
             userId = userId,
             date = ent.date,
-            register=register,
+            project=project,
             requirements=requirements_input)
 
-@app.route('/show_users/<registerId>')
+@app.route('/api/v1/show_users/<projectId>')
 @requires_auth
-def show_users(registerId):
-    users = utils.get_users_from_db(registerId)
+def show_users(projectId):
+    users = utils.get_users_from_db(projectId)
     return render_template(
         'users.html',
         current_user=request.authorization.username,
         users= users,
-        registerId = registerId)
+        projectId = projectId)
 
-@app.route('/update_user/<registerId>/<identity>')
+@app.route('/api/v1/update_user/<projectId>/<identity>')
 @requires_auth
-def update_user(registerId, identity):
+def update_user(projectId, identity):
     user = utils.get_user_from_db(identity)
-    register = utils.get_register_from_db(registerId)
+    project = utils.get_project_from_db(projectId)
     if user is not None and identity != "___CREATE___" :
         return render_template(
             'user.html',
             current_user = request.authorization.username,
-            registerId=registerId,
+            projectId=projectId,
             user=user)
     else:
-        if registerId and registerId !=  "__CREATE__":
+        if projectId and projectId !=  "__CREATE__":
             return render_template(
                 'user.html',
                 current_user=request.authorization.username,
-                defaultPassword=register.defaultPassword,
-                registerId=registerId)
+                defaultPassword=project.defaultPassword,
+                projectId=projectId)
         else:
             return render_template(
                 'user.html',
                 current_user=request.authorization.username)
 
-@app.route('/submitted_user', methods=['POST'])
+@app.route('/api/v1/submitted_user', methods=['POST'])
 @requires_auth
 def submitted_user():
-    # Do not forget to bring in register from UI back here to store entry against it - until then
-    # register is singleton
+    # Do not forget to bring in project from UI back here to store entry against it - until then
+    # project is singleton
     userId = request.form.get('identity')
     email = request.form.get('email')
     type = request.form.get('type')
     password = request.form.get('password')
-    registerId = request.form.get('registerId')
-    print "*** " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password) + ", "  + str(registerId)
-    user = utils.update_user(userId, email, type, password,registerId)
-    users = utils.get_users_from_db(registerId)
+    projectId = request.form.get('projectId')
+    print "*** " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password) + ", "  + str(projectId)
+    user = utils.update_user(userId, email, type, password,projectId)
+    users = utils.get_users_from_db(projectId)
     return render_template(
             'users.html',
             current_user=request.authorization.username,
             users=users,
-            registerId=registerId)
+            projectId=projectId)
 
-@app.route('/delete_register/<registerId>', methods=['DELETE'])
+@app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])
 @requires_auth
-def delete_register(registerId):
-    utils.delete_register_from_db(registerId)
+def delete_project(projectId):
+    utils.delete_project_from_db(projectId)
     return "OK", 200
 
-@app.route('/delete_users', methods=['DELETE'])
+@app.route('/api/v1/delete_users', methods=['DELETE'])
 @requires_auth
 def delete_users():
     utils.delete_users_from_db()

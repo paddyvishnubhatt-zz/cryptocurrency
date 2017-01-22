@@ -24,7 +24,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
+                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
             </ul>
         </div>
       </div>
@@ -34,30 +34,30 @@
     <br>
       <table class="table table-striped">
         <th style="text-align:justify">
-            {% if registerId is not none %}
-                Users for {{ registerId }}
+            {% if projectId is not none %}
+                Users for {{ projectId }}
             {% else %}
                 Users
             {% endif %}
         </th>
         <th tyle="text-align:justify">
-            {% if registerId is none %}
-               {%  set urlx = "/update_user/__CREATE__/___CREATE___" %}
+            {% if projectId is none %}
+               {%  set urlx = "/api/v1/update_user/__CREATE__/___CREATE___" %}
                 <a href={{ urlx }}>
                     <span class="glyphicon glyphicon-plus"></span>
                 </a>
             {% endif %}
-            {% if registerId is not none %}
-                {% set url = "/update_user/" + registerId + "/__CREATE__" %}
-                <a href={{ url }}>Edit Users for {{ registerId }}</a>
+            {% if projectId is not none %}
+                {% set url = "/api/v1/update_user/" + projectId + "/__CREATE__" %}
+                <a href={{ url }}>Edit Users for {{ projectId }}</a>
             {% endif %}
         </th>
       {% if users %}
         {% for iuser in users %}
-             {% if registerId %}
-                 {%  set urlx = "/update_user/" + registerId + "/" + iuser.identity %}
+             {% if projectId %}
+                 {%  set urlx = "/api/v1/update_user/" + projectId + "/" + iuser.identity %}
              {% else %}
-                 {%  set urlx = "/update_user/__CREATE__/" + iuser.identity %}
+                 {%  set urlx = "/api/v1/update_user/__CREATE__/" + iuser.identity %}
              {% endif %}
              <TR onclick="location.href='{{ urlx }}'"}>
                 <td>

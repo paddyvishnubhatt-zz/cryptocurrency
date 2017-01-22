@@ -24,7 +24,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/about_page"><span class="glyphicon glyphicon glyphicon-lamp"></span>About</a></li>
+                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon glyphicon-lamp"></span>About</a></li>
             </ul>
         </div>
       </div>
@@ -34,20 +34,20 @@
       <br>
         <table class="table table-striped table-hover">
           <th>
-            Registers
+            Projects
           </th>
           <th>
-              {%  set urlx = "/update_register/___CREATE___" %}
+              {%  set urlx = "/api/v1/update_project/___CREATE___" %}
               <a href={{ urlx }}>
                  <span class="glyphicon glyphicon-plus"></span>
               </a>
           </th>
-          {% if registers is defined %}
-              {% for register in registers %}
-                 {%  set urlx = "/show_register/" + register.registerId %}
+          {% if projects is defined %}
+              {% for project in projects %}
+                 {%  set urlx = "/api/v1/show_project/" + project.projectId %}
                  <TR onclick="location.href='{{ urlx }}'">
                      <td >
-                        {{ register.registerId }}
+                        {{ project.projectId }}
                      </td>
                     <td>
                         <a href={{ urlx }}>

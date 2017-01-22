@@ -22,7 +22,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/about_page"><span class="glyphicon glyphicon glyphicon-lamp"></span> About</a></li>
+                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon glyphicon-lamp"></span> About</a></li>
             </ul>
         </div>
 
@@ -39,14 +39,14 @@
     </script>
     <div id="container">
       <div id="main">
-          <form method="post" action="{{ url_for('submitted_register') }}">
+          <form method="post" action="{{ url_for('submitted_project') }}">
             <table class="table table-striped">
                 <th>
                     Requirement details
                 </th>
                 <th>
-                    {% if register is defined %}
-                        {% set urlx = "/show_entrys/" + register.registerId %}
+                    {% if project is defined %}
+                        {% set urlx = "/api/v1/show_entrys/" + project.projectId %}
                         <a href={{ urlx }}>
                             Summary<span class="glyphicon glyphicon-chevron-right"></span>
                         </a>
@@ -54,15 +54,15 @@
                 </th>
                 <tr>
                     <td>
-                        Register/Requirement ID
+                        Project/Requirement ID
                     </td>
                     <td>
                         {% set regId = "" %}
-                        {% if register is defined %}
-                            {% set regId = register.registerId %}
+                        {% if project is defined %}
+                            {% set regId = project.projectId %}
                         {% endif %}
 
-                        <input type="text" class="form-control" name="registerId" value="{{ regId }}">
+                        <input type="text" class="form-control" name="projectId" value="{{ regId }}">
                     </td>
                 </tr>
                 <tr>
@@ -71,8 +71,8 @@
                     </td>
                     <td>
                         {% set desc = "" %}
-                        {% if register is defined %}
-                            {% set desc = register.description %}
+                        {% if project is defined %}
+                            {% set desc = project.description %}
                         {% endif %}
                         <input type="text" class="form-control" name="description" value="{{ desc }}">
                     </td>
@@ -83,8 +83,8 @@
                     </td>
                     <td>
                         {% set dept = "" %}
-                        {% if register is defined %}
-                            {% set dept = register.department %}
+                        {% if project is defined %}
+                            {% set dept = project.department %}
                         {% endif %}
                         <input type="text" class="form-control" name="department" value="{{ dept }}">
                     </td>
@@ -95,8 +95,8 @@
                     </td>
                     <td>
                         {% set grp = "" %}
-                        {% if register is defined %}
-                            {% set grp = register.group %}
+                        {% if project is defined %}
+                            {% set grp = project.group %}
                         {% endif %}
                         <input type="text" class="form-control" name="group" value="{{ grp }}">
                     </td>
@@ -106,8 +106,8 @@
                         Defaualt Password
                     <td>
                         {% set defp = "" %}
-                        {% if register is defined %}
-                            {% set defp = register.defaultPassword %}
+                        {% if project is defined %}
+                            {% set defp = project.defaultPassword %}
                         {% endif %}
                         <input class="form-control" id="password" type="password" name="password" value="{{ defp }}">
                         <input type="checkbox" id="checkbox"> Show Password
@@ -118,10 +118,10 @@
                         Add users
                         <br>Select Users to add (Hold down the Ctrl (windows) / Command (Mac)
                         <br>button to select multiple options)
-                        {% if register is defined %}
-                            {% set urlx = "/update_user/" + register.registerId + "/__CREATE__" %}
+                        {% if project is defined %}
+                            {% set urlx = "/api/v1/update_user/" + project.projectId + "/__CREATE__" %}
                         {% else %}
-                            {% set urlx = "/update_user/__CREATE__/__CREATE__" %}
+                            {% set urlx = "/api/v1/update_user/__CREATE__/__CREATE__" %}
                         {% endif %}
                         <br><a href={{ urlx }}> Click on link button to add new user</a>
                     </td>
@@ -129,7 +129,7 @@
                         <select class="form-control" name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
 
                         {% for user in users %}
-                            {% if register is defined %}
+                            {% if project is defined %}
                                 {%  if user.identity in userlist %}
                                     <option value="{{  user.identity }}" selected> {{ user.identity }}</option>
                                 {% else %}
@@ -148,7 +148,7 @@
                     </td>
                     <td>
                         {% set reqs = "" %}
-                        {% if register is defined %}
+                        {% if project is defined %}
                             {%  set reqs = requirements | join(',') %}
                         {% endif %}
                         <input type="text" class="form-control" name="requirements" value={{ reqs }}>

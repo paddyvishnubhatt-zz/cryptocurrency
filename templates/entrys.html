@@ -24,7 +24,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
+                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
             </ul>
         </div>
       </div>
@@ -39,9 +39,9 @@
            </th>
           <th>
               {% if userId is defined %}
-                  {%  set urlx = "/entry/" + registerId + "/" + userId%}
+                  {%  set urlx = "/api/v1/entry/" + projectId + "/" + userId%}
               {% else %}
-                  {%  set urlx = "/entry/" + registerId + "/__CREATE__"%}
+                  {%  set urlx = "/api/v1/entry/" + projectId + "/__CREATE__"%}
               {% endif %}
               <a href={{ urlx }}>
                  <span class="glyphicon glyphicon-plus"></span>
@@ -50,7 +50,7 @@
       </tr>
       {% for entry in entrys %}
           {%  set userId = entry.user.identity %}
-          {%  set urlstr = "/entry/" + registerId + "/" + userId %}
+          {%  set urlstr = "/api/v1/entry/" + projectId + "/" + userId %}
            <tr onclick="location.href='{{ urlstr }}'">
                 <td>
                  Entry = {{ entry.user.identity }}

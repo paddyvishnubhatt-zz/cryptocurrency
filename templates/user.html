@@ -23,7 +23,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
+                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
             </ul>
         </div>
       </div>
@@ -36,10 +36,6 @@
         });
     });
     </script>
-  {% if show_example_modal %}
-    <span class="example"  data-toggle="modal" data-target="#myModal"> <a href="/login">Back to Login</a></span>
-  {% endif %}
-
     <div id="container">
       <div id="main">
           <form method="post" action="{{ url_for('submitted_user') }}">
@@ -102,6 +98,7 @@
                         {% else %}
                             {% if defaultPassword is defined %}
                                 {% set passval = defaultPassword %}
+                            {% endif %}
                         {% endif %}
                         <input class="form-control" id="password" type="password" name="password" value={{ passval }}>
                         <input type="checkbox" id="checkbox"> Show Password
@@ -109,19 +106,19 @@
                 </TR>
                 <TR>
                     <td>
-                        Default Register
+                        Default Project
                     </td>
                     <td>
-                        {% set regId = "" %}
+                        {% set projId = "" %}
                         {% if user is defined %}
-                            {% set regId = user.defaultRegisterId %}
-                        {% elif registerId is defined %}
-                            {%  set regId = registerId %}
+                            {% set projId = user.defaultProjectId %}
+                        {% elif projectId is defined %}
+                            {%  set projId = projectId %}
                         {% endif %}
-                        {% if regId.strip() == "" %}
-                            <input class="form-control" id="registerId" name="registerId" readonly>
+                        {% if projId.strip() == "" %}
+                            <input class="form-control" id="projectId" name="projectId" readonly>
                         {% else %}
-                            <input class="form-control" id="registerId" name="registerId" value={{ regId }}>
+                            <input class="form-control" id="projectId" name="projectId" value={{ projId }}>
                         {% endif %}
                     </td>
                 </TR>

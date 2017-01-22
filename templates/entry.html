@@ -22,7 +22,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
+                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
             </ul>
         </div>
       </div>
@@ -30,7 +30,7 @@
   <body>
     <div id="container">
       <div class="pagetitle">
-        <label>Register: {{ register.registerId }}</label>
+        <label>Project: {{ project.projectId }}</label>
         <br>
         <label name="userId">User: {{ userId }}</label>
         {% if date is defined %}
@@ -39,18 +39,18 @@
         {% endif %}
       </div>
       <div id="main">
-          <form method="post" action="{{ url_for('submitted_entry', registerId=register.registerId ) }}">
+          <form method="post" action="{{ url_for('submitted_entry', projectId=project.projectId ) }}">
             <table class="table table-striped">
                 <TR>
                     <th></th>
-                    {% for item in register.requirements %}
+                    {% for item in project.requirements %}
                         <th style="text-align: center"> {{ item }} </th>
                     {% endfor %}
                 </TR>
-                {% for item in register.requirements %}
+                {% for item in project.requirements %}
                     <TR>
                         <td align="left"> {{ item }} </td>
-                        {% for item1 in register.requirements %}
+                        {% for item1 in project.requirements %}
                             {%  if item == item1 %}
                                 <td align="center"> x </td>
                             {%  else %}

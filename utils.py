@@ -1,56 +1,54 @@
 
-from register import Entry
-from register import User
-from register import Register
-from register import DEFAULT_REGISTER_NAME
-from register import register_key
+from models import Entry
+from models import User
+from models import Project
+from models import DEFAULT_PROJECT_NAME
+from models import project_db_key
 from functools import wraps
 import time
 from flask import request, Response, url_for, redirect
 
-def get_register_name(rname=DEFAULT_REGISTER_NAME):
+def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
 
 #Gets requirements from db - this needs to implement requirements-lifecycle - right now it is a singleton
-def get_registers_from_db():
-    register_name = get_register_name()
-    register_query = Register.query(
-        ancestor=register_key(register_name))
+def get_projects_from_db():
+    project_name = get_project_db_name()
+    project_query = Project.query(
+        ancestor=project_db_key(project_name))
 
-    return register_query.fetch(100)
+    return project_query.fetch(100)
 
 #Gets requirements from db - this needs to implement requirements-lifecycle - right now it is a singleton
-def get_register_from_db(registerId):
-    if registerId is None:
-        registerId = "SingletonRegister"
-    register_query = Register.query(Register.registerId == registerId)
-    if register_query.count() < 1:
+def get_project_from_db(projectId):
+    project_query = Project.query(Project.projectId == projectId)
+    if project_query.count() < 1:
         return None
     else:
-        return register_query.fetch(1)[-1]
+        return project_query.fetch(1)[-1]
 
-def get_entry_from_db(registerId, userId):
-    entrys_query = Entry.query(Entry.user.identity == userId, Entry.register.registerId == registerId)
+def get_entry_from_db(projectId, userId):
+    entrys_query = Entry.query(Entry.user.identity == userId, Entry.project.projectId == projectId)
     if entrys_query.count() < 1:
         return None
     else:
         return entrys_query.fetch(1)[-1]
 
-def get_entrys_from_db(registerId):
-    entrys_query = Entry.query(Entry.register.registerId == registerId)
+def get_entrys_from_db(projectId):
+    entrys_query = Entry.query(Entry.project.projectId == projectId)
     entrys = entrys_query.fetch(100)
     returnEntrys = []
     for entry in entrys:
-        if entry.register.registerId == registerId:
+        if entry.project.projectId == projectId:
             returnEntrys.append(entry)
 
     return returnEntrys
 
-def get_users_from_db(registerId=None):
-    if registerId and registerId != "":
-        register = get_register_from_db(registerId)
-        if register is not None:
-            return register.users
+def get_users_from_db(projectId=None):
+    if projectId and projectId != "":
+        project = get_project_from_db(projectId)
+        if project is not None:
+            return project.users
     else:
         users_q = User.query(User.type != "Superuser")
         users = users_q.fetch(1000)
@@ -65,64 +63,64 @@ def get_user_from_db(userId):
     else:
         return users_q.fetch(1)[-1]
 
-def update_users_register(registerId, userIds):
-    register = get_register_from_db(registerId)
+def update_users_project(projectId, userIds):
+    project = get_project_from_db(projectId)
     users = []
     for userName in userIds:
         user = get_user_from_db(userName)
         users.append(user)
-    register.users = users
-    register.put()
-    return register
+    project.users = users
+    project.put()
+    return project
 
-def update_user(userId, email, type, password, registerId):
+def update_user(userId, email, type, password, projectId):
     user = get_user_from_db(userId)
     if user is None:
-        register_name = get_register_name()
-        user = User(parent=register_key(register_name))
+        project_name = get_project_db_name()
+        user = User(parent=project_db_key(project_name))
         user.identity = userId
     user.email = email
     user.type = type
     user.password = password
-    user.defaultRegisterId = registerId
+    user.defaultProjectId = projectId
     user.put()
-    if registerId and registerId != "__CREATE__":
-        register = get_register_from_db(registerId)
-        if register:
-            users = register.users
+    if projectId and projectId != "__CREATE__":
+        project = get_project_from_db(projectId)
+        if project:
+            users = project.users
             users.append(user)
-            register.put()
+            project.put()
     time.sleep(1)
     return user
 
-def update_register(registerId, department, group, description, userIds, requirements):
-    register_name = get_register_name()
-    register = get_register_from_db(registerId)
-    if register is None:
-        register = Register(parent=register_key(register_name))
-        register.registerId = registerId
+def update_project(projectId, department, group, description, userIds, requirements):
+    project_name = get_project_db_name()
+    project = get_project_from_db(projectId)
+    if project is None:
+        project = Project(parent=project_db_key(project_name))
+        project.projectId = projectId
 
-    register.requirements = requirements.split(",")
-    register.department = department
-    register.description = description
-    register.group = group
+    project.requirements = requirements.split(",")
+    project.department = department
+    project.description = description
+    project.group = group
     users = []
     for userName in userIds:
         user = get_user_from_db(userName)
         users.append(user)
-    register.users = users
-    register.put()
-    return register
+    project.users = users
+    project.put()
+    return project
 
-def delete_register_from_db(registerId):
-    register = get_register_from_db(registerId)
-    entrys = get_entrys_from_db(registerId)
+def delete_project_from_db(projectId):
+    project = get_project_from_db(projectId)
+    entrys = get_entrys_from_db(projectId)
     for entry in entrys:
         key = entry.key
         print "entry: " + str(key)
         if key:
             key.delete()
-    key = register.key
+    key = project.key
     if key:
         key.delete()
 
@@ -135,49 +133,11 @@ def delete_users_from_db():
             if key:
                 key.delete()
 
-
-def register_factory(registerId):
-    # We know it is a singleton for now
-    registerFromDB = get_register_from_db(registerId)
-    if registerFromDB:
-        return registerFromDB
-    else:
-        requirement_items = []
-        requirement_items.append("size")
-        requirement_items.append("cost")
-        requirement_items.append("smartapps")
-        requirement_items.append("popularity")
-        register_name = get_register_name()
-        register = Register(parent=register_key(register_name))
-        register.registerId = registerId
-        register.requirements = requirement_items
-        register.department = "Department-Q"
-        register.group = "lawn-mowers"
-        register.description = "This requirement is for lawn mowers but could be applied to dish washers also"
-        register.defaultPassword = "nowisthetime"
-        userstrings = ["user1", "user2", "user3", "user4"]
-        users = []
-        for userName in userstrings:
-            user = User(parent=register_key(register_name))
-            user.identity = userName
-            user.email = userName + "@sellerforce.com"
-            user.password = register.defaultPassword
-            user.defaultRegisterId = registerId
-            if user.identity == "user2":
-                user.type = "Admin"
-            else:
-                user.type = "User"
-            user.put()
-            users.append(user)
-        register.users = users
-        register.put()
-        return register
-
-def create_entry(registerId, userId, requirements_input):
-    register_name =  DEFAULT_REGISTER_NAME
-    entry = Entry(parent=register_key(register_name))
+def create_entry(projectId, userId, requirements_input):
+    project_name =  DEFAULT_PROJECT_NAME
+    entry = Entry(parent=project_db_key(project_name))
     entry.user = get_user_from_db(userId)
-    entry.register = get_register_from_db(registerId)
+    entry.project = get_project_from_db(projectId)
     entry.requirements = requirements_input
     entry.put()
     return entry
