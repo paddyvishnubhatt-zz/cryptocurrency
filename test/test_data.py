@@ -83,7 +83,9 @@ def post_entrys():
                     if req_idx1 != req_idx2:
                         req_idx = "Req-" + projectId + "-" + str(req_idx1) + "_" + "Req-" + projectId + "-" + str(req_idx2)
                         if number % 2 == 0:
-                            form_params[req_idx] = "True"
+                            switch_req = "Req-" + projectId + "-" + str(req_idx2) + "_" + "Req-" + projectId + "-" + str(req_idx1)
+                            if switch_req not in form_params:
+                                form_params[req_idx] = "True"
                     number += 1
 
             response = requests.post(url,
