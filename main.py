@@ -150,8 +150,6 @@ def submitted_entry(projectId):
             splits = key.split("_")
             swap_key = splits[1] + "_" + splits[0]
             if swap_key in requirements_input:
-                print " ***** "
-                print swap_key
                 return render_template(
                         "entry_error.html",
                         req1=splits[0],
