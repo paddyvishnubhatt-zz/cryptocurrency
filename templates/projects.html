@@ -9,6 +9,15 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
+      <script>
+        function logout() {
+            var out = window.location.href.replace(/:\/\//, '://:out@');
+            window.location.reload(true);
+            jQuery.get(out).error(function() {
+                window.location = "/";
+            });
+        }
+      </script>
 
   <nav class="navbar navbar-inverse navbar-static-top" >
       <div class="container">
@@ -24,7 +33,10 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon glyphicon-lamp"></span>About</a></li>
+                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="javascript:logout()"><span class="glyphicon glyphicon-log-out"></span>Re-Login-As</a></li>
             </ul>
         </div>
       </div>
