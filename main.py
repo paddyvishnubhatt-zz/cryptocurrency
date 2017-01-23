@@ -71,9 +71,7 @@ def submitted_project():
     projectId = request.form.get('projectId')
     userIds = set(request.form.getlist('userIds[]'))
     requirements = request.form.get('requirements')
-    stripped_reqs = ""
-    for req in requirements:
-        stripped_reqs += str(req.strip())
+    stripped_reqs = requirements
     department = request.form.get('department')
     group = request.form.get('group')
     description = request.form.get('description')
