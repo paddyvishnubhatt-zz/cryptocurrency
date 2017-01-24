@@ -150,8 +150,9 @@ def submitted_entry(projectId):
             if swap_key in requirements_input:
                 return render_template(
                         "entry_error.html",
-                        req1=splits[0],
-                        req2=splits[1])
+                        h1Message="Entry Error, Go back and re-enter",
+                        title = "Entry Error",
+                        mesage=splits[0] + " and " + splits[1]  + " are conflicting, Please go back and re-enter")
             else:
                 requirements_input.append(key)
     print ("entry: " + str(projectId) + ", " + userId + ", " + str(requirements_input))
@@ -198,12 +199,18 @@ def update_user(projectId, identity):
                 'user.html',
                 current_user=request.authorization.username)
 
-@app.route('/api/v1/submitted_user', methods=['POST'])
+@app.route('/api/v1/submitted_user', methods=['POST', 'GET'])
 @requires_auth
 def submitted_user():
     # Do not forget to bring in project from UI back here to store entry against it - until then
     # project is singleton
     userId = request.form.get('identity')
+    if userId == "admin":
+        return render_template(
+            "entry_error.html",
+            h1Message="User ID Error, Go back and re-enter",
+            title="User Add Error",
+            mesage=userId + " is a system user, Please go back and use another identity and submit")
     email = request.form.get('email')
     type = request.form.get('type')
     password = request.form.get('password')

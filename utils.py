@@ -153,6 +153,7 @@ def check_auth(identity, password):
     else:
         if identity == 'admin' and password == 'password':
             update_user('admin', 'admin@lafoot.com', 'Superuser', 'password', None)
+            time.sleep(1)
             return True
         else:
             return False
