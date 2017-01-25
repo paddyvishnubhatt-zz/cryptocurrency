@@ -54,59 +54,66 @@
                 }
             }
             console.log(cbchecked.length + ", " + num_reqs);
-            if (cbchecked.length == num_reqs) {
-                document.getElementById("submit").disabled = false;
-                var cb = document.getElementById("showCalculations");
-                if (cb.checked == true) {
-                    var output = new Array();
-                    // for each req combo
-                    for (ii = 0; ii < cbchecked.length; ii++) {
-                        console.log(cbchecked[ii].name);
-                        // split the reqs
-                        var splits = cbchecked[ii].name.split("_");
-                        var i_item = splits[0];
-                        var o_item = splits[1];
-                        // if req is first get inside, else continue
-                        if (cbchecked[ii].name.startsWith(i_item)) {
-                            // if req already in list
-                            if (output.indexOf(i_item) >= 0) {
-                                // if other req is also in list
-                                if (output.indexOf(o_item) >= 0) {
-                                    // check for both already in list
-                                    var i_idx = output.indexOf(i_item);
-                                    var o_idx = output.indexOf(o_item);
-                                    if (i_idx > o_idx) {
-                                        //swap
-                                        output[i_idx] = o_item;
-                                        output[o_idx] = i_item;
-                                    }
-                                } else {
-                                    //second item is not in list - so add
-                                    output.push(o_item);
-                                }
-                            } else {
-                                // add
-                                output.push(i_item)
-                                // if other req is also in list
-                                if (output.indexOf(o_item) >= 0) {
-                                    // check for both already in list
-                                    var i_idx = output.indexOf(i_item);
-                                    var o_idx = output.indexOf(o_item);
-                                    if (i_idx > o_idx) {
-                                        //swap
-                                        output[i_idx] = o_item;
-                                        output[o_idx] = i_item;
-                                    }
-                                }
+            var output = new Array();
+            // for each req combo
+            for (ii = 0; ii < cbchecked.length; ii++) {
+                console.log(cbchecked[ii].name);
+                // split the reqs
+                var splits = cbchecked[ii].name.split("_");
+                var i_item = splits[0];
+                var o_item = splits[1];
+
+                // if req is first get inside, else continue
+                if (cbchecked[ii].name.startsWith(i_item)) {
+                    // if req already in list
+                    if (output.indexOf(i_item) >= 0) {
+                        // if other req is also in list
+                        if (output.indexOf(o_item) >= 0) {
+                            // check for both already in list
+                            var i_idx = output.indexOf(i_item);
+                            var o_idx = output.indexOf(o_item);
+                            if (i_idx > o_idx) {
+                                //swap
+                                output[i_idx] = o_item;
+                                output[o_idx] = i_item;
                             }
+                        } else {
+                            //second item is not in list - so add
+                            output.push(o_item);
+                        }
+                    } else {
+                        // add
+                        output.push(i_item)
+                        if (output.indexOf(o_item) >= 0) {
+                            // check for both already in list
+                            var i_idx = output.indexOf(i_item);
+                            var o_idx = output.indexOf(o_item);
+                            if (i_idx > o_idx) {
+                                //swap
+                                output[i_idx] = o_item;
+                                output[o_idx] = i_item;
+                            }
+                        } else {
+                            //second item is not in list - so add
+                            output.push(o_item);
                         }
                     }
+                }
+            }
+            for (ii = 0; ii < output.length; ii++) {
+                console.log(output[ii]);
+            }
+            if (cbchecked.length == num_reqs) {
+                // Enable only if passes validation - test for loops!
+                document.getElementById("submit").disabled = false;
+                // set UI objects
+                var cb = document.getElementById("showCalculations");
+                if (cb.checked == true) {
                     $("#calculationsTable tr").remove();
                     var table = document.getElementById("calculationsTable");
                     for (ii = 0; ii < output.length; ii++) {
-                        console.log(output[ii]);
-                        var row = table.insertRow(0);
-                        var cell = row.insertCell(output[ii]);
+                        var row = table.insertRow(ii);
+                        var cell = row.insertCell(0);
                         cell.innerHTML = output[ii];
                     }
                 }
