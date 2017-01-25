@@ -1,13 +1,5 @@
 <html>
   <head>
-      <script>
-        function logout() {
-            var out = window.location.href.replace(/:\/\//, '://:out@');
-            jQuery.get(out).error(function() {
-                window.location = "/";
-            });
-        }
-      </script>
     <title>Submit a form</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
@@ -24,8 +16,41 @@
                 window.location = "/";
             });
         }
-        function onCBClick() {
-        alert($(this).val());
+        function onCBClick(cb) {
+            var splits = cb.name.split("_");
+            var swapped =  splits[1] + "_" + splits[0];
+            var o_cb = document.getElementsByName(swapped)[0];
+            console.log(cb.name + ", " + cb.checked);
+            if (cb.checked == true) {
+                o_cb.disabled = true;
+                o_cb.checked = false;
+            } else {
+                o_cb.disabled = false;
+                o_cb.checked = true;
+            }
+        }
+        function onCCBClick(cb) {
+            if (cb.checked == true) {
+                $(".calculations").show();
+            } else {
+                $(".calculations").hide();
+            }
+            validate()
+        }
+        function validate() {
+            var reqs = "{{ project.requirements }}"
+            var num_reqs = reqs.split(',').length;
+            var inputs = document.getElementsByTagName("input");
+            var cbarray = [];
+            for (ii = 0; ii < inputs.length; ii++) {
+                if(inputs[ii].type == "checkbox") {
+                    cbarray.push(inputs[ii].name)
+                }
+            }
+            for (ii = 0; ii < cbarray.length; ii++) {
+                console.log(cbarray[ii].name + "," + cbarray[ii].checked)
+            }
+            console.log(num_reqs);
         }
     </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
@@ -81,12 +106,12 @@
                                 <td style="text-align: center;">
                                     {% if requirements is defined %}
                                         {% if cbname in requirements %}
-                                            <input type="checkbox" name={{ cbname }} onclick="onCBClick();" checked>
+                                            <input type="checkbox" name={{ cbname }} onclick="onCBClick(this);" checked>
                                         {% else %}
-                                            <input type="checkbox" name={{ cbname }} onclick="onCBClick();" >
+                                            <input type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
                                         {% endif %}
                                     {% else %}
-                                        <input type="checkbox" name={{ cbname }} onclick="onCBClick();" >
+                                        <input type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
                                     {% endif %}
                                 </td>
                             {%  endif %}
@@ -95,6 +120,25 @@
                 {% endfor %}
             </table>
             <input type="submit">
+            <br>
+            <br>
+            <div class="calculations_stuff" style="display:none">
+                Show Calculations:
+                <input type="checkbox" name="showCalculations" onclick="onCCBClick(this);" unchecked>
+                <br>
+                <br>
+                <div class="calculations" style="display:none">
+                    <table class="table">
+                        {% for item1 in project.requirements %}
+                            <TR>
+                                <TD>
+                                    item1
+                                </TD>
+                            </TR>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
           </form>
       </div>
     </div>

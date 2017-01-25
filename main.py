@@ -155,9 +155,16 @@ def submitted_entry(projectId):
                         mesage=splits[0] + " and " + splits[1]  + " are conflicting, Please go back and re-enter")
             else:
                 requirements_input.append(key)
+    project = utils.get_project_from_db(projectId)
+    if len(requirements_input) != len(project.requirements):
+        return render_template(
+            "entry_error.html",
+            h1Message="Entry Error, Go back and re-enter all data",
+            title="Entry Error",
+            mesage="Some options/checkboxes are not selected, Please go back and re-enter")
+
     print ("entry: " + str(projectId) + ", " + userId + ", " + str(requirements_input))
     ent = utils.update_entry(projectId, userId, requirements_input)
-    project = utils.get_project_from_db(projectId)
     return render_template(
             'entry.html',
             current_user=userId,
