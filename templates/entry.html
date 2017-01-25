@@ -18,6 +18,7 @@
         }
 
         function onCBClick(cb) {
+            console.log(cb.name);
             var splits = cb.name.split("_");
             var swapped =  splits[1] + "_" + splits[0];
             var o_cb = document.getElementsByName(swapped)[0];
