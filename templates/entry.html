@@ -41,8 +41,11 @@
         }
 
         function validate() {
+            // given list of requiremetns for project
             var reqs = "{{ project.requirements }}"
+            // get total num of reqs
             var num_reqs = reqs.split(',').length;
+            // Gather list of checked checkboxes - combos
             var inputs = document.getElementsByTagName("input");
             var cbchecked = [];
             for (ii = 0; ii < inputs.length; ii++) {
@@ -54,16 +57,19 @@
                     }
                 }
             }
+            // check if num reqs and the checked check-boxes combo are same
             console.log(cbchecked.length + ", " + num_reqs);
+            // build output/prioritized list of reqs
+            // TBD - figure out how to catch and reject loops
             var output = new Array();
             // for each req combo
             for (ii = 0; ii < cbchecked.length; ii++) {
+                // get the checked checkbox -combo
                 console.log(cbchecked[ii].name);
                 // split the reqs
                 var splits = cbchecked[ii].name.split("_");
                 var i_item = splits[0];
                 var o_item = splits[1];
-
                 // if req is first get inside, else continue
                 if (cbchecked[ii].name.startsWith(i_item)) {
                     // if req already in list
@@ -83,8 +89,9 @@
                             output.push(o_item);
                         }
                     } else {
-                        // add
+                        // add the first requirement
                         output.push(i_item)
+                        // check for other req to be already in list
                         if (output.indexOf(o_item) >= 0) {
                             // check for both already in list
                             var i_idx = output.indexOf(i_item);
