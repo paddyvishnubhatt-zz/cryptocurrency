@@ -16,11 +16,11 @@
                 window.location = "/";
             });
         }
+
         function onCBClick(cb) {
             var splits = cb.name.split("_");
             var swapped =  splits[1] + "_" + splits[0];
             var o_cb = document.getElementsByName(swapped)[0];
-            console.log(cb.name + ", " + cb.checked);
             if (cb.checked == true) {
                 o_cb.disabled = true;
                 o_cb.checked = false;
@@ -28,29 +28,91 @@
                 o_cb.disabled = false;
                 o_cb.checked = true;
             }
+            validate()
         }
+
         function onCCBClick(cb) {
             if (cb.checked == true) {
                 $(".calculations").show();
             } else {
                 $(".calculations").hide();
             }
-            validate()
         }
+
         function validate() {
             var reqs = "{{ project.requirements }}"
             var num_reqs = reqs.split(',').length;
             var inputs = document.getElementsByTagName("input");
-            var cbarray = [];
+            var cbchecked = [];
             for (ii = 0; ii < inputs.length; ii++) {
                 if(inputs[ii].type == "checkbox") {
-                    cbarray.push(inputs[ii].name)
+                    if (inputs[ii].name != 'showCalculations') {
+                        if (inputs[ii].checked) {
+                            cbchecked.push(inputs[ii]);
+                        }
+                    }
                 }
             }
-            for (ii = 0; ii < cbarray.length; ii++) {
-                console.log(cbarray[ii].name + "," + cbarray[ii].checked)
+            console.log(cbchecked.length + ", " + num_reqs);
+            if (cbchecked.length == num_reqs) {
+                document.getElementById("submit").disabled = false;
+                var cb = document.getElementById("showCalculations");
+                if (cb.checked == true) {
+                    var output = new Array();
+                    // for each req combo
+                    for (ii = 0; ii < cbchecked.length; ii++) {
+                        console.log(cbchecked[ii].name);
+                        // split the reqs
+                        var splits = cbchecked[ii].name.split("_");
+                        var i_item = splits[0];
+                        var o_item = splits[1];
+                        // if req is first get inside, else continue
+                        if (cbchecked[ii].name.startsWith(i_item)) {
+                            // if req already in list
+                            if (output.indexOf(i_item) >= 0) {
+                                // if other req is also in list
+                                if (output.indexOf(o_item) >= 0) {
+                                    // check for both already in list
+                                    var i_idx = output.indexOf(i_item);
+                                    var o_idx = output.indexOf(o_item);
+                                    if (i_idx > o_idx) {
+                                        //swap
+                                        output[i_idx] = o_item;
+                                        output[o_idx] = i_item;
+                                    }
+                                } else {
+                                    //second item is not in list - so add
+                                    output.push(o_item);
+                                }
+                            } else {
+                                // add
+                                output.push(i_item)
+                                // if other req is also in list
+                                if (output.indexOf(o_item) >= 0) {
+                                    // check for both already in list
+                                    var i_idx = output.indexOf(i_item);
+                                    var o_idx = output.indexOf(o_item);
+                                    if (i_idx > o_idx) {
+                                        //swap
+                                        output[i_idx] = o_item;
+                                        output[o_idx] = i_item;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $("#calculationsTable tr").remove();
+                    var table = document.getElementById("calculationsTable");
+                    for (ii = 0; ii < output.length; ii++) {
+                        console.log(output[ii]);
+                        var row = table.insertRow(0);
+                        var cell = row.insertCell(output[ii]);
+                        cell.innerHTML = output[ii];
+                    }
+                }
+            } else {
+                document.getElementById("submit").disabled = true;
             }
-            console.log(num_reqs);
         }
     </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
@@ -119,23 +181,16 @@
                     </TR>
                 {% endfor %}
             </table>
-            <input type="submit">
+            <input id="submit" type="submit" disabled>
             <br>
             <br>
-            <div class="calculations_stuff" style="display:none">
+            <div class="calculations_stuff">
                 Show Calculations:
-                <input type="checkbox" name="showCalculations" onclick="onCCBClick(this);" unchecked>
+                <input type="checkbox" id="showCalculations" name="showCalculations" onclick="onCCBClick(this);" unchecked>
                 <br>
                 <br>
                 <div class="calculations" style="display:none">
-                    <table class="table">
-                        {% for item1 in project.requirements %}
-                            <TR>
-                                <TD>
-                                    item1
-                                </TD>
-                            </TR>
-                        {% endfor %}
+                    <table id="calculationsTable" class="table">
                     </table>
                 </div>
             </div>

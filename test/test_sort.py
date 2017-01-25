@@ -3,6 +3,7 @@ def sort(input):
     output = []
     #for each req combo
     for c_item in input:
+
         # split the reqs
         i_item = c_item.split("_")[0]
         o_item = c_item.split("_")[1]
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     #r1_r2
     #r1_r3
     #r3_r2
-    input = ['r1_r2', 'r1_r3', 'r3_r2']
+    input = ['r1_r2', 'r3_r1', 'r2_r3']
     #output:
     #r1,r3,r2
     sort(input)
