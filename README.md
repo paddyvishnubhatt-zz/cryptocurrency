@@ -206,3 +206,14 @@ Demo steps:
   ![Summary of Entrys](https://raw.githubusercontent.com/paddyvishnubhatt/sample-table/master/misc/Entrys.png)
 
 6. To repeat - lather/rinse/repeat - Clean up (delete) all data from GAE data store and restart.
+
+1/24/2017:
+---------
+1. Added validate function in javascript code based on the python brute force function in test_sort.py
+2. This needs work.
+3. The code to calculate prioritized list is in a function called validate() in entry.html
+4. Run the app locally - as before.
+5. Launch browser - if chrome - open the Javascript console. 
+6. When you select check boxes and change selections, enable the Show Calc cb and observe the output in the console.
+7. You can make changes to the validate function too - i.e. fix code or add more console logs - when you do this - change the code and refresh.
+
