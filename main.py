@@ -145,7 +145,6 @@ def submitted_entry(projectId):
     requirements_input = []
     for key in cbname:
         if key != 'userId' and key != 'submit':
-            print key
             requirements_input.append(key)
     project = utils.get_project_from_db(projectId)
     print ("entry: " + str(projectId) + ", " + userId + ", " + str(requirements_input))
