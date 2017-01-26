@@ -41,11 +41,13 @@
             var cb = document.getElementById("showCalculations");
             if (cb.checked == true) {
                 $("#calculationsTable tr").remove();
-                var table = document.getElementById("calculationsTable");
-                for (ii = 0; ii < output.length; ii++) {
-                    var row = table.insertRow(ii);
-                    var cell = row.insertCell(0);
-                    cell.innerHTML = output[ii];
+                if (output) {
+                    var table = document.getElementById("calculationsTable");
+                    for (ii = 0; ii < output.length; ii++) {
+                        var row = table.insertRow(ii);
+                        var cell = row.insertCell(0);
+                        cell.innerHTML = output[ii];
+                    }
                 }
             }
         }
@@ -102,10 +104,11 @@
                 console.log(cbchecked[ii].name);
                 // split the reqs
                 var splits = cbchecked[ii].name.split("_");
-                var i_item = splits[0];
-                var o_item = splits[1];
+                var i_item = splits[1];
+                var o_item = splits[0];
                 // if req is first get inside, else continue
-                if (cbchecked[ii].name.startsWith(i_item)) {
+                console.log("checking for " +  i_item)
+                if (cbchecked[ii].name.endsWith(i_item)) {
                     // if req already in list
                     if (output.indexOf(i_item) >= 0) {
                         // if other req is also in list
