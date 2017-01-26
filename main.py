@@ -144,25 +144,10 @@ def submitted_entry(projectId):
     cbname = request.form
     requirements_input = []
     for key in cbname:
-        if key != 'userId':
-            splits = key.split("_")
-            swap_key = splits[1] + "_" + splits[0]
-            if swap_key in requirements_input:
-                return render_template(
-                        "entry_error.html",
-                        h1Message="Entry Error, Go back and re-enter",
-                        title = "Entry Error",
-                        mesage=splits[0] + " and " + splits[1]  + " are conflicting, Please go back and re-enter")
-            else:
-                requirements_input.append(key)
+        if key != 'userId' and key != 'submit':
+            print key
+            requirements_input.append(key)
     project = utils.get_project_from_db(projectId)
-    if len(requirements_input) != len(project.requirements):
-        return render_template(
-            "entry_error.html",
-            h1Message="Entry Error, Go back and re-enter all data",
-            title="Entry Error",
-            mesage="Some options/checkboxes are not selected, Please go back and re-enter")
-
     print ("entry: " + str(projectId) + ", " + userId + ", " + str(requirements_input))
     ent = utils.update_entry(projectId, userId, requirements_input)
     return render_template(

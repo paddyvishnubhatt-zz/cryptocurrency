@@ -107,7 +107,6 @@
                 var i_item = splits[1];
                 var o_item = splits[0];
                 // if req is first get inside, else continue
-                console.log("checking for " +  i_item)
                 if (cbchecked[ii].name.endsWith(i_item)) {
                     // if req already in list
                     if (output.indexOf(i_item) >= 0) {
@@ -156,7 +155,25 @@
             // check if num reqs and the checked check-boxes combo are same
             console.log(cbchecked.length + ", " + num_reqs * 2);
 
-            if (cbchecked.length == num_reqs * 2) {
+            var table = document.getElementById("theTable");
+            for (col = 1; col < num_reqs; col++) {
+                var weight_col = 0;
+                for (row = 1; row < num_reqs + 3; row++) {
+                    var cl = table.rows[row].cells[col];
+                    if (cl) {
+                        var ccl = cl.children[0];
+                        if (ccl && ccl.type == "checkbox") {
+                            var cb1 = ccl.name;
+                            var cb = document.getElementById(cb1);
+                            if (cb.checked) weight_col++;
+                        }
+                    }
+                }
+                ccl.innerHTML = weight_col;
+            }
+
+            var total = (num_reqs > 2) ? (num_reqs - 1) * (num_reqs - 2) : 2;
+            if (cbchecked.length == total) {
                 // Enable only if passes validation - test for loops!
                 document.getElementById("submit").disabled = false;
             } else {
@@ -213,7 +230,7 @@
       </div>
       <div id="main">
           <form method="post" action="{{ url_for('submitted_entry', projectId=project.projectId ) }}">
-            <table class="table table-striped">
+            <table id="theTable" class="table table-striped">
                 <TR>
                     <th></th>
                     {% for item in project.requirements %}
@@ -231,18 +248,28 @@
                                 <td style="text-align: center;">
                                     {% if requirements is defined %}
                                         {% if cbname in requirements %}
-                                            <input type="checkbox" name={{ cbname }} onclick="onCBClick(this);" checked>
+                                            <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" checked>
                                         {% else %}
-                                            <input type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
+                                            <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
                                         {% endif %}
                                     {% else %}
-                                        <input type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
+                                        <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
                                     {% endif %}
                                 </td>
                             {%  endif %}
                         {% endfor %}
                     </TR>
                 {% endfor %}
+                <tr>
+                    <td>
+                       <label>Weights</label>
+                    </td>
+                    {% for item in project.requirements %}
+                    <td align="center">
+                        <label>x</label>
+                    </td>
+                    {% endfor %}
+                </tr>
                 <tr>
                     <td>
                        <input name="submit" id="submit" type="submit" disabled>
