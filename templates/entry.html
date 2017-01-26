@@ -9,6 +9,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
     <script>
+        var output;
+
         function logout() {
             var out = window.location.href.replace(/:\/\//, '://:out@');
             window.location.reload(true);
@@ -17,8 +19,7 @@
             });
         }
 
-        function onCBClick(cb) {
-            console.log(cb.name);
+        function doRadioButton(cb) {
             var splits = cb.name.split("_");
             var swapped =  splits[1] + "_" + splits[0];
             var o_cb = document.getElementsByName(swapped)[0];
@@ -29,39 +30,72 @@
                 o_cb.disabled = false;
                 o_cb.checked = true;
             }
-            validate()
+        }
+
+        function onCBClick(cb) {
+            validate(cb);
+        }
+
+        function redrawCalculations() {
+            // set UI objects
+            var cb = document.getElementById("showCalculations");
+            if (cb.checked == true) {
+                $("#calculationsTable tr").remove();
+                var table = document.getElementById("calculationsTable");
+                for (ii = 0; ii < output.length; ii++) {
+                    var row = table.insertRow(ii);
+                    var cell = row.insertCell(0);
+                    cell.innerHTML = output[ii];
+                }
+            }
         }
 
         function onCCBClick(cb) {
             if (cb.checked == true) {
                 $(".calculations").show();
+                redrawCalculations();
             } else {
                 $(".calculations").hide();
             }
         }
 
-        function validate() {
-            // given list of requiremetns for project
-            var reqs = "{{ project.requirements }}"
-            // get total num of reqs
-            var num_reqs = reqs.split(',').length;
+        function onButtonClick(button) {
+            location.reload();
+        }
+
+        function validate(cb_changed) {
+            console.log(cb_changed.name + ", " + cb_changed.checked);
+            var cb_splits = cb_changed.name.split("_");
+            var cb_swapped =  cb_splits[1] + "_" + cb_splits[0];
+            var o_cb_changed = document.getElementsByName(cb_swapped)[0];
+            if (cb_changed.checked == true) {
+                o_cb_changed.disabled = true;
+                o_cb_changed.checked = false;
+            } else {
+                o_cb_changed.disabled = false;
+                o_cb_changed.checked = true;
+                cb_changed.disabled = true;
+                cb_changed.checked = false;
+            }
             // Gather list of checked checkboxes - combos
             var inputs = document.getElementsByTagName("input");
             var cbchecked = [];
             for (ii = 0; ii < inputs.length; ii++) {
                 if(inputs[ii].type == "checkbox") {
-                    if (inputs[ii].name != 'showCalculations') {
+                    if (inputs[ii].name == "Req3_Req2") {
+                        console.log(cb_changed.name + ", " + cb_changed.checked);
+                    }
+                    if (inputs[ii].name != 'showCalculations' &&
+                            inputs[ii].name != "refresh" &&
+                            inputs[ii].name != "submit") {
                         if (inputs[ii].checked) {
                             cbchecked.push(inputs[ii]);
                         }
                     }
                 }
             }
-            // check if num reqs and the checked check-boxes combo are same
-            console.log(cbchecked.length + ", " + num_reqs);
             // build output/prioritized list of reqs
-            // TBD - figure out how to catch and reject loops
-            var output = new Array();
+            output = new Array();
             // for each req combo
             for (ii = 0; ii < cbchecked.length; ii++) {
                 // get the checked checkbox -combo
@@ -111,25 +145,23 @@
             for (ii = 0; ii < output.length; ii++) {
                 console.log(output[ii]);
             }
-            if (cbchecked.length == num_reqs) {
+            redrawCalculations();
+            // given list of requiremetns for project
+            var reqs = "{{ project.requirements }}"
+            // get total num of reqs
+            var num_reqs = reqs.split(',').length;
+            // check if num reqs and the checked check-boxes combo are same
+            console.log(cbchecked.length + ", " + num_reqs * 2);
+
+            if (cbchecked.length == num_reqs * 2) {
                 // Enable only if passes validation - test for loops!
                 document.getElementById("submit").disabled = false;
-                // set UI objects
-                var cb = document.getElementById("showCalculations");
-                if (cb.checked == true) {
-                    $("#calculationsTable tr").remove();
-                    var table = document.getElementById("calculationsTable");
-                    for (ii = 0; ii < output.length; ii++) {
-                        var row = table.insertRow(ii);
-                        var cell = row.insertCell(0);
-                        cell.innerHTML = output[ii];
-                    }
-                }
             } else {
                 document.getElementById("submit").disabled = true;
             }
+            return true;
         }
-    </script>
+   </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
       <div class="container">
         <div class="navbar-header">
@@ -155,13 +187,26 @@
   <body>
     <div id="container">
       <div class="pagetitle">
-        <label>Project: {{ project.projectId }}</label>
-        <br>
-        <label name="userId">User: {{ userId }}</label>
-        {% if date is defined %}
-            <br>
-            <label name="date">Date: {{ date.strftime("%Y-%m-%d% %H:%M:%S.%f") }} <label>
-        {% endif %}
+        <table class="table">
+            <TR>
+                <td>
+                    <button id="refresh" name="refresh" class="btn btn-primary" onclick="onButtonClick(this);"><span class="glyphicon glyphicon-refresh"></span>Project:</button>
+                    <label>{{ project.projectId }}</label>
+                </td>
+            </TR>
+            <tr>
+                <td>
+                    <label name="userId">User: {{ userId }}</label>
+                </td>
+            </tr>
+           {% if date is defined %}
+                <tr>
+                    <td>
+                        <label name="date">Date: {{ date.strftime("%Y-%m-%d% %H:%M:%S.%f") }} </label>
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
       </div>
       <div id="main">
           <form method="post" action="{{ url_for('submitted_entry', projectId=project.projectId ) }}">
@@ -195,21 +240,19 @@
                         {% endfor %}
                     </TR>
                 {% endfor %}
+                <tr>
+                    <td>
+                       <input name="submit" id="submit" type="submit" disabled>
+                    </td>
+                </tr>
             </table>
-            <input id="submit" type="submit" disabled>
-            <br>
-            <br>
-            <div class="calculations_stuff">
-                Show Calculations:
-                <input type="checkbox" id="showCalculations" name="showCalculations" onclick="onCCBClick(this);" unchecked>
-                <br>
-                <br>
-                <div class="calculations" style="display:none">
-                    <table id="calculationsTable" class="table">
-                    </table>
-                </div>
-            </div>
           </form>
+          <label>Show Calculations:</label>
+            <input type="checkbox" id="showCalculations" name="showCalculations" onclick="onCCBClick(this);" unchecked>
+            <div class="calculations" style="display:none">
+                <table id="calculationsTable" class="table">
+                </table>
+            </div>
       </div>
     </div>
   </body>
