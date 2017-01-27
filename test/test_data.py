@@ -111,9 +111,8 @@ def delete_users():
     response = requests.delete(url,
                                headers={"Authorization": "Basic %s" % b64Val})
 
-
 if __name__ == "__main__":
-    post_projects()
-    post_entrys()
-    #delete_projects()
-    #delete_users()
+    #post_projects()
+    #post_entrys()
+    delete_projects()
+    delete_users()

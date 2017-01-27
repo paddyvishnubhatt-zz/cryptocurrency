@@ -123,6 +123,31 @@ def entry(projectId, userId):
                 userId = userId,
                 project=project)
 
+@app.route('/api/v1/show_summary/<projectId>')
+@requires_auth
+def show_summary(projectId):
+    entrys = utils.get_entrys_from_db(projectId)
+    userId = request.authorization.username
+    score_table = {}
+    for entry in entrys:
+        print entry.weights
+        for weight_splits in entry.weights:
+            print weight_splits
+            req_weight = weight_splits.split(":")
+            print req_weight
+            if req_weight[0] in score_table:
+                score_table[req_weight[0]] = score_table[req_weight[0]] + req_weight[1]
+            else:
+                score_table[req_weight[0]] = req_weight[1]
+    print score_table
+    return render_template(
+        'summary.html',
+        current_user=userId,
+        projectId = projectId,
+        userId = userId,
+        scoretable=score_table,
+        entrys= entrys)
+
 @app.route('/api/v1/show_entrys/<projectId>')
 @requires_auth
 def show_entrys(projectId):
@@ -141,6 +166,8 @@ def submitted_entry(projectId):
     # Do not forget to bring in project from UI back here to store entry against it - until then
     # project is singleton
     userId = request.authorization.username
+    requirements_output = request.form.get("requirements_output")
+    weights = request.form.get("weights")
     cbname = request.form
     requirements_input = []
     for key in cbname:
@@ -148,7 +175,7 @@ def submitted_entry(projectId):
             requirements_input.append(key)
     project = utils.get_project_from_db(projectId)
     print ("entry: " + str(projectId) + ", " + userId + ", " + str(requirements_input))
-    ent = utils.update_entry(projectId, userId, requirements_input)
+    ent = utils.update_entry(projectId, userId, requirements_input, requirements_output, weights)
     return render_template(
             'entry.html',
             current_user=userId,

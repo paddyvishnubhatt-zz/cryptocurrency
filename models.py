@@ -33,3 +33,5 @@ class Entry(ndb.Model):
     user = ndb.StructuredProperty(User, indexed=True, required=True)
     date = ndb.DateTimeProperty(auto_now_add=True)
     requirements = ndb.StringProperty(repeated=True)
+    weights = ndb.StringProperty(repeated=True)
+    requirements_output = ndb.StringProperty(repeated=True)

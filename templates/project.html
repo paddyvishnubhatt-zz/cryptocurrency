@@ -46,7 +46,7 @@
                 </th>
                 <th>
                     {% if project is defined %}
-                        {% set urlx = "/api/v1/show_entrys/" + project.projectId | urlencode %}
+                        {% set urlx = "/api/v1/show_summary/" + project.projectId | urlencode %}
                         <a href={{ urlx }}>
                             Summary<span class="glyphicon glyphicon-chevron-right"></span>
                         </a>

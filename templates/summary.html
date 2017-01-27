@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <head>
-    <title>Entrys</title>
+    <title>Summary</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,37 +32,38 @@
   <body>
     <div class="container">
     <br>
-
-      <table class="table table-striped table-hover" >
+      <table class="table" >
+          <tr>
+              <th>
+                  Project: {{ projectId }}
+              </th>
+              <th>
+                  {% set urlx = "/api/v1/show_entrys/" + projectId | urlencode %}
+                  <a href={{ urlx }}>
+                        Entrys<span class="glyphicon glyphicon-chevron-right"></span>
+                  </a>
+              </th>
+          </tr>
         <tr>
            <th>
-               Entrys
+               Requirement
            </th>
-          <th>
-              {% if userId is defined %}
-                  {%  set urlx = "/api/v1/entry/" + projectId + "/" + userId %}
-              {% else %}
-                  {%  set urlx = "/api/v1/entry/" + projectId + "/__CREATE__" %}
-              {% endif %}
-              <a href={{ urlx | urlencode }}>
-                 <span class="glyphicon glyphicon-plus"></span>
-              </a>
-        </th>
-      </tr>
-      {% for entry in entrys %}
-          {%  set userId = entry.user.identity %}
-          {%  set urlstr = "/api/v1/entry/" + projectId + "/" + userId  %}
-           <tr onclick="location.href='{{ urlstr | urlencode}}'">
-                <td>
-                 Entry = {{ entry.user.identity }}
-                </td>
-                <td>
-                    <a href={{ urlstr | urlencode}}>
-                        <span class="glyphicon glyphicon-chevron-right"></span>
-                    </a>
-                </td>
-            </tr>
-      {% endfor %}
+           <th>
+               Weights
+           </th>
+            {% if scoretable %}
+                {% for req, weight in scoretable.iteritems() %}
+                    <tr>
+                        <td>
+                            {{ req }}
+                        </td>
+                        <td>
+                            {{ weight }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tr>
       </table>
     </div>
   </body>

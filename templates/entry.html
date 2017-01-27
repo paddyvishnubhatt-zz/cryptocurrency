@@ -9,7 +9,10 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
     <script>
-        var output;
+        var requirements_output = [];
+        var weights = [];
+
+        window.onload = function(){updateSubTotalsAndWeights();};
 
         function logout() {
             var out = window.location.href.replace(/:\/\//, '://:out@');
@@ -41,12 +44,13 @@
             var cb = document.getElementById("showCalculations");
             if (cb.checked == true) {
                 $("#calculationsTable tr").remove();
-                if (output) {
+                console.log("*******" + requirements_output);
+                if (requirements_output) {
                     var table = document.getElementById("calculationsTable");
-                    for (ii = 0; ii < output.length; ii++) {
+                    for (ii = 0; ii < requirements_output.length; ii++) {
                         var row = table.insertRow(ii);
                         var cell = row.insertCell(0);
-                        cell.innerHTML = output[ii];
+                        cell.innerHTML = requirements_output[ii];
                     }
                 }
             }
@@ -96,8 +100,8 @@
                     }
                 }
             }
-            // build output/prioritized list of reqs
-            output = new Array();
+            // build requirements_output/prioritized list of reqs
+            requirements_output = new Array();
             // for each req combo
             for (ii = 0; ii < cbchecked.length; ii++) {
                 // get the checked checkbox -combo
@@ -109,77 +113,114 @@
                 // if req is first get inside, else continue
                 if (cbchecked[ii].name.endsWith(i_item)) {
                     // if req already in list
-                    if (output.indexOf(i_item) >= 0) {
+                    if (requirements_output.indexOf(i_item) >= 0) {
                         // if other req is also in list
-                        if (output.indexOf(o_item) >= 0) {
+                        if (requirements_output.indexOf(o_item) >= 0) {
                             // check for both already in list
-                            var i_idx = output.indexOf(i_item);
-                            var o_idx = output.indexOf(o_item);
+                            var i_idx = requirements_output.indexOf(i_item);
+                            var o_idx = requirements_output.indexOf(o_item);
                             if (i_idx > o_idx) {
                                 //swap
-                                output[i_idx] = o_item;
-                                output[o_idx] = i_item;
+                                requirements_output[i_idx] = o_item;
+                                requirements_output[o_idx] = i_item;
                             }
                         } else {
                             //second item is not in list - so add
-                            output.push(o_item);
+                            requirements_output.push(o_item);
                         }
                     } else {
                         // add the first requirement
-                        output.push(i_item)
+                        requirements_output.push(i_item)
                         // check for other req to be already in list
-                        if (output.indexOf(o_item) >= 0) {
+                        if (requirements_output.indexOf(o_item) >= 0) {
                             // check for both already in list
-                            var i_idx = output.indexOf(i_item);
-                            var o_idx = output.indexOf(o_item);
+                            var i_idx = requirements_output.indexOf(i_item);
+                            var o_idx = requirements_output.indexOf(o_item);
                             if (i_idx > o_idx) {
                                 //swap
-                                output[i_idx] = o_item;
-                                output[o_idx] = i_item;
+                                requirements_output[i_idx] = o_item;
+                                requirements_output[o_idx] = i_item;
                             }
                         } else {
                             //second item is not in list - so add
-                            output.push(o_item);
+                            requirements_output.push(o_item);
                         }
                     }
                 }
             }
-            for (ii = 0; ii < output.length; ii++) {
-                console.log(output[ii]);
+            for (ii = 0; ii < requirements_output.length; ii++) {
+                console.log(requirements_output[ii]);
             }
             redrawCalculations();
             // given list of requiremetns for project
-            var reqs = "{{ project.requirements }}"
+            var preqs = "{{ project.requirements }}"
             // get total num of reqs
-            var num_reqs = reqs.split(',').length;
+            var reqslist =  preqs.split(',');
+            var num_reqs = reqslist.length;
+
+            updateSubTotalsAndWeights();
+
+            var total = ((num_reqs * num_reqs) - num_reqs) / 2;
             // check if num reqs and the checked check-boxes combo are same
-            console.log(cbchecked.length + ", " + num_reqs * 2);
-
-            var table = document.getElementById("theTable");
-            for (col = 1; col < num_reqs; col++) {
-                var weight_col = 0;
-                for (row = 1; row < num_reqs + 3; row++) {
-                    var cl = table.rows[row].cells[col];
-                    if (cl) {
-                        var ccl = cl.children[0];
-                        if (ccl && ccl.type == "checkbox") {
-                            var cb1 = ccl.name;
-                            var cb = document.getElementById(cb1);
-                            if (cb.checked) weight_col++;
-                        }
-                    }
-                }
-                ccl.innerHTML = weight_col;
-            }
-
-            var total = (num_reqs > 2) ? (num_reqs - 1) * (num_reqs - 2) : 2;
+            console.log(cbchecked.length + ", " + total);
             if (cbchecked.length == total) {
                 // Enable only if passes validation - test for loops!
                 document.getElementById("submit").disabled = false;
             } else {
                 document.getElementById("submit").disabled = true;
             }
+            document.getElementById("requirements_output").value = requirements_output;
+            document.getElementById("weights").value = weights;
+
             return true;
+        }
+
+        function updateSubTotalsAndWeights() {
+            weights = [];
+            var preqs = "{{ project.requirements }}";
+            var reqslist =  preqs.split(',');
+            var num_reqs = reqslist.length;
+            var table = document.getElementById("theTable");
+            var num_checked = 0;
+            for (col = 1; col <= num_reqs; col++) {
+                var sub_total_col = 0;
+                var subtotalCell = null;
+                var weightCell = null;
+                var reqName = null;
+                for (row = 0; row < table.rows.length; row++) {
+                    var cl = table.rows[row].cells[col];
+                    if (row == 0) {
+                        reqName = cl.children[0].id.substring(8);
+                        //console.log(cl.children[0].id + " " + reqName);
+                    }
+                    if (cl) {
+                        var ccl = cl.children[0];
+                        if (ccl) {
+                            if (ccl.type == "checkbox") {
+                                var cb1 = ccl.name;
+                                var cb = document.getElementById(cb1);
+                                if (cb.checked) {
+                                    num_checked++;
+                                    sub_total_col++;
+                                }
+                            } else {
+                                if (ccl.id != null) {
+                                    if (ccl.id.startsWith("subtotal")) {
+                                        subtotalCell = ccl;
+                                    } else if (ccl.id.startsWith("weight")) {
+                                        weightCell = ccl;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                var weight_col = (sub_total_col / num_checked).toFixed(1);
+                weight_col = (weight_col == NaN) ? "x" : weight_col;
+                weightCell.innerHTML  = weight_col;
+                subtotalCell.innerHTML = sub_total_col;
+                weights.push(reqName+":"+weight_col);
+            }
         }
    </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
@@ -234,7 +275,7 @@
                 <TR>
                     <th></th>
                     {% for item in project.requirements %}
-                        <th style="text-align: center"> {{ item }} </th>
+                        <th style="text-align: center"> <label id="reqname_{{ item }}" name="reqname_{{ item }}">{{ item }} </label>
                     {% endfor %}
                 </TR>
                 {% for item in project.requirements %}
@@ -262,11 +303,21 @@
                 {% endfor %}
                 <tr>
                     <td>
+                       <label>Subtotals</label>
+                    </td>
+                    {% for item in project.requirements %}
+                    <td align="center">
+                        <label name="subtotal_{{ item }}" id="subtotal_{{ item }}">x</label>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td>
                        <label>Weights</label>
                     </td>
                     {% for item in project.requirements %}
                     <td align="center">
-                        <label>x</label>
+                        <label name="weight_{{ item }}" id="weight_{{ item }}">x</label>
                     </td>
                     {% endfor %}
                 </tr>
@@ -276,6 +327,10 @@
                     </td>
                 </tr>
             </table>
+            <input type="text" name="requirements_output" id="requirements_output" style="display:none">
+            </input>
+            <input type="text" name="weights" id="weights" style="display:none">
+            </input>
           </form>
           <label>Show Calculations:</label>
             <input type="checkbox" id="showCalculations" name="showCalculations" onclick="onCCBClick(this);" unchecked>
