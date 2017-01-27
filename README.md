@@ -172,3 +172,9 @@ Demo steps described in Demo.md
 6. When you select check boxes and change selections, enable the Show Calc cb and observe the output in the console.
 7. You can make changes to the validate function too - i.e. fix code or add more console logs - when you do this - change the code and refresh.
 
+01/26/2017:
+----------
+1. To calculate the total possible/expected tuples: If N is number of requirements, then number of tuples = (n square - n) / 2
+2. Subtotal = # of 1s in the column
+3. Weight = Subtotal / <The total # of 1s in the sheet>
+4. Across all users - Add the weights of R1 and divide by # of users
