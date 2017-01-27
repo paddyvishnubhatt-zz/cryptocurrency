@@ -139,13 +139,14 @@ def show_summary(projectId):
                 score_table[req_weight[0]] = score_table[req_weight[0]] + req_weight[1]
             else:
                 score_table[req_weight[0]] = req_weight[1]
-    print score_table
+    sorted_score_table = sorted(score_table.items(), key=lambda x: x[1])
+    print sorted_score_table
     return render_template(
         'summary.html',
         current_user=userId,
         projectId = projectId,
         userId = userId,
-        scoretable=score_table,
+        scoretable=sorted_score_table,
         entrys= entrys)
 
 @app.route('/api/v1/show_entrys/<projectId>')
