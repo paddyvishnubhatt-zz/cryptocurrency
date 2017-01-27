@@ -215,7 +215,7 @@
 
             for (ii = 0; ii < weight_cells.length; ii++) {
                 var sub_total_col = sub_totals_cols[ii];
-                var weight_col = (sub_total_col / num_checked).toFixed(1);
+                var weight_col = (sub_total_col / num_checked).toFixed(2);
                 // console.log(ii + ", " + sub_total_col + ", " + num_checked + ", " + weight_col + ", " + isNaN(weight_col));
                 weight_col = (isNaN(weight_col)) ? "x" : weight_col;
                 var weightCell = weight_cells[ii];
