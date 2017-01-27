@@ -216,7 +216,8 @@
                     }
                 }
                 var weight_col = (sub_total_col / num_checked).toFixed(1);
-                weight_col = (weight_col == NaN) ? "x" : weight_col;
+                console.log(weight_col);
+                weight_col = (isNaN(weight_col)) ? "x" : weight_col;
                 weightCell.innerHTML  = weight_col;
                 subtotalCell.innerHTML = sub_total_col;
                 weights.push(reqName+":"+weight_col);
