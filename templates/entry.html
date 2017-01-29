@@ -50,7 +50,10 @@
                     for (ii = 0; ii < requirements_output.length; ii++) {
                         var row = table.insertRow(ii);
                         var cell = row.insertCell(0);
-                        cell.innerHTML = requirements_output[ii];
+                        var token = "^";
+                        var newToken = " ";
+                        var newStr = requirements_output[ii].split(token).join(newToken);
+                        cell.innerHTML = newStr;
                     }
                 }
             }
@@ -297,7 +300,7 @@
                             {%  if item == item1 %}
                                 <td align="center"> x </td>
                             {%  else %}
-                                {% set cbname = item + "_" + item1 %}
+                                {% set cbname = item | replace(" ", "^") + "_" + item1 |replace(" ", "^")%}
                                 <td style="text-align: center;">
                                     {% if requirements is defined %}
                                         {% if cbname in requirements %}
