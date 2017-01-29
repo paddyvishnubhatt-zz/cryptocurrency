@@ -223,6 +223,9 @@ def update_user(projectId, identity):
 def submitted_user():
     # Do not forget to bring in project from UI back here to store entry against it - until then
     # project is singleton
+    if request.method == 'GET':
+        from flask import Flask, redirect, url_for
+        return redirect(url_for('landing_page'))
     userId = request.form.get('identity')
     if userId == "admin":
         return render_template(

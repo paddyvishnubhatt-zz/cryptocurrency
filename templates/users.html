@@ -12,17 +12,18 @@
   </head>
     <script>
         function logout() {
-            var path = window.location.pathname
+            var path = window.location.pathname;
             if (path.substring("submitted_user")) {
-                window.location = "/";
+                var proto = window.location.protocol + "//";
+                window.location = window.location.href.replace(proto, proto + 'logout:password@');
+                console.log("href: " + window.location.href + ", " + window.location.pathname);
             } else {
                 var out = window.location.href.replace(/:\/\//, '://:out@');
             }
-            var out = window.location.href.replace(/:\/\//, '://:out@');
-            window.location.reload(true);
             jQuery.get(out).error(function() {
                 window.location.reload(true);
             });
+            window.location.reload(true);
         }
     </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
@@ -75,7 +76,7 @@
              {% if projectId %}
                  {%  set urlx = "/api/v1/update_user/" + projectId + "/" + iuser.identity %}
              {%  elif iuser.defaultProjectId %}
-                 {%  set urlx = "/api/v1/update_user/" + iuser.defaultProjectId + iuser.identity %}
+                 {%  set urlx = "/api/v1/update_user/" + iuser.defaultProjectId + "/" + iuser.identity %}
              {% else %}
                  {%  set urlx = "/api/v1/update_user/__CREATE__/" + iuser.identity %}
              {% endif %}
