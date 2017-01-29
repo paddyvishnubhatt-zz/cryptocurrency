@@ -74,6 +74,8 @@
         {% for iuser in users %}
              {% if projectId %}
                  {%  set urlx = "/api/v1/update_user/" + projectId + "/" + iuser.identity %}
+             {%  elif iuser.defaultProjectId %}
+                 {%  set urlx = "/api/v1/update_user/" + iuser.defaultProjectId + iuser.identity %}
              {% else %}
                  {%  set urlx = "/api/v1/update_user/__CREATE__/" + iuser.identity %}
              {% endif %}

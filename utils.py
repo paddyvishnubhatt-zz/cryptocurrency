@@ -110,6 +110,8 @@ def update_project(projectId, department, group, description, userIds, requireme
     users = []
     for userName in userIds:
         user = get_user_from_db(userName)
+        user.defaultProjectId = projectId
+        user.put()
         users.append(user)
     project.users = users
     project.put()
