@@ -43,6 +43,7 @@
             // set UI objects
             var cb = document.getElementById("showCalculations");
             if (cb.checked == true) {
+                updateRequirementsOutput();
                 $("#calculationsTable tr").remove();
                 if (requirements_output) {
                     var table = document.getElementById("calculationsTable");
@@ -68,19 +69,7 @@
             location.reload();
         }
 
-        function validate(cb_changed) {
-            var cb_splits = cb_changed.name.split("_");
-            var cb_swapped =  cb_splits[1] + "_" + cb_splits[0];
-            var o_cb_changed = document.getElementsByName(cb_swapped)[0];
-            if (cb_changed.checked == true) {
-                o_cb_changed.disabled = true;
-                o_cb_changed.checked = false;
-            } else {
-                o_cb_changed.disabled = false;
-                o_cb_changed.checked = true;
-                cb_changed.disabled = true;
-                cb_changed.checked = false;
-            }
+        function getCbCheckedList() {
             // Gather list of checked checkboxes - combos
             var inputs = document.getElementsByTagName("input");
             var cbchecked = [];
@@ -95,6 +84,11 @@
                     }
                 }
             }
+            return cbchecked;
+        }
+
+        function updateRequirementsOutput() {
+            var cbchecked = getCbCheckedList();
             // build requirements_output/prioritized list of reqs
             requirements_output = new Array();
             // for each req combo
@@ -142,6 +136,24 @@
                     }
                 }
             }
+        }
+
+        function validate(cb_changed) {
+            var cb_splits = cb_changed.name.split("_");
+            var cb_swapped =  cb_splits[1] + "_" + cb_splits[0];
+            var o_cb_changed = document.getElementsByName(cb_swapped)[0];
+            if (cb_changed.checked == true) {
+                o_cb_changed.disabled = true;
+                o_cb_changed.checked = false;
+            } else {
+                o_cb_changed.disabled = false;
+                o_cb_changed.checked = true;
+                cb_changed.disabled = true;
+                cb_changed.checked = false;
+            }
+
+            updateRequirementsOutput();
+
             redrawCalculations();
             // given list of requiremetns for project
             var preqs = "{{ project.requirements }}"
@@ -150,6 +162,8 @@
             var num_reqs = reqslist.length;
 
             updateSubTotalsAndWeights();
+
+            var cbchecked = getCbCheckedList();
 
             var total = ((num_reqs * num_reqs) - num_reqs) / 2;
             // check if num reqs and the checked check-boxes combo are same
@@ -179,13 +193,8 @@
                 var sub_total_col = 0;
                 var subtotalCell = null;
                 var weightCell = null;
-                var reqName = null;
                 for (row = 0; row < table.rows.length; row++) {
                     var cl = table.rows[row].cells[col];
-                    if (row == 0) {
-                        reqName = cl.children[0].id.substring(8);
-                        //console.log(cl.children[0].id + " " + reqName);
-                    }
                     if (cl) {
                         var ccl = cl.children[0];
                         if (ccl) {
@@ -216,13 +225,14 @@
             for (ii = 0; ii < weight_cells.length; ii++) {
                 var sub_total_col = sub_totals_cols[ii];
                 var weight_col = (sub_total_col / num_checked).toFixed(2);
-                // console.log(ii + ", " + sub_total_col + ", " + num_checked + ", " + weight_col + ", " + isNaN(weight_col));
+                //console.log(ii  + ", " + sub_total_col + ", " + num_checked + ", " + weight_col + ", " + isNaN(weight_col));
                 weight_col = (isNaN(weight_col)) ? "x" : weight_col * 100;
                 var weightCell = weight_cells[ii];
+                var reqName = weightCell.id.substring(7);
                 weightCell.innerHTML  = weight_col;
                 weights.push(reqName+":"+weight_col);
             }
-            // console.log("************ " + weights);
+            console.log("************ " + weights);
         }
    </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
