@@ -130,17 +130,13 @@ def show_summary(projectId):
     userId = request.authorization.username
     score_table = {}
     for entry in entrys:
-        print entry.weights
         for weight_splits in entry.weights:
-            print weight_splits
             req_weight = weight_splits.split(":")
-            print req_weight
             if req_weight[0] in score_table:
                 score_table[req_weight[0]] = float(score_table[req_weight[0]]) + float(req_weight[1])
             else:
                 score_table[req_weight[0]] = float(req_weight[1])
     sorted_score_table = sorted(score_table.items(), key=lambda x: x[1])
-    print sorted_score_table
     return render_template(
         'summary.html',
         current_user=userId,
