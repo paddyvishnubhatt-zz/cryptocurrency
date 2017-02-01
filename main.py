@@ -17,9 +17,8 @@ def about_page():
         current_user=request.authorization.username)
 
 @app.route('/')
-@app.route('/api/v1/landing_page')
 @requires_auth
-def landing_page():
+def root_page():
     user = utils.get_user_from_db(request.authorization.username)
     if user.type == "Admin":
         return show_projects()
@@ -27,6 +26,12 @@ def landing_page():
         return show_users(None)
     else:
         return show_entrys_given_user(user.identity)
+
+
+@app.route('/api/v1/landing_page')
+@requires_auth
+def landing_page():
+    return redirect(url_for('root_page'))
 
 @app.route('/api/v1/show_projects')
 @requires_auth
@@ -79,7 +84,7 @@ def submitted_project():
     description = request.form.get('description')
     print "project: " + str(projectId) + ", users: " + str(userIds) + ", reqs: " + str(stripped_reqs)
     utils.update_project(projectId, department, group, description, userIds, stripped_reqs, due_date)
-    return show_projects()
+    return redirect(url_for('landing_page'))
 
 @app.route('/api/v1/show_entry/<projectId>/<userId>')
 @requires_auth
@@ -131,7 +136,16 @@ def show_summary(projectId):
 @app.route('/api/v1/show_entrys_given_project/<projectId>')
 @requires_auth
 def show_entrys_given_project(projectId):
-    entrys = utils.get_entrys_from_given_project_db(projectId)
+    users = utils.get_users_from_db(projectId)
+    entrys = []
+    for user in users:
+        entry = utils.get_entry_from_db(projectId, user.identity)
+        if entry is None:
+            entry = utils.get_entry_from_db(projectId, user.identity)
+            if entry is None:
+                entry = utils.update_entry(projectId, user.identity, None, None, None)
+        entrys.append(entry)
+
     userId = request.authorization.username
     return render_template(
         'entrys.html',

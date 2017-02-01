@@ -11,20 +11,15 @@
   </head>
       <script>
            function logout(){
-                var url = window.location.href;
-                var str = url.replace("http://", "http://" + new Date().getTime() + "@");
-                var xmlhttp;
-                if (window.XMLHttpRequest) xmlhttp=new XMLHttpRequest();
-                else xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-                xmlhttp.onreadystatechange=function()
-                {
-                    if (xmlhttp.readyState==4) location.reload();
-                }
-                xmlhttp.open("GET",str,true);
-                xmlhttp.setRequestHeader("Authorization","Basic xxxxxxxxxx")
-                xmlhttp.send();
-                return false;
-            }
+            var path = window.location.pathname;
+            var proto = window.location.protocol + "//";
+            window.location = window.location.href.replace(proto, proto + 'logout:password@');
+            console.log("href: " + window.location.href + ", " + window.location.pathname);
+            jQuery.get(out).error(function() {
+                window.location.reload(true);
+            });
+            window.location.reload(true);
+        }
       </script>
 
   <nav class="navbar navbar-inverse navbar-static-top" >
