@@ -10,21 +10,37 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
+    <script>
+        function logout(){
+            var url = window.location.href;
+            var str = url.replace("http://", "http://" + new Date().getTime() + "@");
+            var xmlhttp;
+            if (window.XMLHttpRequest) xmlhttp=new XMLHttpRequest();
+            else xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState==4) location.reload();
+            }
+            xmlhttp.open("GET",str,true);
+            xmlhttp.setRequestHeader("Authorization","Basic xxxxxxxxxx")
+            xmlhttp.send();
+            return false;
+        }
+    </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
       <div class="container">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
           <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
-          <p class="navbar-text">{{ current_user }}</p>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-log-out"></span>About</a></li>
+                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="javascript:logout()"><span class="glyphicon glyphicon-log-out"></span>Re-Login-As</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/api/v1/show_settings"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
             </ul>
         </div>
       </div>
@@ -32,32 +48,39 @@
   <body>
     <div class="container">
     <br>
-
       <table class="table table-striped table-hover" >
         <tr>
            <th>
                Entrys
            </th>
-          <th>
-              {% if userId is defined %}
-                  {%  set urlx = "/api/v1/entry/" + projectId + "/" + userId %}
-              {% else %}
-                  {%  set urlx = "/api/v1/entry/" + projectId + "/__CREATE__" %}
-              {% endif %}
-              <a href={{ urlx | urlencode }}>
-                 <span class="glyphicon glyphicon-plus"></span>
-              </a>
-        </th>
+            <th>
+                Project
+            </th>
+            <th>
+
+            </th>
       </tr>
       {% for entry in entrys %}
           {%  set userId = entry.user.identity %}
-          {%  set urlstr = "/api/v1/entry/" + projectId + "/" + userId  %}
+          {%  set urlstr = "/api/v1/show_entry/" + entry.project.projectId + "/" + userId  %}
            <tr onclick="location.href='{{ urlstr | urlencode}}'">
                 <td>
-                 Entry = {{ entry.user.identity }}
+                    Entry = {{ entry.user.identity }}
+                </td>
+                <td>
+                    Project = {{ entry.project.projectId }}
                 </td>
                 <td>
                     <a href={{ urlstr | urlencode}}>
+                        {% if entry.requirements | length == 0%}
+                            {% if entry.project.due_date < current_date %}
+                                <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
+                            {% else %}
+                                <span class="glyphicon glyphicon-exclamation-sign"></span>
+                            {% endif %}
+                        {% else %}
+                            <span class="glyphicon glyphicon-ok-sign"></span>
+                        {% endif %}
                         <span class="glyphicon glyphicon-chevron-right"></span>
                     </a>
                 </td>

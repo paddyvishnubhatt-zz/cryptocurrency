@@ -1,6 +1,8 @@
 import requests
 import base64
 import time
+from datetime import timedelta
+import datetime
 
 URL = "http://localhost:8080"
 num_projects = 5
@@ -23,10 +25,11 @@ def post_users(projectId):
             userId = "User-" + projectId + "-" + str(u_idx)
             form_params["identity"] = userId
             form_params["type"] = "User"
-
+        due_date = datetime.datetime.now() + timedelta(days=u_idx)
         form_params["email"] = userId + "@sellerforce.com"
         form_params["password"] = "defaultPassword"
         form_params["projectId"] = projectId
+        form_params["due_date"] = due_date
         response = requests.post(url,
                                  data=form_params,
                                  headers={"Authorization": "Basic %s" % b64Val})
@@ -106,7 +109,7 @@ def delete_projects():
 
 def delete_users():
     url = URL + "/api/v1/delete_users"
-    usrPass = "admin:password"
+    usrPass = "superuser:password"
     b64Val = base64.b64encode(usrPass)
     response = requests.delete(url,
                                headers={"Authorization": "Basic %s" % b64Val})

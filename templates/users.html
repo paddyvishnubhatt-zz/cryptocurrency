@@ -11,15 +11,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
     <script>
-        function logout() {
+        function logout(){
             var path = window.location.pathname;
-            if (path.substring("submitted_user")) {
-                var proto = window.location.protocol + "//";
-                window.location = window.location.href.replace(proto, proto + 'logout:password@');
-                console.log("href: " + window.location.href + ", " + window.location.pathname);
-            } else {
-                var out = window.location.href.replace(/:\/\//, '://:out@');
-            }
+            var proto = window.location.protocol + "//";
+            window.location = window.location.href.replace(proto, proto + 'logout:password@');
+            console.log("href: " + window.location.href + ", " + window.location.pathname);
             jQuery.get(out).error(function() {
                 window.location.reload(true);
             });
@@ -30,13 +26,7 @@
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
           <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
-          <p class="navbar-text">{{ current_user }}</p>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -51,7 +41,7 @@
   <body>
     <div class="container">
     <br>
-      <table class="table table-striped">
+      <table class="table table-striped table-hover">
         <th style="text-align:justify">
             {% if projectId  %}
                 Users for {{ projectId }}
@@ -61,37 +51,35 @@
         </th>
         <th tyle="text-align:justify">
             {% if projectId is none or projectId == "" %}
-               {%  set urlx = "/api/v1/update_user/__CREATE__/___CREATE___" %}
+               {%  set urlx = "/api/v1/show_user/__CREATE__/___CREATE___" %}
                 <a href={{ urlx }}>
                     <span class="glyphicon glyphicon-plus"></span>
                 </a>
             {% endif %}
             {% if projectId %}
-                {% set url = "/api/v1/update_user/" + projectId + "/__CREATE__" %}
+                {% set url = "/api/v1/show_user/" + projectId | urlencode + "/__CREATE__" %}
                 <a href={{ url }}>Edit Users for {{ projectId }}</a>
             {% endif %}
         </th>
-      {% if users %}
-        {% for iuser in users %}
-             {% if projectId %}
-                 {%  set urlx = "/api/v1/update_user/" + projectId + "/" + iuser.identity %}
-             {%  elif iuser.defaultProjectId %}
-                 {%  set urlx = "/api/v1/update_user/" + iuser.defaultProjectId + "/" + iuser.identity %}
-             {% else %}
-                 {%  set urlx = "/api/v1/update_user/__CREATE__/" + iuser.identity %}
-             {% endif %}
-             <TR onclick="location.href='{{ urlx }}'"}>
-                <td>
-                    {{  iuser.identity }}
-                </td>
-                <td>
-                    <a href={{ urlx }}>
-                        <span class="glyphicon glyphicon-edit"></span>
-                    </a>
-                </td>
-            </tr>
-        {% endfor %}
-      {% endif %}
+        {% if users %}
+            {% for iuser in users %}
+                {% if iuser.projectIds %}
+                    {% set urlx = "/api/v1/show_user/None/" + iuser.identity %}
+                {% else %}
+                    {% set urlx = "/api/v1/show_user/__CREATE__/" + iuser.identity %}
+                {% endif %}
+                <TR onclick="location.href='{{ urlx }}'"}>
+                    <td>
+                        {{ iuser.identity }}
+                    </td>
+                    <td>
+                        <a href={{ urlx }}>
+                            <span class="glyphicon glyphicon-edit"></span>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
       </table>
     </div>
   </body>
