@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="static/common.js"></script>
   </head>
   <nav class="navbar navbar-inverse navbar-static-top" >
       <div class="container">
@@ -17,7 +18,7 @@
                 <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/api/v1/show_settings"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
+                <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
             </ul>
         </div>
       </div>

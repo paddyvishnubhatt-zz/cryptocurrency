@@ -9,19 +9,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="static/common.js"></script>
   </head>
-    <script>
-        function logout(){
-            var path = window.location.pathname;
-            var proto = window.location.protocol + "//";
-            window.location = window.location.href.replace(proto, proto + 'logout:password@');
-            console.log("href: " + window.location.href + ", " + window.location.pathname);
-            jQuery.get(out).error(function() {
-                window.location.reload(true);
-            });
-            window.location.reload(true);
-        }
-    </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
       <div class="container">
         <div class="navbar-header">
@@ -31,11 +20,13 @@
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
             </ul>
+            {% if isUser %}
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="javascript:logout()"><span class="glyphicon glyphicon-log-out"></span>Re-Login-As</a></li>
+                </ul>
+            {% endif %}
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="javascript:logout()"><span class="glyphicon glyphicon-log-out"></span>Re-Login-As</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="/api/v1/show_settings"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
+                <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
             </ul>
         </div>
       </div>
@@ -74,7 +65,7 @@
                                 <span class="glyphicon glyphicon-exclamation-sign"></span>
                             {% endif %}
                         {% else %}
-                            <span class="glyphicon glyphicon-ok-sign"></span>
+                            <span class="glyphicon glyphicon-ok-sign" style="color:green"></span>
                         {% endif %}
                         <span class="glyphicon glyphicon-chevron-right"></span>
                     </a>

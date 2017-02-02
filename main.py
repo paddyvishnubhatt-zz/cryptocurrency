@@ -11,6 +11,7 @@ from utils import requires_auth
 app = Flask(__name__)
 
 @app.route('/api/v1/about_page')
+@requires_auth
 def about_page():
     return render_template(
         'about.html',
@@ -169,6 +170,7 @@ def show_entrys_given_user(userId):
         'entrys.html',
         current_date=datetime.datetime.now(),
         current_user=userId,
+        isUser = True,
         userId = userId,
         entrys= entrys)
 
@@ -195,9 +197,9 @@ def submitted_entry(projectId):
     ent = utils.update_entry(projectId, userId, requirements_input,requirements_output, weights)
     user = utils.get_user_from_db(userId)
     if user.type == 'Admin':
-        return show_entrys_given_project(projectId)
+        return redirect(url_for('show_entrys_given_project/' + projectId))
     elif user.type == 'User':
-        return show_entrys_given_user(userId)
+        return redirect(url_for('show_entrys_given_user/' + userId))
     else:
         return "Invalid URL", 404
 
@@ -264,9 +266,10 @@ def submitted_user():
     user = utils.update_user(userId, email, type, password, projectIds)
     current_user = utils.get_user_from_db(request.authorization.username)
     if current_user.type == "Superuser":
-        return show_users(None)
+        return redirect(url_for('landing_page'))
     else:
-        return show_project(projectId)
+        return redirect(url_for('show_project/' + projectId))
+
 
 
 @app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])
