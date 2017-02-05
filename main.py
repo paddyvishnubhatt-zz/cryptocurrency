@@ -38,8 +38,7 @@ def landing_page():
 @requires_auth
 def show_projects():
     current_user = request.authorization.username
-    user = utils.get_user_from_db(current_user)
-    if user.type == 'User':
+    if utils.checkIfAdminUser() == False:
         return "Unauthorized", 404
     projects = utils.get_projects_from_db(current_user)
     if projects is None or len(projects) < 1:
@@ -52,6 +51,8 @@ def show_projects():
 @app.route('/api/v1/show_project/<projectId>')
 @requires_auth
 def show_project(projectId):
+    if utils.checkIfAdminUser() == False:
+        return "Unauthorized", 404
     users = utils.get_users_from_db(None)
     if projectId is not None and projectId != "___CREATE___" :
         project = utils.get_project_from_db(projectId)
@@ -73,8 +74,11 @@ def show_project(projectId):
 @app.route('/api/v1/submitted_project', methods=['POST', 'GET'])
 @requires_auth
 def submitted_project():
+    if utils.checkIfAdminUser() == False:
+        return "Unauthorized", 404
     if request.method == 'GET':
         return redirect(url_for('landing_page'))
+
     projectId = request.form.get('projectId')
     userIds = set(request.form.getlist('userIds[]'))
     requirements = request.form.get('requirements_list')
@@ -111,6 +115,9 @@ def show_entry(projectId, userId):
 @app.route('/api/v1/show_summary/<projectId>')
 @requires_auth
 def show_summary(projectId):
+    if utils.checkIfAdminUser() == False:
+        return "Unauthorized", 404
+
     entrys = utils.get_entrys_from_given_project_db(projectId)
     userId = request.authorization.username
     score_table = {}
@@ -138,6 +145,9 @@ def show_summary(projectId):
 @app.route('/api/v1/show_entrys_given_project/<projectId>')
 @requires_auth
 def show_entrys_given_project(projectId):
+    if utils.checkIfAdminUser() == False:
+        return "Unauthorized", 404
+
     users = utils.get_users_from_db(projectId)
     entrys = []
     for user in users:

@@ -91,14 +91,10 @@ def update_user(userId, email, type, password, projectIds):
         for projId in projectIds:
             if projId and projId != "__CREATE__"and projId not in user.projectIds:
                     user.projectIds.append(projId)
+                    project = get_project_from_db(projId)
+                    project.userIds.append(userId)
+                    project.put()
     user.put()
-    #Fix me
-    for projectId in projectIds:
-        if projectId and projectId != "__CREATE__":
-            project = get_project_from_db(projectId)
-            if project and userId not in project.userIds:
-                project.userIds.append(userId)
-                project.put()
     time.sleep(1)
     return user
 
@@ -215,3 +211,10 @@ def requires_auth(f):
             return f(*args, **kwargs)
 
     return decorated
+
+def checkIfAdminUser():
+    user = get_user_from_db(request.authorization.username)
+    if user.type == "User":
+        return False
+    else:
+        return True
