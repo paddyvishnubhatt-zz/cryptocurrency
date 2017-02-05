@@ -1,4 +1,5 @@
 function popup(title, message) {
+
     BootstrapDialog.show({
     size: BootstrapDialog.SIZE_LARGE,
     title: title,

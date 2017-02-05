@@ -77,7 +77,8 @@ def submitted_project():
         return redirect(url_for('landing_page'))
     projectId = request.form.get('projectId')
     userIds = set(request.form.getlist('userIds[]'))
-    requirements = request.form.get('requirements')
+    requirements = request.form.get('requirements_list')
+    print request.values.get("requirements_list")
     due_date = request.form.get('due_date')
     stripped_reqs = requirements
     department = request.form.get('department')

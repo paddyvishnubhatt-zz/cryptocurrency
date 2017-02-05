@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="static/common.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>    <script type="text/javascript" src="/static/common.js"></script>
   </head>
     <nav class="navbar navbar-inverse navbar-static-top">
       <div class="container-fluid">
@@ -27,11 +29,28 @@
 
   <body>
   <script>
+    var requirements_list;
+
     $(document).ready(function(){
         $('#checkbox').on('change', function(){
             $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
         });
     });
+
+    $(document).ready(function() {
+        //toggle `popup` / `inline` mode
+        $.fn.editable.defaults.mode = 'inline';
+        //make requirements editable
+        $('#requirements-list').editable({
+            type: 'text',
+            title: 'Enter username',
+            success: function(response, newValue) {
+                requirements_list = newValue;
+                document.getElementById("requirements_list").value = requirements_list;
+            }
+        });
+    });
+
     </script>
     <div id="container">
       <div id="main">
@@ -152,14 +171,24 @@
                 </TR>
                 <TR>
                     <td>
-                        Add Requirements - Enter comma separated list of requirements
+                        Requirements
                     </td>
                     <td>
-                        {% set reqs = "" %}
                         {% if project is defined %}
-                            {%  set reqs = requirements | list |  join(',') %}
+                            <ul id="requirements-list-container" class="list-group">
+                                {%  set reqs = requirements | list %}
+                                {% for req in reqs %}
+                                    <li class="list-group-item"> {{ req }} </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div>
+                                <a href="#" id="requirements-list" data-type="text"
+                                   data-placement="right" data-title="Enter Requirements">
+                                </a>
+                                <input type="hidden" name="requirements_list" id="requirements_list" style="display:none">
+                            </div>
                         {% endif %}
-                        <input type="text" class="form-control" name="requirements" value="{{ reqs }}">
                     </td>
                 </TR>
             </table>

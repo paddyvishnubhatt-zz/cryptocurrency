@@ -92,6 +92,7 @@ def update_user(userId, email, type, password, projectIds):
             if projId and projId != "__CREATE__"and projId not in user.projectIds:
                     user.projectIds.append(projId)
     user.put()
+    #Fix me
     for projectId in projectIds:
         if projectId and projectId != "__CREATE__":
             project = get_project_from_db(projectId)
