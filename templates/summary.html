@@ -31,10 +31,11 @@
     <br>
       <table class="table" >
           <tr>
-              <th>
+              <th colspan="0.5">
                   Project: {{ project.projectId }}
-              </th>
-              <th>
+                  &nbsp;
+                  &nbsp;
+                  &nbsp;
                   {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
                   <a href={{ urlx }}>Entrys<span class="glyphicon glyphicon-chevron-right"></span></a>
               </th>
