@@ -133,7 +133,10 @@ def update_project(projectId, department, group, description, defaultPassword, u
         if vendor and projectId not in vendor.projectIds:
             vendor.projectIds.append(projectId)
             vendor.put()
-    project.due_date = datetime.datetime.strptime(due_date.split(" ")[0], "%Y-%m-%d")
+    if due_date is None or due_date == "":
+        project.due_date = datetime.datetime.now()
+    else:
+        project.due_date = datetime.datetime.strptime(due_date.split(" ")[0], "%Y-%m-%d")
     project.objectiveIds = []
     bol = getArrayOfDict(bos)
     for bo in bol:
