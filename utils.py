@@ -321,7 +321,7 @@ def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
         if entry.vendor_output:
             vsplits = json.loads(entry.vendor_output)
             if key in vsplits:
-                score += vsplits[key]
+                score += int(vsplits[key])
     return score
 
 def get_business_objectives_from_db(projectId, withCalc):

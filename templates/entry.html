@@ -46,8 +46,7 @@
 
         function getNumReqs() {
             var numReqs = 0;
-            jbos_db = "{{ bos_db }}"
-            {% for bo in jbos_db %}
+            {% for bo in bos_db %}
                 var nr = "{{ bo.evaluation_criteria  | length}}"
                 var nrr = ((nr * nr) - nr) / 2;
                 numReqs += nrr;
@@ -372,7 +371,7 @@
                                                 {% set cvo = str_to_obj(entry.vendor_output) %}
                                                 {% set keypart = item | replace(" ", "^") %}
                                                 {% set key = vendor + "^" + keypart %}
-                                                {% set sel = cvo[key] %}
+                                                {% set sel = cvo[key] | int %}
                                                 <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%;'>
                                                     {% if sel == 2 %}
                                                         <option value="2" selected>Yes</option>
