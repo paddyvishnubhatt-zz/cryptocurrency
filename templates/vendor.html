@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>User details</title>
+    <title>Vendor details</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,16 +36,16 @@
     </script>
     <div id="container">
       <div id="main">
-          <form method="post" action="{{ url_for('submitted_user') }}">
+          <form method="post" action="{{ url_for('submitted_vendor') }}">
             <table class="table table-striped">
                 <TR>
                     <td align="left">
-                        Username (name)
+                        Vendorname (name)
                     </td>
                     <td>
                         {% set idval = "" %}
-                        {% if user is defined %}
-                            {% set idval = user.identity %}
+                        {% if vendor is defined %}
+                            {% set idval = vendor.identity %}
                         {% endif %}
                         <input class="form-control" type="text" name="identity" value= {{ idval }}>
                     </td>
@@ -56,50 +56,10 @@
                     </td>
                     <td>
                         {% set emailval = "" %}
-                        {% if user is defined %}
-                            {% set emailval = user.email %}
+                        {% if vendor is defined %}
+                            {% set emailval = vendor.email %}
                         {% endif %}
                         <input class="form-control" type="text" name="email" value={{ emailval }}>
-                    </td>
-                </TR>
-                <TR>
-                    <td>
-                        Type
-                    </td>
-                    <td>
-                        {% set typeval = "" %}
-                        {% if user is defined %}
-                            {% set typeval = user.type %}
-                        {% endif %}
-                        <select class="form-control" name="type">
-                            {% if typeval == "User" %}
-                                <option value="User" selected="selected">User</option>
-                            {% else %}
-                                <option value="User">User</option>
-                            {% endif %}
-                            {% if typeval == "Admin" %}
-                                <option value="Admin" selected="selected">Admin</option>
-                            {% else %}
-                                <option value="Admin">Admin</option>
-                            {% endif %}
-                        </select>
-                    </td>
-                </TR>
-                <TR>
-                    <td>
-                        Password
-                    </td>
-                    <td>
-                        {% set passval = "" %}
-                        {% if user is defined %}
-                            {% set passval = user.password %}
-                        {% else %}
-                            {% if defaultPassword is defined %}
-                                {% set passval = defaultPassword %}
-                            {% endif %}
-                        {% endif %}
-                        <input class="form-control" id="password" type="password" name="password" value={{ passval }}>
-                        <input type="checkbox" id="checkbox"> Show Password
                     </td>
                 </TR>
                 <TR>
@@ -114,8 +74,8 @@
                                 <select class="form-control" name="projectIds[]" multiple size={{ projects |length }}>
 
                                     {% for iproject in projects %}
-                                        {% if user is defined %}
-                                            {% if iproject.projectId in user.projectIds %}
+                                        {% if vendor is defined %}
+                                            {% if iproject.projectId in vendor.projectIds %}
                                                 <option value="{{  iproject.projectId }}" selected> {{ iproject.projectId }}</option>
                                             {% else %}
                                                 <option value="{{  iproject.projectId }}"> {{ iproject.projectId }}</option>

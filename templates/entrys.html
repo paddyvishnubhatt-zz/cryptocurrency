@@ -59,7 +59,7 @@
                 </td>
                 <td>
                     <a href={{ urlstr | urlencode}}>
-                        {% if entry.requirements | length == 0%}
+                        {% if entry.evaluation_criteria | length == 0%}
                             {% if entry.project.due_date < current_date %}
                                 <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
                             {% else %}

@@ -16,12 +16,26 @@ class User(ndb.Model):
     password = ndb.StringProperty()
     projectIds = ndb.StringProperty(repeated=True)
 
+# [START Requirement]
+class EvaluationCriteria(ndb.Model):
+    evaluation_criterionId = ndb.StringProperty(indexed=True, required=True)
+    evaluation_criterion = ndb.StringProperty()
+    calculations = ndb.JsonProperty()
+
+# [START Objective]
+class Objective(ndb.Model):
+    objectiveId = ndb.StringProperty(indexed=True, required=True)
+    description = ndb.StringProperty()
+    weight = ndb.IntegerProperty()
+    evaluation_criteriaIds = ndb.StringProperty(repeated=True)
+
 # [START Project]
 class Project(ndb.Model):
     projectId = ndb.StringProperty(indexed=True, required=True)
+    objectiveIds = ndb.StringProperty(repeated=True)
     due_date = ndb.DateTimeProperty(required=True)
     userIds = ndb.StringProperty(repeated=True)
-    requirements = ndb.StringProperty(repeated=True)
+    vendorIds = ndb.StringProperty(repeated=True)
     defaultPassword = ndb.StringProperty()
     department = ndb.StringProperty()
     group = ndb.StringProperty()
@@ -33,5 +47,12 @@ class Entry(ndb.Model):
     user = ndb.StructuredProperty(User, indexed=True, required=True)
     date = ndb.DateTimeProperty(auto_now_add=True)
     weights = ndb.StringProperty(repeated=True)
-    requirements = ndb.StringProperty(repeated=True)
-    requirements_output = ndb.StringProperty(repeated=True)
+    evaluation_criteria = ndb.StringProperty(repeated=True)
+    evaluation_criteria_output = ndb.StringProperty(repeated=True)
+    vendor_output = ndb.JsonProperty()
+
+# [START Vendor]
+class Vendor(ndb.Model):
+    identity = ndb.StringProperty(indexed=True,required=True)
+    email = ndb.StringProperty(indexed=True,required=True)
+    projectIds = ndb.StringProperty(repeated=True)

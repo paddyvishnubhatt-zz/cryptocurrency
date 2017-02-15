@@ -8,8 +8,15 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
-    <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>    <script type="text/javascript" src="/static/common.js"></script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+    <script type="text/javascript" src="/static/common.js"></script>
+    <script type="text/javascript" src="/static/objective.js"></script>
+    <link href="/static/objective.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+    <script type="text/javascript" src="/static/evaluation_criteria.js"></script>
+    <link href="/static/evaluation_criteria.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
   </head>
     <nav class="navbar navbar-inverse navbar-static-top">
       <div class="container-fluid">
@@ -29,8 +36,7 @@
 
   <body>
   <script>
-    var requirements_list;
-
+    var business_objectives = [];
     $(document).ready(function(){
         $('#checkbox').on('change', function(){
             $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
@@ -38,15 +44,96 @@
     });
 
     $(document).ready(function() {
-        //toggle `popup` / `inline` mode
-        $.fn.editable.defaults.mode = 'inline';
-        //make requirements editable
-        $('#requirements-list').editable({
-            type: 'text',
-            title: 'Enter username',
+        $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+        $('#due_datepicker').editable({
+            combodate: {
+                minYear: 2017,
+                maxYear: 2018,
+            },
             success: function(response, newValue) {
-                requirements_list = newValue;
-                document.getElementById("requirements_list").value = requirements_list;
+                console.log(newValue.format("YYYY-MM-DD"));
+                document.getElementById("due_date").value = newValue.format("YYYY-MM-DD");
+            }
+        });
+
+        $('#objective').editable({
+            title: 'Enter objective details',
+            mode: 'popup',
+            success: function(response, newValue) {
+                if (business_objectives == null) {
+                    business_objectives = [];
+                }
+                var obj1 = {};
+                obj1.objectiveId = newValue.objectiveId;
+                obj1.description = newValue.description;
+                obj1.weight = newValue.weight;
+                var jobj = JSON.stringify(obj1);
+                var id = business_objectives.push(jobj) - 1;
+
+                var bo_list = document.getElementById("business-objectives-container");
+                var row = bo_list.insertRow(-1);
+                row.id = newValue.objectiveId;
+                var cell1 = row.insertCell(0);
+                cell1.innerHTML = newValue.objectiveId;
+                var cell2 = row.insertCell(1);
+                cell2.innerHTML = newValue.description;
+                var cell3 = row.insertCell(2);
+                cell3.innerHTML = newValue.weight;
+                var cell4 = row.insertCell(3);
+                var idd = "evaluation_criteria_id_" + row.id + "_" + id;
+                cell4.innerHTML = '<a href="#" id=' + idd + ' data-type="evaluation_criteria" data-pk="1">' +
+                                    '<span class="glyphicon glyphicon-plus"></span>' +
+                                    '</a>';
+                document.getElementById("bos[]").value = business_objectives;
+
+                // console.log(" ***** 1 " + JSON.parse(business_objectives));
+
+                $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+                $(eval(idd)).editable({
+                    title: 'Enter Evalution Criteria details',
+                    mode: 'popup',
+                    success: function(response, nValue) {
+                        var ir = this.id.substring(23);
+                        var iddd = ir.substring(ir.indexOf("_") + 1);
+                        ir = ir.substring(0, ir.indexOf("_"));
+                        console.log(ir + ", " + iddd + ", " + business_objectives[iddd]);
+                        var bo = JSON.parse(business_objectives[iddd]);
+
+                        var lastIdx = 0;
+                        if (bo.evaluation_criteria !== undefined) {
+                            lastIdx = bo.evaluation_criteria.length;
+                        } else {
+                            bo.evaluation_criteria = [];
+                        }
+                        var idRow = document.getElementById(ir);
+                        if ( lastIdx > 0) {
+                            var bo_list = document.getElementById("business-objectives-container");
+                            var rIdx = idRow.rowIndex;
+                            idRow = bo_list.insertRow(rIdx+1);
+                            for (var xx = 0; xx < 4; xx++) {
+                                idRow.insertCell(xx);
+                            }
+                        }
+
+                        var obj1 = {};
+                        obj1.evaluation_criteriaId = nValue.evaluation_criteriaId;
+                        obj1.evaluation_criterion = nValue.evaluation_criterion
+                        bo.evaluation_criteria.push(obj1);
+
+                        var jobj = JSON.stringify(bo);
+
+                        business_objectives[iddd] = jobj;
+                        document.getElementById("bos[]").value = business_objectives;
+
+                        var weight = idRow.cells[2].innerHTML;
+                        var cell5 = idRow.insertCell(4);
+                        cell5.innerHTML = nValue.evaluation_criteriaId;
+                        var cell6 = idRow.insertCell(5);
+                        cell6.innerHTML = nValue.evaluation_criterion;
+
+                        console.log(business_objectives);
+                    }
+                });
             }
         });
     });
@@ -55,11 +142,9 @@
     <div id="container">
       <div id="main">
           <form method="post" action="{{ url_for('submitted_project') }}">
-            <table class="table table-striped">
-                <th>
-                    Requirement details
-                </th>
-                <th>
+            <table class="table">
+                <th width="50%">
+                    Project Details
                     {% if project is defined %}
                         {% set urlx = "/api/v1/show_summary/" + project.projectId | urlencode %}
                         <a href={{ urlx }}>
@@ -70,8 +155,6 @@
                 <tr>
                     <td>
                         Project/Requirement ID
-                    </td>
-                    <td>
                         {% set regId = "" %}
                         {% if project is defined %}
                             {% set regId = project.projectId %}
@@ -79,36 +162,37 @@
 
                         <input type="text" class="form-control" name="projectId" value="{{ regId }}">
                     </td>
-                </tr>
-                <tr>
                     <td>
                         Due Date
-                    </td>
-                    <td>
-                        {% set dateS = "" %}
-                        {% if project is defined %}
-                            {% set dateS = project.due_date %}
-                        {% endif %}
-                        <input type="text" class="form-control" name="due_date" value="{{ dateS }}">
+                        <div class="panel panel-default" style="height:33px; ">
+                            <a href="#" id="due_datepicker"
+                               data-type="combodate"
+                               {% if project is defined %}
+                                   data-value= "{{ project.due_date }}"
+                                {% else %}
+                                    data-value= "{{ get_current_date() }}"
+                               {% endif %}
+                               data-format="YYYY-MM-DD"
+                               data-template="YYYY-MM-DD"
+                               data-pk="1"
+                               data-viewformat="YYYY-MM-DD"
+                               data-title="Project due date">
+                            </a>
+                        </div>
+                        <input type="hidden" class="form-control" id="due_date" name="due_date">
                     </td>
                 </tr>
                 <tr>
                     <td>
                         Description
-                    </td>
-                    <td>
                         {% set desc = "" %}
                         {% if project is defined %}
                             {% set desc = project.description %}
                         {% endif %}
                         <input type="text" class="form-control" name="description" value="{{ desc }}">
                     </td>
-                </tr>
-                <tr>
                     <td>
                         Department
-                    </td>
-                    <td>
                         {% set dept = "" %}
                         {% if project is defined %}
                             {% set dept = project.department %}
@@ -119,25 +203,20 @@
                 <tr>
                     <td>
                         Group
-                    </td>
-                    <td>
                         {% set grp = "" %}
                         {% if project is defined %}
                             {% set grp = project.group %}
                         {% endif %}
                         <input type="text" class="form-control" name="group" value="{{ grp }}">
                     </td>
-                </tr>
-                <tr>
                     <td>
-                        Default Password
-                    <td>
+                        Password
                         {% set defp = "" %}
                         {% if project is defined %}
                             {% set defp = project.defaultPassword %}
                         {% endif %}
                         <input class="form-control" id="password" type="password" name="password" value="{{ defp }}">
-                        <input type="checkbox" id="checkbox"> Show Password
+                        <input type="checkbox" id="checkbox"> <span class="glyphicon glyphicon-eye-open"/>
                     </td>
                 </tr>
                 <TR>
@@ -151,8 +230,6 @@
                             {% set urlx = "/api/v1/show_user/__CREATE__/__CREATE__" %}
                         {% endif %}
                         <br><a href={{ urlx | urlencode }}> Click on link button to add new user</a>
-                    </td>
-                    <td>
                         <select class="form-control" name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
 
                         {% for user in users %}
@@ -168,31 +245,102 @@
                         {% endfor %}
                         </select>
                     </td>
+                    <td>
+                        Add Vendors
+                        <br>Select Vendors to add (Hold down the Ctrl (windows) / Command (Mac)
+                        <br>button to select multiple options)
+                        {% if project is defined %}
+                            {% set urlx = "/api/v1/show_vendor/" + project.projectId  + "/__CREATE__" %}
+                        {% else %}
+                            {% set urlx = "/api/v1/show_vendor/__CREATE__/__CREATE__" %}
+                        {% endif %}
+                        <br><a href={{ urlx | urlencode }}> Click on link button to add new vendor</a>
+                        <select class="form-control" name="vendorIds[]" multiple size={{ vendors |length }} style='height: 100%;'>
+
+                        {% for vendor in vendor_objects %}
+                            {% if project is defined %}
+                                {%  if vendor.identity in vendorlist %}
+                                    <option value="{{  vendor.identity }}" selected> {{ vendor.identity }}</option>
+                                {% else %}
+                                    <option value="{{  vendor.identity }}"> {{ vendor.identity }}</option>
+                                {% endif %}
+                            {% else %}
+                                <option value="{{  vendor.identity }}"> {{ vendor.identity }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        </select>
+                    </td>
                 </TR>
                 <TR>
                     <td>
-                        Requirements
+                        Business Objectives
                     </td>
-                    <td>
-                        {% if project is defined %}
-                            <ul id="requirements-list-container" class="list-group">
-                                {%  set reqs = requirements | list %}
-                                {% for req in reqs %}
-                                    <li class="list-group-item"> {{ req }} </li>
+                </TR>
+                <TR>
+                    <td colspan="2" style="padding-left: 40px;" align="right">
+                        <table id="business-objectives-container" class="table table-striped table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <a href="#" id="objective" data-type="objective" data-pk="1">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </a>
+                                    </th>
+                                    <th colspan="3" style="text-align: center">Objectives</th>
+                                    <th colspan="9" style="text-align: center">Evaluation Criteria</th>
+                                </tr>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Description</th>
+                                    <th>Weight</th>
+                                    <th>   </th>
+                                    <th>Criteria ID</th>
+                                    <th>Criterion</th>
+                                </tr>
+                            </thead>
+                            {% if bos_db is defined %}
+                                {% for bo in bos_db %}
+                                    <tr>
+                                        <td>
+                                            {{ bo.objectiveId }}
+                                        </td>
+                                        <td>
+                                            {{ bo.description }}
+                                        </td>
+                                        <td>
+                                            {{ bo.weight }}
+                                        </td>
+                                        <td>
+                                        </td>
+                                        {% set count = [0] %}
+                                        {% for ec in bo.evaluation_criteria %}
+                                            {% if count > [0] %}
+                                                <tr>
+                                                    <td></td><td></td><td></td><td></td>
+                                            {% endif %}
+                                            <td>
+                                                {{ ec.evaluation_criterionId }}
+                                            </td>
+                                            <td>
+                                                {{ ec.evaluation_criterion }}
+                                            </td>
+                                            {% if count > 0  %}
+                                                </tr>
+                                                {% if count.append(count.pop() + 1) %}{% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                </tr>
                                 {% endfor %}
-                            </ul>
-                        {% else %}
-                            <div>
-                                <a href="#" id="requirements-list" data-type="text"
-                                   data-placement="right" data-title="Enter Requirements">
-                                </a>
-                                <input type="hidden" name="requirements_list" id="requirements_list" style="display:none">
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </table>
                     </td>
                 </TR>
             </table>
             <input type="submit" value="Save" >
+            <div>
+                <input type="hidden" name="bos[]" id="bos[]" style="display:none">
+                <input type="hidden" name="vendors" id="vendors" style="display:none">
+            </div>
           </form>
       </div>
     </div>

@@ -2,9 +2,13 @@
 from models import Entry
 from models import User
 from models import Project
+from models import Vendor
+from models import Objective
+from models import EvaluationCriteria
 from models import DEFAULT_PROJECT_NAME
 from models import project_db_key
 from functools import wraps
+import json
 import time
 import datetime
 from flask import request, Response, url_for, redirect
@@ -12,7 +16,7 @@ from flask import request, Response, url_for, redirect
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
 
-#Gets requirements from db - this needs to implement requirements-lifecycle - right now it is a singleton
+#Gets evaluation_criteria from db - this needs to implement evaluation_criteria-lifecycle - right now it is a singleton
 def get_projects_from_db(userId):
     if userId:
         project_query = Project.query(Project.userIds.IN([userId]))
@@ -20,7 +24,7 @@ def get_projects_from_db(userId):
         project_query = Project.query()
     return project_query.fetch(100)
 
-#Gets requirements from db - this needs to implement requirements-lifecycle - right now it is a singleton
+#Gets evaluation_criteria from db - this needs to implement evaluation_criteria-lifecycle - right now it is a singleton
 def get_project_from_db(projectId):
     project_query = Project.query(Project.projectId == projectId)
     if project_query.count() < 1:
@@ -92,40 +96,89 @@ def update_user(userId, email, type, password, projectIds):
             if projId and projId != "__CREATE__"and projId not in user.projectIds:
                     user.projectIds.append(projId)
                     project = get_project_from_db(projId)
-                    project.userIds.append(userId)
-                    project.put()
+                    if project:
+                        project.userIds.append(userId)
+                        project.put()
     user.put()
     time.sleep(1)
     return user
 
-def update_project(projectId, department, group, description, userIds, requirements, due_date):
+def getArrayOfDict(bos):
+    # this is not good
+    bot = bos[0]
+    # this is even worse
+    bot = '[' + bot + ']'
+    bol = json.loads(bot)
+    return bol
+
+def update_project(projectId, department, group, description, defaultPassword, userIds, vendorIds, due_date, bos):
     project_name = get_project_db_name()
     project = get_project_from_db(projectId)
     if project is None:
         project = Project(parent=project_db_key(project_name))
         project.projectId = projectId
-    reqs = requirements.split(",")
-    preqs = []
-    for req in reqs:
-        preqs.append(req.strip())
-    project.requirements = preqs
     project.department = department
     project.description = description
     project.group = group
+    project.defaultPassword = defaultPassword
     project.userIds = userIds
+    project.vendorIds = vendorIds
     for ui in userIds:
         user = get_user_from_db(ui)
         if user and projectId not in user.projectIds:
             user.projectIds.append(projectId)
             user.put()
+    for vi in vendorIds:
+        vendor = get_user_from_db(vi)
+        if vendor and projectId not in vendor.projectIds:
+            vendor.projectIds.append(projectId)
+            vendor.put()
     project.due_date = datetime.datetime.strptime(due_date.split(" ")[0], "%Y-%m-%d")
+    project.objectiveIds = []
+    bol = getArrayOfDict(bos)
+    for bo in bol:
+        #print bo["objectiveId"] + ", " + bo["description"] + ", " + bo["weight"]
+        boid = bo["objectiveId"]
+        nbo = get_objective_from_db(boid)
+        if nbo is None:
+            nbo = Objective(parent=project_db_key(project_name))
+            nbo.objectiveId = boid
+        nbo.description = bo["description"]
+        nbo.weight = int(bo["weight"])
+        nbo.evaluation_criteriaIds = []
+        for ec in bo["evaluation_criteria"]:
+            ecid = ec["evaluation_criteriaId"]
+            #print "\t" + ec["evaluation_criteriaId"] + ", " + ec["evaluation_criterion"]
+            nec = get_evaluation_criteria_from_db(ecid)
+            if nec is None:
+                nec = EvaluationCriteria(parent=project_db_key(project_name))
+                nec.evaluation_criterionId = ecid
+            nec.evaluation_criterion = ec["evaluation_criterion"]
+            nec.put()
+            nbo.evaluation_criteriaIds.append(ecid)
+        nbo.put()
+        project.objectiveIds.append(nbo.objectiveId)
     project.put()
     return project
+
+def get_objective_from_db(objectiveId):
+    objectives_query = Objective.query(Objective.objectiveId == objectiveId)
+    if objectives_query.count() < 1:
+        return None
+    else:
+        return objectives_query.fetch(1)[-1]
+
+def get_evaluation_criteria_from_db(evaluation_criterionId):
+    evaluation_criteria_query = EvaluationCriteria.query(EvaluationCriteria.evaluation_criterionId == evaluation_criterionId)
+    if evaluation_criteria_query.count() < 1:
+        return None
+    else:
+        return evaluation_criteria_query.fetch(1)[-1]
 
 def get_project_status(projectId):
     entrys = get_entrys_from_given_project_db(projectId)
     for entry in entrys:
-        if len(entry.requirements) == 0:
+        if len(entry.evaluation_criteria) == 0:
             project = get_project_from_db(projectId)
             cur_date = datetime.datetime.now()
             print str(project.due_date) + ", " + str(cur_date)
@@ -136,8 +189,30 @@ def get_project_status(projectId):
     return "OK"
 
 def delete_project_from_db(projectId):
+    print 'deleting ' + projectId
     project = get_project_from_db(projectId)
     entrys = get_entrys_from_given_project_db(projectId)
+    vendorIds = project.vendorIds
+    for objectiveId in project.objectiveIds:
+        objective = get_objective_from_db(objectiveId)
+        if objective:
+            for ecid in objective.evaluation_criteriaIds:
+                evaluation_criterion = get_evaluation_criteria_from_db(ecid)
+                if evaluation_criterion:
+                    key = evaluation_criterion.key
+                    if key:
+                        print 'deleting ' + evaluation_criterion.evaluation_criterion
+                        key.delete()
+            key = objective.key
+            if key:
+                print 'deleting ' + objective.objectiveId
+                key.delete()
+    for vid in vendorIds:
+        vendor = get_vendor_from_db(vid)
+        if vendor:
+            key = vendor.key
+            if key:
+                key.delete()
     for entry in entrys:
         key = entry.key
         if key:
@@ -154,21 +229,130 @@ def delete_users_from_db():
             if key:
                 key.delete()
 
-def update_entry(projectId, userId, requirements, requirements_output, weights):
+def update_entry(projectId, userId, evaluation_criteria, evaluation_criteria_output, vendor_output, weights):
     entry = get_entry_from_db(projectId, userId)
     if entry is None:
         project_name =  DEFAULT_PROJECT_NAME
         entry = Entry(parent=project_db_key(project_name))
         entry.user = get_user_from_db(userId)
         entry.project = get_project_from_db(projectId)
-    if requirements:
-        entry.requirements = requirements.split(",")
-    if requirements_output:
-        entry.requirements_output = requirements_output.split(",")
+    if evaluation_criteria:
+        entry.evaluation_criteria = evaluation_criteria.split(",")
+    if evaluation_criteria_output:
+        entry.evaluation_criteria_output = evaluation_criteria_output.split(",")
     if weights:
-        entry.weights = weights.split(",")
+        sweights = json.loads(weights)
+        for weight in sweights:
+            entry.weights.append(weight + ":" + str(sweights[weight]))
+    if vendor_output:
+        entry.vendor_output = vendor_output
     entry.put()
     return entry
+
+def get_vendors_from_db(projectId=None):
+    if projectId and projectId != "":
+        project = get_project_from_db(projectId)
+        if project is not None:
+            vendorIds = project.vendorIds
+            vendors = []
+            for vendorId in vendorIds:
+                vendor = get_vendor_from_db(vendorId)
+                vendors.append(vendor)
+            return vendors
+    else:
+        vendors_q = Vendor.query()
+        vendors = vendors_q.fetch(1000)
+        return vendors
+
+    return None
+
+def get_vendor_from_db(vendorId):
+    vendors_q = Vendor.query(Vendor.identity == vendorId)
+    if vendors_q.count() < 1:
+        return None
+    else:
+        return vendors_q.fetch(1)[-1]
+
+def update_vendor(vendorId, email, projectIds):
+    vendor = get_vendor_from_db(vendorId)
+    if vendor is None:
+        project_name = get_project_db_name()
+        vendor = Vendor(parent=project_db_key(project_name))
+        vendor.identity = vendorId
+        vendor.projectIds = []
+    vendor.email = email
+    if projectIds:
+        for projId in projectIds:
+            if projId and projId != "__CREATE__"and projId not in vendor.projectIds:
+                    vendor.projectIds.append(projId)
+                    project = get_project_from_db(projId)
+                    if project:
+                        project.vendorIds.append(vendorId)
+                        project.put()
+    vendor.put()
+    time.sleep(1)
+    return vendor
+
+def delete_vendors_from_db():
+    vendors = get_vendors_from_db(None)
+    if vendors:
+        for vendor in vendors:
+            key = vendor.key
+            if key:
+                key.delete()
+
+def get_criteria_percentage_from_calc(project, evaluation_criterion):
+    entrys = get_entrys_from_given_project_db(project.projectId)
+    percentage = 0.0
+    for entry in entrys:
+        for weight_splits in entry.weights:
+            req_weight = weight_splits.split(":")
+            if req_weight[0] == evaluation_criterion.evaluation_criterion:
+                percentage += float(req_weight[1])
+
+    return percentage
+
+def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
+    entrys = get_entrys_from_given_project_db(project.projectId)
+    score = 0
+    ec = evaluation_criterion.evaluation_criterion.replace(" ", "^")
+    key = vendorId + "^" + ec
+    for entry in entrys:
+        if entry.vendor_output:
+            vsplits = json.loads(entry.vendor_output)
+            if key in vsplits:
+                score += vsplits[key]
+    return score
+
+def get_business_objectives_from_db(projectId, withCalc):
+    bos_db = []
+    project = get_project_from_db(projectId)
+    for objectiveId in project.objectiveIds:
+        objective = get_objective_from_db(objectiveId)
+        if objective:
+            evaluation_criteriaIds = objective.evaluation_criteriaIds
+            evaluation_criteria = []
+            for evaluation_criteriaId in evaluation_criteriaIds:
+                evaluation_criterion = get_evaluation_criteria_from_db(evaluation_criteriaId)
+                if evaluation_criterion:
+                    if withCalc:
+                        calculations = {}
+                        criteria_percentage= get_criteria_percentage_from_calc(project, evaluation_criterion)
+                        criteria_weight = float(objective.weight * criteria_percentage)
+                        calculations["criteria_percentage"] = criteria_percentage
+                        calculations["criteria_weight"] = criteria_weight
+                        for vendorId in project.vendorIds:
+                            vendor_score = get_vendor_score_from_calc(project, evaluation_criterion, vendorId)
+                            key = vendorId + "_vendor_score"
+                            calculations[key] = vendor_score
+                            vendor_weighted_score = float(vendor_score * criteria_percentage)
+                            key = vendorId + "_vendor_weighted_score"
+                            calculations[key] = vendor_weighted_score
+                        evaluation_criterion.calculations = calculations
+                    evaluation_criteria.append(evaluation_criterion)
+            objective.evaluation_criteria = evaluation_criteria
+            bos_db.append(objective)
+    return bos_db
 
 def check_auth(identity, password):
     """This function is called to check if a username /
@@ -204,7 +388,7 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         auth = request.authorization
-        print "***** " + str(request.authorization)
+        #print "***** " + str(request.authorization)
         if not auth or not check_auth(auth.username, auth.password):
             return authenticate()
         else:

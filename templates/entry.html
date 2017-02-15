@@ -11,10 +11,11 @@
     <script type="text/javascript" src="/static/common.js"></script>
   </head>
     <script>
-        var requirements_output = [];
-        var weights = [];
+        var evaluation_criteria_output = [];
+        var weights = {};
+        var vendor_output = {};
 
-        window.onload = function(){updateSubTotalsAndWeights();};
+        window.onload = function(){updateSubTotalsAndWeights(null);};
 
         function doRadioButton(cb) {
             var splits = cb.name.split("_");
@@ -33,33 +34,65 @@
             validate(cb);
         }
 
+        function onSelect(sel) {
+            var selects = document.getElementsByTagName("select");
+            vendor_output = {};
+            for (ii = 0; ii  < selects.length; ii++) {
+                var sname = selects[ii].name;
+                vendor_output[sname] = selects[ii].value;
+            }
+            document.getElementById("vendor_output").value = JSON.stringify(vendor_output);
+        }
+
+        function getNumReqs() {
+            var numReqs = 0;
+            jbos_db = "{{ bos_db }}"
+            {% for bo in jbos_db %}
+                var nr = "{{ bo.evaluation_criteria  | length}}"
+                var nrr = ((nr * nr) - nr) / 2;
+                numReqs += nrr;
+            {% endfor %}
+            return numReqs;
+        }
+
         function redrawCalculations() {
             // set UI objects
+            var theTable = document.getElementById("theTable");
+            var cells = {};
+            for (ii = 1; ii < theTable.rows.length; ii++) {
+                var cell = theTable.rows[ii].cells[0];
+                var cellName = cell.innerHTML;
+                if (cellName.indexOf("Subtotals") < 0 &&
+                    cellName.indexOf("Weights") < 0 &&
+                    cellName.indexOf("Forced Pair") < 0 &&
+                    cellName.indexOf("input type=") < 0) {
+                    var idx = cellName.indexOf('[');
+                    if (idx > 1) {
+                        cell.innerHTML = cell.innerHTML.substring(0, idx);
+                    }
+                    var cName = cell.innerHTML.trim().split(' ').join('^');
+                    cells[cName] = theTable.rows[ii].cells[0];
+                }
+            }
+            updateRequirementsOutput();
             var cb = document.getElementById("showCalculations");
             if (cb.checked == true) {
-                updateRequirementsOutput();
-                $("#calculationsTable tr").remove();
-                if (requirements_output) {
-                    var table = document.getElementById("calculationsTable");
-                    for (ii = 0; ii < requirements_output.length; ii++) {
-                        var row = table.insertRow(ii);
-                        var cell = row.insertCell(0);
-                        var token = "^";
-                        var newToken = " ";
-                        var newStr = requirements_output[ii].split(token).join(newToken);
-                        cell.innerHTML = newStr;
+                if (evaluation_criteria_output) {
+                    var idx = 1;
+                    for (ii = 0; ii < evaluation_criteria_output.length; ii++) {
+                        for (cellName in cells) {
+                            if (cellName == evaluation_criteria_output[ii]) {
+                                var cell = cells[cellName];
+                                cell.innerHTML = cell.innerHTML + '[' + idx++ + ']'
+                            }
+                        }
                     }
                 }
             }
         }
 
         function onCCBClick(cb) {
-            if (cb.checked == true) {
-                $(".calculations").show();
-                redrawCalculations();
-            } else {
-                $(".calculations").hide();
-            }
+            redrawCalculations();
         }
 
         function onButtonClick(button) {
@@ -86,8 +119,8 @@
 
         function updateRequirementsOutput() {
             var cbchecked = getCbCheckedList();
-            // build requirements_output/prioritized list of reqs
-            requirements_output = new Array();
+            // build evaluation_criteria_output/prioritized list of reqs
+            evaluation_criteria_output = new Array();
             // for each req combo
             for (ii = 0; ii < cbchecked.length; ii++) {
                 // get the checked checkbox -combo
@@ -98,37 +131,37 @@
                 // if req is first get inside, else continue
                 if (cbchecked[ii].name.endsWith(i_item)) {
                     // if req already in list
-                    if (requirements_output.indexOf(i_item) >= 0) {
+                    if (evaluation_criteria_output.indexOf(i_item) >= 0) {
                         // if other req is also in list
-                        if (requirements_output.indexOf(o_item) >= 0) {
+                        if (evaluation_criteria_output.indexOf(o_item) >= 0) {
                             // check for both already in list
-                            var i_idx = requirements_output.indexOf(i_item);
-                            var o_idx = requirements_output.indexOf(o_item);
+                            var i_idx = evaluation_criteria_output.indexOf(i_item);
+                            var o_idx = evaluation_criteria_output.indexOf(o_item);
                             if (i_idx > o_idx) {
                                 //swap
-                                requirements_output[i_idx] = o_item;
-                                requirements_output[o_idx] = i_item;
+                                evaluation_criteria_output[i_idx] = o_item;
+                                evaluation_criteria_output[o_idx] = i_item;
                             }
                         } else {
                             //second item is not in list - so add
-                            requirements_output.push(o_item);
+                            evaluation_criteria_output.push(o_item);
                         }
                     } else {
                         // add the first requirement
-                        requirements_output.push(i_item)
+                        evaluation_criteria_output.push(i_item)
                         // check for other req to be already in list
-                        if (requirements_output.indexOf(o_item) >= 0) {
+                        if (evaluation_criteria_output.indexOf(o_item) >= 0) {
                             // check for both already in list
-                            var i_idx = requirements_output.indexOf(i_item);
-                            var o_idx = requirements_output.indexOf(o_item);
+                            var i_idx = evaluation_criteria_output.indexOf(i_item);
+                            var o_idx = evaluation_criteria_output.indexOf(o_item);
                             if (i_idx > o_idx) {
                                 //swap
-                                requirements_output[i_idx] = o_item;
-                                requirements_output[o_idx] = i_item;
+                                evaluation_criteria_output[i_idx] = o_item;
+                                evaluation_criteria_output[o_idx] = i_item;
                             }
                         } else {
                             //second item is not in list - so add
-                            requirements_output.push(o_item);
+                            evaluation_criteria_output.push(o_item);
                         }
                     }
                 }
@@ -136,6 +169,9 @@
         }
 
         function validate(cb_changed) {
+            var sc =  cb_changed.parentNode.parentNode.parentNode.rows[0].cells[0].innerHTML;
+            var section_changed = sc.trim().substring(13, sc.trim().indexOf(")"));
+
             var cb_splits = cb_changed.name.split("_");
             var cb_swapped =  cb_splits[1] + "_" + cb_splits[0];
             var o_cb_changed = document.getElementsByName(cb_swapped)[0];
@@ -151,18 +187,12 @@
 
             updateRequirementsOutput();
 
-            redrawCalculations();
+             redrawCalculations();
             // given list of requiremetns for project
-            var preqs = "{{ project.requirements }}"
-            // get total num of reqs
-            var reqslist =  preqs.split(',');
-            var num_reqs = reqslist.length;
-
-            updateSubTotalsAndWeights();
+            updateSubTotalsAndWeights(section_changed);
 
             var cbchecked = getCbCheckedList();
-
-            var total = ((num_reqs * num_reqs) - num_reqs) / 2;
+            var total = getNumReqs();
             // check if num reqs and the checked check-boxes combo are same
             // console.log(cbchecked.length + ", " + total);
             if (cbchecked.length == total) {
@@ -171,18 +201,37 @@
             } else {
                 document.getElementById("submit").disabled = true;
             }
-            document.getElementById("requirements_output").value = requirements_output;
-            document.getElementById("weights").value = weights;
+            document.getElementById("evaluation_criteria_output").value = evaluation_criteria_output;
+            document.getElementById("weights").value = JSON.stringify(weights);
 
             return true;
         }
 
-        function updateSubTotalsAndWeights() {
-            weights = [];
-            var preqs = "{{ project.requirements }}";
-            var reqslist =  preqs.split(',');
+        function getEC(section_changed) {
+            var ecarray = [];
+            {% for bo in bos_db %}
+                var objectiveId = "{{ bo.objectiveId }}";
+                console.log(" **** " + objectiveId + ", " + section_changed);
+                if (objectiveId.trim() == section_changed.trim()) {
+                    {% for ec in bo.evaluation_criteria %}
+                        var ecc = "{{ ec.evaluation_criterion }}";
+                        console.log(" **** " + ecc);
+                        ecarray.push(ecc);
+                    {% endfor %}
+                }
+            {% endfor %}
+            console.log(" *** ecarray: " + ecarray.length);
+            return ecarray;
+        }
+
+        function updateSubTotalsAndWeights(section_changed) {
+            //TODO - fix for existing objects
+            if (section_changed == null) {
+                return null;
+            }
+            var reqslist = getEC(section_changed);
             var num_reqs = reqslist.length;
-            var table = document.getElementById("theTable");
+            var table = document.getElementById(section_changed.trim());
             var num_checked = 0;
             var sub_totals_cols = [];
             var weight_cells = [];
@@ -218,6 +267,7 @@
                 sub_totals_cols.push(sub_total_col);
                 weight_cells.push(weightCell);
             }
+            console.log("weights cells length: " + weight_cells.length);
 
             for (ii = 0; ii < weight_cells.length; ii++) {
                 var sub_total_col = sub_totals_cols[ii];
@@ -227,9 +277,9 @@
                 var weightCell = weight_cells[ii];
                 var reqName = weightCell.id.substring(7);
                 weightCell.innerHTML  = weight_col;
-                weights.push(reqName+":"+weight_col);
+                weights[reqName] = weight_col;
             }
-            console.log("************ " + weights);
+            console.log("weights: " + weights);
         }
    </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
@@ -256,90 +306,138 @@
                     <button id="refresh" name="refresh" class="btn btn-primary" onclick="onButtonClick(this);"><span class="glyphicon glyphicon-refresh"></span>Project:</button>
                     <label>{{ project.projectId }}</label>
                 </td>
-            </TR>
-            <tr>
                 <td>
                     <label name="userId">User: {{ userId }}</label>
                 </td>
+               {% if entry.date is defined %}
+                <td>
+                    <label name="date">Date: {{ entry.date.strftime("%Y-%m-%d% %H:%M:%S.%f") }} </label>
+                </td>
             </tr>
-           {% if date is defined %}
-                <tr>
-                    <td>
-                        <label name="date">Date: {{ date.strftime("%Y-%m-%d% %H:%M:%S.%f") }} </label>
-                    </td>
-                </tr>
             {% endif %}
         </table>
       </div>
       <div id="main">
           <form method="post" action="{{ url_for('submitted_entry', projectId=project.projectId ) }}">
             <table id="theTable" class="table table-striped">
-                <TR>
-                    <th></th>
-                    {% for item in project.requirements %}
-                        <th style="text-align: center"> <label id="reqname_{{ item }}" name="reqname_{{ item }}">{{ item }} </label>
-                    {% endfor %}
-                </TR>
-                {% for item in project.requirements %}
-                    <TR>
-                        <td align="left"> {{ item }} </td>
-                        {% for item1 in project.requirements %}
-                            {%  if item == item1 %}
-                                <td align="center"> x </td>
-                            {%  else %}
-                                {% set cbname = item | replace(" ", "^") + "_" + item1 |replace(" ", "^")%}
-                                <td style="text-align: center;">
-                                    {% if requirements is defined %}
-                                        {% if cbname in requirements %}
-                                            <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" checked>
-                                        {% else %}
-                                            <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
-                                        {% endif %}
-                                    {% else %}
-                                        <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
-                                    {% endif %}
-                                </td>
-                            {%  endif %}
+                {% for bo in bos_db %}
+                    <tbody id={{ bo.objectiveId }}>
+                        <tr>
+                            {% set cs1 = 1 + bo.evaluation_criteria|length %}
+                            {% set cs2 = project.vendorIds | length %}
+                            <th colspan="{{ cs1 }}" style="text-align: center">
+                                Forced Pair ({{ bo.objectiveId }})
+                            </th>
+                            <th colspan = "{{ cs2 }}" style="text-align: center">
+                                Vendor Rating
+                            </th>
+                        </tr>
+                        <TR>
+                            <th></th>
+                            {% for ec in bo.evaluation_criteria %}
+                                {% set item = ec.evaluation_criterion %}
+                                <th style="text-align: center"> <label id="reqname_{{ item }}" name="reqname_{{ item }}">{{ item }} </label>
+                            {% endfor %}
+                                {% for vendor in project.vendorIds %}
+                                    <th>{{ vendor }}</th>
+                                {% endfor %}
+                        </TR>
+                        {% for ec in bo.evaluation_criteria %}
+                            {% set item = ec.evaluation_criterion %}
+                            <TR>
+                                <td align="left"> {{ item }} </td>
+                                {% for ec1 in bo.evaluation_criteria %}
+                                    {% set item1 = ec1.evaluation_criterion %}
+                                    {%  if item == item1 %}
+                                        <td align="center"> x </td>
+                                    {%  else %}
+                                        {% set cbname = item | replace(" ", "^") + "_" + item1 |replace(" ", "^")%}
+                                        <td style="text-align: center;">
+                                            {% if entry.evaluation_criteria is defined %}
+                                                {% if cbname in entry.evaluation_criteria %}
+                                                    <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" checked>
+                                                {% else %}
+                                                    <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
+                                                {% endif %}
+                                            {% else %}
+                                                <input id = {{  cbname }} type="checkbox" name={{ cbname }} onclick="onCBClick(this);" >
+                                            {% endif %}
+                                        </td>
+                                    {%  endif %}
+                                {% endfor %}
+                                    {% for vendor in project.vendorIds %}
+                                        {% set cbname = vendor + "^" + item | replace(" ", "^")%}
+                                        <td>
+                                            {% if entry.vendor_output is defined and entry.vendor_output is not none %}
+                                                {% set cvo = str_to_obj(entry.vendor_output) %}
+                                                {% set keypart = item | replace(" ", "^") %}
+                                                {% set key = vendor + "^" + keypart %}
+                                                {% set sel = cvo[key] %}
+                                                <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%;'>
+                                                    {% if sel == 2 %}
+                                                        <option value="2" selected>Yes</option>
+                                                        <option value="1">Maybe</option>
+                                                        <option value="0">No</option>
+                                                    {% elif sel == 1 %}
+                                                        <option value="2">Yes</option>
+                                                        <option value="1" selected>Maybe</option>
+                                                        <option value="0">No</option>
+                                                    {% elif sel == 0 %}
+                                                        <option value="2">Yes</option>
+                                                        <option value="1">Maybe</option>
+                                                        <option value="0" selected>No</option>
+                                                    {% endif %}
+                                                </select>
+                                            {% else %}
+                                                <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%;'>
+                                                    <option value="2">Yes</option>
+                                                    <option value="1">Maybe</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                            </TR>
                         {% endfor %}
-                    </TR>
-                {% endfor %}
-                <tr>
-                    <td>
-                       <label>Subtotals</label>
-                    </td>
-                    {% for item in project.requirements %}
-                    <td align="center">
-                        <label name="subtotal_{{ item }}" id="subtotal_{{ item }}">x</label>
-                    </td>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    <td>
-                       <label>Weights (%)</label>
-                    </td>
-                    {% for item in project.requirements %}
-                    <td align="center">
-                        <label name="weight_{{ item }}" id="weight_{{ item }}">x</label>
-                    </td>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    <td>
-                       <input type="submit" name="submit" value="Save" id="submit" disabled>
-                    </td>
-                </tr>
+                        <tr>
+                            <td>
+                               <label>Subtotals</label>
+                            </td>
+                            {% for ec in bo.evaluation_criteria %}
+                                {% set item = ec.evaluation_criterion %}
+                                <td align="center">
+                                    <label name="subtotal_{{ item }}" id="subtotal_{{ item }}">x</label>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>
+                               <label>Weights (%)</label>
+                            </td>
+                            {% for ec in bo.evaluation_criteria %}
+                                {% set item = ec.evaluation_criterion %}
+                                <td align="center">
+                                    <label name="weight_{{ item }}" id="weight_{{ item }}">x</label>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>
+                               <input type="submit" name="submit" value="Save" id="submit" disabled>
+                            </td>
+                        </tr>
+                </tbody>
             </table>
-            <input type="text" name="requirements_output" id="requirements_output" style="display:none">
+            <input type="text" name="evaluation_criteria_output" id="evaluation_criteria_output" style="display:none">
+            </input>
+            <input type="text" name="vendor_output" id="vendor_output" style="display:none">
             </input>
             <input type="text" name="weights" id="weights" style="display:none">
             </input>
           </form>
           <label>Show Calculations:</label>
             <input type="checkbox" id="showCalculations" name="showCalculations" onclick="onCCBClick(this);" unchecked>
-            <div class="calculations" style="display:none">
-                <table id="calculationsTable" class="table">
-                </table>
-            </div>
       </div>
     </div>
   </body>

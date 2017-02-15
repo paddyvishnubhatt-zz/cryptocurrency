@@ -32,35 +32,91 @@
       <table class="table" >
           <tr>
               <th>
-                  Project: {{ projectId }}
+                  Project: {{ project.projectId }}
               </th>
               <th>
-                  {% set urlx = "/api/v1/show_entrys_given_project/" + projectId | urlencode %}
-                  <a href={{ urlx }}>
-                        Entrys<span class="glyphicon glyphicon-chevron-right"></span>
-                  </a>
+                  {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
+                  <a href={{ urlx }}>Entrys<span class="glyphicon glyphicon-chevron-right"></span></a>
               </th>
           </tr>
-        <tr>
-           <th>
-               Requirement
-           </th>
-           <th>
-               Weights
-           </th>
-            {% if scoretable %}
-                {% for req, weight in scoretable %}
-                    <tr>
-                        <td>
-                            {{ req }}
-                        </td>
-                        <td>
-                            {{ weight / length}}
-                        </td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-        </tr>
+          <tr>
+             <td>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th colspan="3" style="text-align: center">Objectives</th>
+                            {% set cs = 4 + project.vendorIds | length * 2 %}
+                            <th colspan="{{ cs }}" style="text-align: center">Evaluation Criteria</th>
+                        </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Description</th>
+                            <th>Weight</th>
+                            <th>Criteria ID</th>
+                            <th>Criterion</th>
+                            <th>Criteria %</th>
+                            <th>Criteria Weight</th>
+                            {% for vendor in project.vendorIds %}
+                                <th>
+                                    {{ vendor }} Score
+                                </th>
+                                <th>
+                                    {{ vendor }} Weight Score
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    {% if bos_db is defined %}
+                        {% for bo in bos_db %}
+                            <tr>
+                                <td>
+                                    {{ bo.objectiveId }}
+                                </td>
+                                <td>
+                                    {{ bo.description }}
+                                </td>
+                                <td>
+                                    {{ bo.weight }}
+                                </td>
+                                {% set count = [0] %}
+                                {% for ec in bo.evaluation_criteria %}
+                                    {% if count > [0] %}
+                                        <tr>
+                                            <td></td><td></td><td></td>
+                                    {% endif %}
+                                    <td>
+                                        {{ ec.evaluation_criterionId }}
+                                    </td>
+                                    <td>
+                                        {{ ec.evaluation_criterion }}
+                                    </td>
+                                    <td>
+                                        {{ '%0.2f'| format(ec.calculations["criteria_percentage"]|float)  }}
+                                    </td>
+                                    <td>
+                                        {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
+                                    </td>
+                                    {% for vendor in project.vendorIds %}
+                                        <td>
+                                            {% set key = vendor + "_vendor_score" %}
+                                            {{ '%0.2f'| format(ec.calculations[key]|float) }}
+                                        </td>
+                                        <td>
+                                            {% set key = vendor + "_vendor_weighted_score" %}
+                                            {{ ec.calculations[key] }}
+                                        </td>
+                                    {% endfor %}
+                                    {% if count > 0  %}
+                                        </tr>
+                                            {% if count.append(count.pop() + 1) %}{% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+               </table>
+             </td>
+          </tr>
       </table>
     </div>
   </body>
