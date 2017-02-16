@@ -337,6 +337,8 @@ def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
 
 def get_business_objectives_from_db(projectId, withCalc):
     bos_db = []
+    vendorId = None
+    maxWeightedScore = 0.0
     project = get_project_from_db(projectId)
     for objectiveId in project.objectiveIds:
         objective = get_objective_from_db(projectId, objectiveId)
@@ -357,13 +359,17 @@ def get_business_objectives_from_db(projectId, withCalc):
                             key = vendorId + "_vendor_score"
                             calculations[key] = vendor_score
                             vendor_weighted_score = float(vendor_score * criteria_weight)
+                            if vendor_weighted_score > maxWeightedScore:
+                                maxWeightedScore = vendor_weighted_score
                             key = vendorId + "_vendor_weighted_score"
                             calculations[key] = vendor_weighted_score
                         evaluation_criterion.calculations = calculations
                     evaluation_criteria.append(evaluation_criterion)
             objective.evaluation_criteria = evaluation_criteria
             bos_db.append(objective)
-    return bos_db
+    if maxWeightedScore == 0:
+        vendorId = None
+    return bos_db, vendorId
 
 def check_auth(identity, password):
     """This function is called to check if a username /

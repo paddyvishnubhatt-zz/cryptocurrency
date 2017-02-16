@@ -111,13 +111,22 @@ def show_summary(projectId):
     project = utils.get_project_from_db(projectId)
     entrys = utils.get_entrys_from_given_project_db(projectId)
     userId = request.authorization.username
-    bos_db = utils.get_business_objectives_from_db(projectId, True)
-    return render_template(
-        'summary.html',
-        current_user=userId,
-        project = project,
-        bos_db = bos_db,
-        userId = userId)
+    bos_db, top_vendor = utils.get_business_objectives_from_db(projectId, True)
+    if top_vendor is None:
+        return render_template(
+            'summary.html',
+            current_user=userId,
+            project = project,
+            bos_db = bos_db,
+            userId = userId)
+    else:
+        return render_template(
+            'summary.html',
+            current_user=userId,
+            top_vendor = top_vendor,
+            project=project,
+            bos_db=bos_db,
+            userId=userId)
 
 @app.route('/api/v1/show_entry/<projectId>/<userId>')
 @requires_auth
@@ -125,7 +134,7 @@ def show_entry(projectId, userId):
     project = utils.get_project_from_db(projectId)
     entry = utils.get_entry_from_db(projectId, userId)
     if entry:
-        bos_db = utils.get_business_objectives_from_db(projectId, True)
+        bos_db, top_vendor = utils.get_business_objectives_from_db(projectId, True)
         return render_template(
             'entry.html',
             current_user=userId,

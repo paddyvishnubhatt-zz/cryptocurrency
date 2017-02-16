@@ -92,6 +92,12 @@
 
         function onCCBClick(cb) {
             redrawCalculations();
+            var calcs = document.getElementById("xxxx");
+            if (cb.checked) {
+                calcs.style.display = 'inline';
+            } else {
+                calcs.style.display = 'none';
+            }
         }
 
         function onButtonClick(button) {
@@ -446,6 +452,11 @@
                             </td>
                         </tr>
                 </tbody>
+                  <tfoot id="xxxx" style="display: none">
+                    <tr>
+                      <td>[#]: Indicates order preference</td>
+                    </tr>
+                  </tfoot>
             </table>
             <input type="text" name="evaluation_criteria_output" id="evaluation_criteria_output" style="display:none">
             </input>
@@ -454,7 +465,7 @@
             <input type="text" name="weights" id="weights" style="display:none">
             </input>
           </form>
-          <label>Show Calculations:</label>
+          <label>Show Preference Order:</label>
             <input type="checkbox" id="showCalculations" name="showCalculations" onclick="onCCBClick(this);" unchecked>
       </div>
     </div>

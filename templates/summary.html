@@ -105,6 +105,11 @@
                                         <td>
                                             {% set key = vendor + "_vendor_weighted_score" %}
                                             {{ ec.calculations[key] }}
+                                            {% if top_vendor is defined %}
+                                                {% if vendor == top_vendor %}
+                                                    (*)
+                                                {% endif %}
+                                            {% endif %}
                                         </td>
                                     {% endfor %}
                                     {% if count > 0  %}
@@ -118,6 +123,11 @@
                </table>
              </td>
           </tr>
+       <tfoot>
+        <tr>
+          <td>(*): Top vendor</td>
+        </tr>
+       </tfoot>
       </table>
     </div>
   </body>
