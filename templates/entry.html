@@ -57,34 +57,48 @@
         function redrawCalculations() {
             // set UI objects
             var theTable = document.getElementById("theTable");
-            var cells = {};
+            var cells = [];
             for (ii = 1; ii < theTable.rows.length; ii++) {
                 var cell = theTable.rows[ii].cells[0];
                 var cellName = cell.innerHTML;
                 if (cellName.indexOf("Subtotals") < 0 &&
-                    cellName.indexOf("Weights") < 0 &&
                     cellName.indexOf("Forced Pair") < 0 &&
-                    cellName.indexOf("input type=") < 0) {
+                    cellName.indexOf("input type=") < 0 &&
+                    cellName.indexOf("Indicates") < 0 &&
+                    cellName.length > 0 ) {
                     var idx = cellName.indexOf('[');
                     if (idx > 1) {
                         cell.innerHTML = cell.innerHTML.substring(0, idx);
                     }
-                    var cName = cell.innerHTML.trim().split(' ').join('^');
-                    cells[cName] = theTable.rows[ii].cells[0];
+                    cells.push(cell);
                 }
             }
             updateRequirementsOutput();
             var cb = document.getElementById("showCalculations");
             if (cb.checked == true) {
                 if (evaluation_criteria_output) {
-                    var idx = 1;
-                    for (ii = 0; ii < evaluation_criteria_output.length; ii++) {
-                        for (cellName in cells) {
-                            if (cellName == evaluation_criteria_output[ii]) {
-                                var cell = cells[cellName];
-                                cell.innerHTML = cell.innerHTML + '[' + idx++ + ']'
-                            }
+                    var section = [];
+                    for (var jj = 0; jj < cells.length; jj++) {
+                        var cell = cells[jj];
+                        var cellName = cell.innerHTML.trim().split(' ').join('^');
+                        if (cellName.indexOf("Weights") >= 0) {
+                            sort(section);
+                            section = [];
                         }
+                        section.push(cell);
+                    }
+                }
+            }
+        }
+
+        function sort(cells) {
+            var idx = 1;
+            for (var ii = 0; ii < evaluation_criteria_output.length; ii++) {
+                for (var jj = 0; jj < cells.length; jj++) {
+                    var cell = cells[jj];
+                    var cellName = cell.innerHTML.trim().split(' ').join('^');
+                    if (cellName == evaluation_criteria_output[ii]) {
+                        cell.innerHTML = cell.innerHTML + '[' + idx++ + ']';
                     }
                 }
             }
@@ -239,14 +253,12 @@
                     }
                 }
             {% endfor %}
-            console.log(" *** ecarray: " + ecarray.length);
             return ecarray;
         }
 
         function initSubTotalAndWeights() {
             var sections = getSections();
             for (var ii = 0; ii < sections.length; ii++) {
-                console.log(" **** section: " + sections[ii]);
                 updateSubTotalsAndWeights(sections[ii]);
             }
         }
@@ -291,7 +303,6 @@
                 sub_totals_cols.push(sub_total_col);
                 weight_cells.push(weightCell);
             }
-            console.log("weights cells length: " + weight_cells.length);
 
             for (ii = 0; ii < weight_cells.length; ii++) {
                 var sub_total_col = sub_totals_cols[ii];
@@ -303,7 +314,6 @@
                 weightCell.innerHTML  = weight_col;
                 weights[reqName] = weight_col;
             }
-            console.log("weights: " + weights);
         }
    </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
