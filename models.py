@@ -19,12 +19,15 @@ class User(ndb.Model):
 # [START Requirement]
 class EvaluationCriteria(ndb.Model):
     evaluation_criterionId = ndb.StringProperty(indexed=True, required=True)
+    projectId = ndb.StringProperty(required=True)
+    objectiveId = ndb.StringProperty(required=True)
     evaluation_criterion = ndb.StringProperty()
     calculations = ndb.JsonProperty()
 
 # [START Objective]
 class Objective(ndb.Model):
     objectiveId = ndb.StringProperty(indexed=True, required=True)
+    projectId = ndb.StringProperty(required=True)
     description = ndb.StringProperty()
     weight = ndb.IntegerProperty()
     evaluation_criteriaIds = ndb.StringProperty(repeated=True)

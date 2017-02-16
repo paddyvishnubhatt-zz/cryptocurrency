@@ -142,20 +142,23 @@ def update_project(projectId, department, group, description, defaultPassword, u
     for bo in bol:
         #print bo["objectiveId"] + ", " + bo["description"] + ", " + bo["weight"]
         boid = bo["objectiveId"]
-        nbo = get_objective_from_db(boid)
+        nbo = get_objective_from_db(projectId, boid)
         if nbo is None:
             nbo = Objective(parent=project_db_key(project_name))
             nbo.objectiveId = boid
+            nbo.projectId = projectId
         nbo.description = bo["description"]
         nbo.weight = int(bo["weight"])
         nbo.evaluation_criteriaIds = []
         for ec in bo["evaluation_criteria"]:
             ecid = ec["evaluation_criteriaId"]
-            #print "\t" + ec["evaluation_criteriaId"] + ", " + ec["evaluation_criterion"]
-            nec = get_evaluation_criteria_from_db(ecid)
+            nec = get_evaluation_criteria_from_db(projectId, boid, ecid)
+            #print "\t" + projectId + ", " + ec["evaluation_criteriaId"] + ", " + ec["evaluation_criterion"] + "\n\t" + str(nec)
             if nec is None:
                 nec = EvaluationCriteria(parent=project_db_key(project_name))
                 nec.evaluation_criterionId = ecid
+                nec.objectiveId = boid
+                nec.projectId = projectId
             nec.evaluation_criterion = ec["evaluation_criterion"]
             nec.put()
             nbo.evaluation_criteriaIds.append(ecid)
@@ -164,15 +167,18 @@ def update_project(projectId, department, group, description, defaultPassword, u
     project.put()
     return project
 
-def get_objective_from_db(objectiveId):
-    objectives_query = Objective.query(Objective.objectiveId == objectiveId)
+def get_objective_from_db(projectId, objectiveId):
+    objectives_query = Objective.query(Objective.objectiveId == objectiveId,
+                                       Objective.projectId == projectId)
     if objectives_query.count() < 1:
         return None
     else:
         return objectives_query.fetch(1)[-1]
 
-def get_evaluation_criteria_from_db(evaluation_criterionId):
-    evaluation_criteria_query = EvaluationCriteria.query(EvaluationCriteria.evaluation_criterionId == evaluation_criterionId)
+def get_evaluation_criteria_from_db(projectId, objectiveId, evaluation_criterionId):
+    evaluation_criteria_query = EvaluationCriteria.query(EvaluationCriteria.evaluation_criterionId == evaluation_criterionId,
+                                                         EvaluationCriteria.objectiveId == objectiveId,
+                                                         EvaluationCriteria.projectId == projectId)
     if evaluation_criteria_query.count() < 1:
         return None
     else:
@@ -197,10 +203,12 @@ def delete_project_from_db(projectId):
     entrys = get_entrys_from_given_project_db(projectId)
     vendorIds = project.vendorIds
     for objectiveId in project.objectiveIds:
-        objective = get_objective_from_db(objectiveId)
+        objective = get_objective_from_db(projectId, objectiveId)
         if objective:
             for ecid in objective.evaluation_criteriaIds:
-                evaluation_criterion = get_evaluation_criteria_from_db(ecid)
+                #print objective
+                #print " *** looking for : " + objectiveId + ", " + ecid
+                evaluation_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, ecid)
                 if evaluation_criterion:
                     key = evaluation_criterion.key
                     if key:
@@ -331,12 +339,12 @@ def get_business_objectives_from_db(projectId, withCalc):
     bos_db = []
     project = get_project_from_db(projectId)
     for objectiveId in project.objectiveIds:
-        objective = get_objective_from_db(objectiveId)
+        objective = get_objective_from_db(projectId, objectiveId)
         if objective:
             evaluation_criteriaIds = objective.evaluation_criteriaIds
             evaluation_criteria = []
             for evaluation_criteriaId in evaluation_criteriaIds:
-                evaluation_criterion = get_evaluation_criteria_from_db(evaluation_criteriaId)
+                evaluation_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, evaluation_criteriaId)
                 if evaluation_criterion:
                     if withCalc:
                         calculations = {}
@@ -348,7 +356,7 @@ def get_business_objectives_from_db(projectId, withCalc):
                             vendor_score = get_vendor_score_from_calc(project, evaluation_criterion, vendorId)
                             key = vendorId + "_vendor_score"
                             calculations[key] = vendor_score
-                            vendor_weighted_score = float(vendor_score * criteria_percentage)
+                            vendor_weighted_score = float(vendor_score * criteria_weight)
                             key = vendorId + "_vendor_weighted_score"
                             calculations[key] = vendor_weighted_score
                         evaluation_criterion.calculations = calculations

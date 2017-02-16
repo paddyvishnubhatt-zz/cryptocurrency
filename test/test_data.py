@@ -9,8 +9,6 @@ URL = "http://localhost:8080"
 num_projects = 2
 num_users = 3
 num_vendors = 3
-num_objectives = 2
-num_evaluation_criteria = 3
 num_entrys = num_users
 BOS=[u'{"objectiveId":"objective1","description":"this is objective1","weight":"1",'
                                 u'"evaluation_criteria":[{"evaluation_criteriaId":"1","evaluation_criterion":"criterion 1"},'
@@ -187,7 +185,7 @@ def delete_vendors():
                                headers={"Authorization": "Basic %s" % b64Val})
 
 if __name__ == "__main__":
-    #post_projects()
+    post_projects()
     post_entrys()
     #delete_projects()
     #delete_users()
