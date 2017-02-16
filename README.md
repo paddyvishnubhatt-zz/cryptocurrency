@@ -178,3 +178,38 @@ Demo steps described in Demo.md
 2. Subtotal = # of 1s in the column
 3. Weight = Subtotal / <The total # of 1s in the sheet>
 4. Across all users - Add the weights of R1 and divide by # of users
+
+02/15/2017:
+----------
+There's a list of projects, Each project has
+1. id
+2. due date
+3. Vendors - is this a constant list or different for diff project? Because item below (1.2.7.5.5 and 1.2.7.5.7) depend upon this - i have to draw up as many columns as there are vendors. 
+4. users (at least one admin)
+5. and Its housekeeping info (name, desc, etc)
+6. List of business objectives, Each objective has
+  1. id
+  2. description
+  3. weight     <-------- Entered manually by each (admin) user on a scale of 1-5
+  4. List of Evaluation criteria, Each eval criteria has
+    1. id
+    2. evaluation criterion
+    3. criteria % age  <--- Obtained from the forced pair ranking. This is the summary calculate weight for each column coming from each (user) user
+    4. weight (which is to be calculated)
+    5. option 1 score <--- This is actually the score for Vendor 1. Entered manually by each (admin) user - value of Yes, No, Maybe
+weighted score(calculated)
+    6. option 2 score <--- This is actually the score for Vendor 2. Entered manually by each (admin) user - value of Yes,No,Maybe
+weighted score (calculated)
+    7. There might be more options (i.e vendors)
+7. Based on the items 2 - uild a tabular screen w/ dialogs to enter new objectives, new eval criteria
+8. Entry Forms for Users - 
+9. Flow:
+  1. User logs in and is taken to their list of projects
+  2. User selects project
+  3. User then selects business objective
+  4. Upon selecting the bus obj - user will then get the same table as before for evaluation criteria (used to be called requirements)
+  5. User enters - for each user calculations are performed and a summary will be rolled up to the project level to feed into the above data.
+  Q: Does the (user) user see vendors and have any input for vendor/options?
+  Yes, each user has to enter YES/NO/MAYBE for each evaluation criteria for each vendor.
+
+
