@@ -15,7 +15,7 @@
         var weights = {};
         var vendor_output = {};
 
-        window.onload = function(){updateSubTotalsAndWeights(null);};
+        window.onload = function(){initSubTotalAndWeights();};
 
         function doRadioButton(cb) {
             var splits = cb.name.split("_");
@@ -206,28 +206,47 @@
             return true;
         }
 
+        function getSections() {
+            var sections = [];
+            {% for bo in bos_db %}
+                var objectiveId = "{{ bo.objectiveId }}";
+                sections.push(objectiveId);
+            {% endfor %}
+            return sections;
+        }
+
         function getEC(section_changed) {
             var ecarray = [];
             {% for bo in bos_db %}
                 var objectiveId = "{{ bo.objectiveId }}";
-                console.log(" **** " + objectiveId + ", " + section_changed);
-                if (objectiveId.trim() == section_changed.trim()) {
+                if (section_changed == null) {
                     {% for ec in bo.evaluation_criteria %}
                         var ecc = "{{ ec.evaluation_criterion }}";
-                        console.log(" **** " + ecc);
                         ecarray.push(ecc);
                     {% endfor %}
+                } else {
+                    if (objectiveId.trim() == section_changed.trim()) {
+                        {% for ec in bo.evaluation_criteria %}
+                            var ecc = "{{ ec.evaluation_criterion }}";
+                            ecarray.push(ecc);
+                        {% endfor %}
+                    }
                 }
             {% endfor %}
             console.log(" *** ecarray: " + ecarray.length);
             return ecarray;
         }
 
+        function initSubTotalAndWeights() {
+            var sections = getSections();
+            for (var ii = 0; ii < sections.length; ii++) {
+                console.log(" **** section: " + sections[ii]);
+                updateSubTotalsAndWeights(sections[ii]);
+            }
+        }
+
         function updateSubTotalsAndWeights(section_changed) {
             //TODO - fix for existing objects
-            if (section_changed == null) {
-                return null;
-            }
             var reqslist = getEC(section_changed);
             var num_reqs = reqslist.length;
             var table = document.getElementById(section_changed.trim());
