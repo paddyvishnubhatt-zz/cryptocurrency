@@ -67,7 +67,7 @@ def show_project(projectId):
         project = utils.get_project_from_db(projectId)
         userlist = project.userIds
         vendorlist = project.vendorIds
-        bos_db = utils.get_business_objectives_from_db(projectId, False)
+        bos_db, vendorId = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'project.html',
             current_user=request.authorization.username,
@@ -143,7 +143,7 @@ def show_entry(projectId, userId):
             bos_db = bos_db,
             entry=entry)
     else:
-        bos_db = utils.get_business_objectives_from_db(projectId, False)
+        bos_db,vendorId = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'entry.html',
             current_user=userId,
