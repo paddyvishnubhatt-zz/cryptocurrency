@@ -162,7 +162,13 @@
                     </td>
                     <td>
                         Due Date
-                        <input class="form-control" id="due_datepicker" name="due_date">
+                        {%  set dt = "" %}
+                        {%  if project is defined %}
+                            {% set dt = project.due_date | replace(" 00:00:00", '') %}
+                        {%  else %}[0:10] }}
+                            {% set dt = get_current_date() %}
+                        {% endif %}
+                        <input class="form-control" id="due_datepicker" name="due_date" value="{{ dt }}">
                     </td>
                 </tr>
                 <tr>
