@@ -58,7 +58,7 @@
                             <th>Criteria %</th>
                             <th>Criteria Weight</th>
                             {% for vendor in project.vendorIds %}
-                                <th>
+                                <th style="border-left:1px solid;">
                                     {{ vendor }} Score
                                 </th>
                                 <th>
@@ -86,7 +86,7 @@
                                             <td></td><td></td><td></td>
                                     {% endif %}
                                     <td>
-                                        {{ ec.evaluation_criterionId }}
+                                        {{ ec.evaluation_criterionId }}ƒ
                                     </td>
                                     <td>
                                         {{ ec.evaluation_criterion }}
@@ -98,7 +98,7 @@
                                         {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
                                     </td>
                                     {% for vendor in project.vendorIds %}
-                                        <td>
+                                        <td style="border-left:1px solid;">
                                             {% set key = vendor + "_vendor_score" %}
                                             {{ '%0.2f'| format(ec.calculations[key]|float) }}
                                         </td>
