@@ -112,10 +112,8 @@
                                             {% endif %}
                                         </td>
                                     {% endfor %}
-                                    {% if count > 0  %}
-                                        </tr>
-                                            {% if count.append(count.pop() + 1) %}{% endif %}
-                                    {% endif %}
+                                    </tr>
+                                    {% if count.append(count.pop() + 1) %}{% endif %}
                                 {% endfor %}
                             </tr>
                         {% endfor %}
