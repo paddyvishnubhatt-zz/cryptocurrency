@@ -16,7 +16,9 @@
     <link href="/static/style.css" rel="stylesheet">
     <script type="text/javascript" src="/static/evaluation_criteria.js"></script>
     <link href="/static/evaluation_criteria.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+
   </head>
     <nav class="navbar navbar-inverse navbar-static-top">
       <div class="container-fluid">
@@ -45,17 +47,14 @@
 
     $(document).ready(function() {
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
-        $('#due_datepicker').editable({
-            combodate: {
-                minYear: 2017,
-                maxYear: 2018,
-            },
-            success: function(response, newValue) {
-                console.log(newValue.format("YYYY-MM-DD"));
-                document.getElementById("due_date").value = newValue.format("YYYY-MM-DD");
-            }
+        $('#due_datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true
+        }).on('changeDate', function(e) {
+            // Revalidate the date field
+            console.log(e);
+            // document.getElementById("due_date").value = newValue.format("YYYY-MM-DD");
         });
-
         $('#objective').editable({
             title: 'Enter objective details',
             mode: 'popup',
@@ -159,27 +158,11 @@
                         {% if project is defined %}
                             {% set regId = project.projectId %}
                         {% endif %}
-
                         <input type="text" class="form-control" name="projectId" value="{{ regId }}">
                     </td>
                     <td>
                         Due Date
-                        <div class="panel panel-default" style="height:33px; ">
-                            <a href="#" id="due_datepicker"
-                               data-type="combodate"
-                               {% if project is defined %}
-                                   data-value= "{{ project.due_date }}"
-                                {% else %}
-                                    data-value= "{{ get_current_date() }}"
-                               {% endif %}
-                               data-format="YYYY-MM-DD"
-                               data-template="YYYY-MM-DD"
-                               data-pk="1"
-                               data-viewformat="YYYY-MM-DD"
-                               data-title="Project due date">
-                            </a>
-                        </div>
-                        <input type="hidden" class="form-control" id="due_date" name="due_date">
+                        <input class="form-control" id="due_datepicker" name="due_date">
                     </td>
                 </tr>
                 <tr>
