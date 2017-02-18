@@ -39,6 +39,18 @@
   <body>
   <script>
     var business_objectives = [];
+    function validateForm() {
+        var array = ["projectId", "userIds[]", "vendorIds[]", "bos[]", "due_date", "department","group","description","password"];
+        for (var xx = 0; xx < array.length; xx++) {
+            var did = document.getElementById(array[xx]);
+            if (did == null) {
+                popup("Invalid or Incomplete data", "Please ensure all fields are entered appropriately");
+                return false;
+            }
+        }
+        return true;
+    }
+
     $(document).ready(function(){
         $('#checkbox').on('change', function(){
             $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
@@ -150,7 +162,7 @@
     </script>
     <div id="container">
       <div id="main">
-          <form method="post" action="{{ url_for('submitted_project') }}">
+          <form method="post" action="{{ url_for('submitted_project') }}" onsubmit="return validateForm()">
             <table class="table table-condensed">
                 <th width="50%">
                     Project Details
