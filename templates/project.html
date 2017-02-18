@@ -62,6 +62,7 @@
                 if (business_objectives == null) {
                     business_objectives = [];
                 }
+
                 var obj1 = {};
                 obj1.objectiveId = newValue.objectiveId;
                 obj1.description = newValue.description;
@@ -95,12 +96,21 @@
                         var ir = this.id.substring(23);
                         var iddd = ir.substring(ir.indexOf("_") + 1);
                         ir = ir.substring(0, ir.indexOf("_"));
-                        console.log(ir + ", " + iddd + ", " + business_objectives[iddd]);
+                        //console.log(ir + ", " + iddd + ", " + business_objectives[iddd]);
                         var bo = JSON.parse(business_objectives[iddd]);
 
                         var lastIdx = 0;
                         if (bo.evaluation_criteria !== undefined) {
-                            lastIdx = bo.evaluation_criteria.length;
+                            boa = bo.evaluation_criteria;
+                            if (boa.filter(function(e) {return e.evaluation_criteriaId == nValue.evaluation_criteriaId}).length > 0 ||
+                                boa.filter(function(e) {return e.evaluation_criterion == nValue.evaluation_criterion}).length > 0)  {
+                                popup("Criteria already exists", "Criteria entered: " + nValue.evaluation_criteriaId +
+                                        ", " + nValue.evaluation_criterion +
+                                        "\nalready exists (please use distinct id and criterion)");
+                                return;
+                            } else {
+                                lastIdx = bo.evaluation_criteria.length;
+                            }
                         } else {
                             bo.evaluation_criteria = [];
                         }
@@ -130,7 +140,7 @@
                         var cell6 = idRow.insertCell(5);
                         cell6.innerHTML = nValue.evaluation_criterion;
 
-                        console.log(business_objectives);
+                        // console.log(business_objectives);
                     }
                 });
             }
@@ -165,7 +175,7 @@
                         {%  set dt = "" %}
                         {%  if project is defined %}
                             {% set dt = project.due_date | replace(" 00:00:00", '') %}
-                        {%  else %}[0:10] }}
+                        {%  else %}
                             {% set dt = get_current_date() %}
                         {% endif %}
                         <input class="form-control" id="due_datepicker" name="due_date" value="{{ dt }}">
