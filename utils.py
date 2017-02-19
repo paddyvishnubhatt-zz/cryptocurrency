@@ -200,7 +200,7 @@ def get_project_status(projectId):
                 if status == "OK":
                     status = "Incomplete"
         else:
-            current = current + 1
+            current += 1
     percentage = float (current /total) * 100
     return status, percentage
 
@@ -330,6 +330,18 @@ def get_criteria_percentage_from_calc(project, evaluation_criterion):
 
     return percentage
 
+def get_criteria_average_from_calc(project, evaluation_criterion):
+    entrys = get_entrys_from_given_project_db(project.projectId)
+    total = len(entrys)
+    current = 0.0
+    for entry in entrys:
+        for weight_splits in entry.weights:
+            req_weight = weight_splits.split(":")
+            if req_weight[0] == evaluation_criterion.evaluation_criterion:
+                current += float(req_weight[1])
+    average = float (current / float(total))
+    return average
+
 def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
     entrys = get_entrys_from_given_project_db(project.projectId)
     score = 0
@@ -357,9 +369,9 @@ def get_business_objectives_from_db(projectId, withCalc):
                 if evaluation_criterion:
                     if withCalc:
                         calculations = {}
-                        criteria_percentage= get_criteria_percentage_from_calc(project, evaluation_criterion)
-                        criteria_weight = float(objective.weight * criteria_percentage)
-                        calculations["criteria_percentage"] = criteria_percentage
+                        criteria_average= get_criteria_average_from_calc(project, evaluation_criterion)
+                        criteria_weight = float(objective.weight * criteria_average)
+                        calculations["criteria_percentage"] = criteria_average
                         calculations["criteria_weight"] = criteria_weight
                         for vendorId in project.vendorIds:
                             vendor_score = get_vendor_score_from_calc(project, evaluation_criterion, vendorId)
