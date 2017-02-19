@@ -27,16 +27,112 @@
             </div>
         </div>
     </nav>
-
+    <style>
+    </style>
 </head>
 <body>
 <script>
-    $(document).ready(function() {
-        var table = $('#fixTable').tableHeadFixer( {
-            left: 7
-        });
+    var filter = [];
+
+    $(document).ready(function(){
+        console.log("ready " + filter);
     });
+
+    function onFreezeClick(cb) {
+        if (cb.checked) {
+            var table = $('#fixTable').tableHeadFixer( {
+                left: 7
+            });
+        } else {
+            window.location.reload(true);
+        }
+    }
+
+    function onCompareClick(cb) {
+        console.log(cb.name);
+        if (cb.checked) {
+            filter.push(cb.name);
+        } else {
+            var idx = filter.indexOf(cb.name);
+            filter.splice(idx, 1);
+        }
+    }
+
+    function onRefresh(button) {
+        console.log(filter);
+        var ff = document.getElementById("filter");
+        if (ff == null) {
+            ff = document.createElement("filter");
+            ff.id = "filter";
+        }
+        ff.value = filter;
+         $( "#parent" ).load(window.location.href + " #parent" );
+    }
+
+    function showCompares(displayFlag) {
+        var cbs = getCbList();
+        var spans = getSpans();
+        if (displayFlag) {
+            for (var ii = 0; ii < cbs.length; ii++) {
+                cbs[ii].style.display = "inline"
+            }
+            for (var ii = 0; ii < spans.length; ii++) {
+                spans[ii].style.display = "inline"
+            }
+            compareCBRow.style.display = "table-row";
+            refresh.style.display = "inline";
+        } else {
+            for (var ii = 0; ii < cbs.length; ii++) {
+                cbs[ii].style.display = "none"
+            }
+            for (var ii = 0; ii < spans.length; ii++) {
+                spans[ii].style.display = "none"
+            }
+            compareCBRow.style.display = "none";
+            refresh.style.display = "none";
+            filter = [];
+        }
+
+
+    }
+    function onCBClick(cb) {
+        var compareCBRow = document.getElementById("compareCBRow");
+        var refresh = document.getElementById("refresh");
+        showCompares(cb.checked);
+    }
+
+    function getSpans() {
+        var spans = [];
+        var inputs = document.getElementsByTagName("span");
+        for (ii = 0; ii < inputs.length; ii++) {
+            if (inputs[ii].name = "spancbs") {
+                spans.push(inputs[ii]);
+            }
+        }
+        return spans;
+    }
+    function getCbList() {
+        var inputs = document.getElementsByTagName("input");
+        var cbs = [];
+        for (ii = 0; ii < inputs.length; ii++) {
+            if(inputs[ii].type == "checkbox") {
+                if (inputs[ii].name != 'compare' &&
+                    inputs[ii].name != 'freeze') {
+                    cbs.push(inputs[ii]);
+                }
+            }
+        }
+        return cbs;
+    }
+
 </script>
+<div id="out" style="float:right; padding:10px">
+    <label>Freeze Panes</label>
+    <input id = "freeze" type="checkbox" name="freeze" onclick="onFreezeClick(this);">
+    <!--label>Compare</label>
+    <input id = "compare" type="checkbox" name="compare" onclick="onCBClick(this);">
+    <button type="button" class="btn btn-default" name="refresh" id="refresh" style="display: none" onclick="javascript:onRefresh()">Compare</button-->
+</div>
 <div id="parent">
     {% set cs = project.vendorIds | length * 2 %}
     <table id="fixTable" class="table table-condensed" >
@@ -71,6 +167,34 @@
         <tr>
             <th colspan="7" style="text-align: center">Objectives</th>
             <th colspan="{{ cs }}" style="text-align: center">Evaluation Criteria</th>
+            <div id="compareCB" style="display:inline">
+                <tr id="compareCBRow" style="display: none;">
+                {% for ii in range(7) %}
+                     <td></td>
+                {% endfor %}
+                {% for vendor in project.vendorIds %}
+                    {% if filter is defined %}
+                        {{ mdebug("0 " + filter) }}
+                    {% endif %}
+                    {% if filter | length > 0 %}
+                        {% if vendor in filter %}
+                            {{ mdebug("1 " + vendor) }}
+                            <th colspan="2" style="text-align: center">
+                                <span id="spancbs" style="display:none">Compare</span>
+                                <input id="cbs" type="checkbox" name={{ vendor }} style="display:none" onclick="onCompareClick(this);">
+                            </th>
+                        {% else %}
+                            {{ mdebug("2 " + vendor) }}
+                        {% endif %}
+                    {% else %}
+                        <th colspan="2" style="text-align: center">
+                            <span id="spancbs" style="display:none">Compare</span>
+                            <input id="cbs" type="checkbox" name={{ vendor }} style="display:none" onclick="onCompareClick(this);">
+                        </th>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            </div>
         </tr>
         <tr>
             <th>ID</th>
