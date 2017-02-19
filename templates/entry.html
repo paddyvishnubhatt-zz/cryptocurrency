@@ -118,6 +118,31 @@
             location.reload();
         }
 
+        function getSelectList() {
+            var inputs = document.getElementsByTagName("select");
+            var selects = [];
+            for (ii = 0; ii < inputs.length; ii++) {
+                selects.push(inputs[ii]);
+            }
+            return selects;
+        }
+
+        function getCbList() {
+            var inputs = document.getElementsByTagName("input");
+            var cbs = [];
+            for (ii = 0; ii < inputs.length; ii++) {
+                if(inputs[ii].type == "checkbox") {
+                    if (inputs[ii].name != 'showCalculations' &&
+                            inputs[ii].name != "refresh" &&
+                            inputs[ii].name != "submit") {
+                        cbs.push(inputs[ii]);
+                    }
+                }
+            }
+            return cbs;
+
+        }
+
         function getCbCheckedList() {
             // Gather list of checked checkboxes - combos
             var inputs = document.getElementsByTagName("input");
@@ -260,6 +285,22 @@
             var sections = getSections();
             for (var ii = 0; ii < sections.length; ii++) {
                 updateSubTotalsAndWeights(sections[ii]);
+            }
+            var cu = "{{ current_user }}";
+            var userId = "{{ userId }}";
+            console.log("***** " + cu + ", " + userId);
+            if (cu != userId) {
+                var cbs = getCbList();
+                for (var ii = 0; ii < cbs.length; ii++) {
+                    var cb = cbs[ii];
+                    cb.disabled = true;
+                }
+                var sels = getSelectList();
+                for (var ii = 0; ii < sels.length; ii++) {
+                    var cb = sels[ii];
+                    cb.disabled = true;
+                }
+
             }
         }
 

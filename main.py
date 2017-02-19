@@ -115,14 +115,14 @@ def show_summary(projectId):
     if top_vendor is None:
         return render_template(
             'summary.html',
-            current_user=userId,
+            current_user=request.authorization.username,
             project = project,
             bos_db = bos_db,
             userId = userId)
     else:
         return render_template(
             'summary.html',
-            current_user=userId,
+            current_user=request.authorization.username,
             top_vendor = top_vendor,
             project=project,
             bos_db=bos_db,
@@ -137,7 +137,7 @@ def show_entry(projectId, userId):
         bos_db, top_vendor = utils.get_business_objectives_from_db(projectId, True)
         return render_template(
             'entry.html',
-            current_user=userId,
+            current_user=request.authorization.username,
             userId = userId,
             project=project,
             bos_db = bos_db,
@@ -146,7 +146,7 @@ def show_entry(projectId, userId):
         bos_db,vendorId = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'entry.html',
-            current_user=userId,
+            current_user=request.authorization.username,
             userId = userId,
             project=project)
 
@@ -169,7 +169,7 @@ def show_entrys_given_project(projectId):
     return render_template(
         'entrys.html',
         current_date=datetime.datetime.now(),
-        current_user=userId,
+        current_user=request.authorization.username,
         projectId = projectId,
         userId = userId,
         entrys= entrys)
@@ -187,7 +187,7 @@ def show_entrys_given_user(userId):
     return render_template(
         'entrys.html',
         current_date=datetime.datetime.now(),
-        current_user=userId,
+        current_user=request.authorization.username,
         isUser = True,
         userId = userId,
         entrys= entrys)
