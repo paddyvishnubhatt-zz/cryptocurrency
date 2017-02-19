@@ -10,7 +10,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
-    <script src="/static/jquery-2.1.3.js"></script>
     <script src="/static/tableHeadFixer.js"></script>
     <nav class="navbar navbar-inverse navbar-static-top" >
         <div class="container">
@@ -33,20 +32,15 @@
 <body>
 <script>
     var filter = [];
-
     $(document).ready(function(){
         console.log("ready " + filter);
+        var table = $('#fixTable').tableHeadFixer( {
+            left: 7,
+            head:true,
+            foot:true,
+            'z-index':99999
+        });
     });
-
-    function onFreezeClick(cb) {
-        if (cb.checked) {
-            var table = $('#fixTable').tableHeadFixer( {
-                left: 7
-            });
-        } else {
-            window.location.reload(true);
-        }
-    }
 
     function onCompareClick(cb) {
         console.log(cb.name);
@@ -91,8 +85,6 @@
 
     }
     function onCBClick(cb) {
-        var compareCBRow = document.getElementById("compareCBRow");
-        var refresh = document.getElementById("refresh");
         showCompares(cb.checked);
     }
 
@@ -106,13 +98,13 @@
         }
         return spans;
     }
+
     function getCbList() {
         var inputs = document.getElementsByTagName("input");
         var cbs = [];
         for (ii = 0; ii < inputs.length; ii++) {
             if(inputs[ii].type == "checkbox") {
-                if (inputs[ii].name != 'compare' &&
-                    inputs[ii].name != 'freeze') {
+                if (inputs[ii].name != 'compare') {
                     cbs.push(inputs[ii]);
                 }
             }
@@ -121,10 +113,34 @@
     }
 
 </script>
-<div id="out" style="float:right; padding:10px">
+<div id="in" style="float:left; padding-left: 10px">
+    Project: {{ project.projectId }}
+    &nbsp;
+    &nbsp;
+    &nbsp;
+    {% set project_status, percentage = get_project_status(project.projectId) %}
+    {% if project_status == "Late" %}
+        <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
+    {% elif project_status == "Incomplete" %}
+        <span class="glyphicon glyphicon-exclamation-sign" style="color:orange"></span>
+    {% else %}
+        <span class="glyphicon glyphicon-ok-sign" style="color:green"></span>
+    {% endif %}
+    &nbsp;
+    &nbsp;
+    &nbsp;
+    {{ percentage }}
+    &nbsp;
+    %
+    &nbsp;
+    &nbsp;
+    &nbsp;
+    {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
+    <a href={{ urlx }}>Entrys<span class="glyphicon glyphicon-chevron-right"></span></a>
+
+</div>
+<div id="out" style="float:right; padding-right: 10px">
     <form method="post" action="{{ url_for('filter_vendors', projectId=project.projectId ) }}" onsubmit="return onRefresh()">
-        <label>Freeze Panes</label>
-        <input id = "freeze" type="checkbox" name="freeze" onclick="onFreezeClick(this);">
         {% if filteredVendorIds is defined %}
         {% else %}
             <label>Compare</label>
@@ -134,37 +150,14 @@
         {% endif %}
     </form>
 </div>
-<div id="parent">
-    {% set cs = project.vendorIds | length * 2 %}
+<div id="parent" style="height: 90%; width: 90%">
+    {% set vendorIds = project.vendorIds %}
+    {% if filteredVendorIds is defined %}
+        {% set vendorIds = filteredVendorIds %}
+    {% endif %}
+    {% set cs = vendorIds | length * 2 %}
     <table id="fixTable" class="table table-condensed" >
         <thead>
-        <tr>
-            <th colspan=  "{{ 4+cs }}" >
-                Project: {{ project.projectId }}
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                {% set project_status, percentage = get_project_status(project.projectId) %}
-                {% if project_status == "Late" %}
-                    <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
-                {% elif project_status == "Incomplete" %}
-                    <span class="glyphicon glyphicon-exclamation-sign" style="color:orange"></span>
-                {% else %}
-                    <span class="glyphicon glyphicon-ok-sign" style="color:green"></span>
-                {% endif %}
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                {{ percentage }}
-                &nbsp;
-                %
-                &nbsp;
-                &nbsp;
-                &nbsp;
-                {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
-                <a href={{ urlx }}>Entrys<span class="glyphicon glyphicon-chevron-right"></span></a>
-            </th>
-        </tr>
         <tr>
             <th colspan="7" style="text-align: center">Objectives</th>
             <th colspan="{{ cs }}" style="text-align: center">Evaluation Criteria</th>
@@ -173,10 +166,6 @@
                 {% for ii in range(7) %}
                      <td></td>
                 {% endfor %}
-                {% set vendorIds = project.vendorIds %}
-                {% if filteredVendorIds is defined %}
-                    {% set vendorIds = filteredVendorIds %}
-                {% endif %}
                 {% for vendor in vendorIds %}
                     <th colspan="2" style="text-align: center">
                         <span id="spancbs" style="display:none">Compare</span>
@@ -194,10 +183,6 @@
             <th>Criterion</th>
             <th>Criteria</th>
             <th>Criteria Weight</th>
-            {% set vendorIds = project.vendorIds %}
-            {% if filteredVendorIds is defined %}
-                {% set vendorIds = filteredVendorIds %}
-            {% endif %}
             {% for vendor in vendorIds %}
                 <th style="border-left:1px solid;">
                     {{ vendor }} Score
@@ -239,10 +224,6 @@
                     <td>
                         {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
                     </td>
-                    {% set vendorIds = project.vendorIds %}
-                    {% if filteredVendorIds is defined %}
-                        {% set vendorIds = filteredVendorIds %}
-                    {% endif %}
                     {% for vendor in vendorIds %}
                         <td style="border-left:1px solid;">
                             {% set key = vendor + "_vendor_score" %}
