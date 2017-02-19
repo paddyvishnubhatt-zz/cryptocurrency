@@ -58,15 +58,10 @@
         }
     }
 
-    function onRefresh(button) {
+    function onRefresh() {
         console.log(filter);
-        var ff = document.getElementById("filter");
-        if (ff == null) {
-            ff = document.createElement("filter");
-            ff.id = "filter";
-        }
-        ff.value = filter;
-         $( "#parent" ).load(window.location.href + " #parent" );
+        document.getElementById("filter").value = filter;
+        return true;
     }
 
     function showCompares(displayFlag) {
@@ -127,11 +122,17 @@
 
 </script>
 <div id="out" style="float:right; padding:10px">
-    <label>Freeze Panes</label>
-    <input id = "freeze" type="checkbox" name="freeze" onclick="onFreezeClick(this);">
-    <!--label>Compare</label>
-    <input id = "compare" type="checkbox" name="compare" onclick="onCBClick(this);">
-    <button type="button" class="btn btn-default" name="refresh" id="refresh" style="display: none" onclick="javascript:onRefresh()">Compare</button-->
+    <form method="post" action="{{ url_for('filter_vendors', projectId=project.projectId ) }}" onsubmit="return onRefresh()">
+        <label>Freeze Panes</label>
+        <input id = "freeze" type="checkbox" name="freeze" onclick="onFreezeClick(this);">
+        {% if filteredVendorIds is defined %}
+        {% else %}
+            <label>Compare</label>
+            <input id = "compare" type="checkbox" name="compare" onclick="onCBClick(this);">
+            <input type="submit" class="btn btn-default" name="refresh" id="refresh" style="display: none" value="Compare" >
+             <input type="text" name="filter" id="filter" style="display:none">
+        {% endif %}
+    </form>
 </div>
 <div id="parent">
     {% set cs = project.vendorIds | length * 2 %}
@@ -172,26 +173,15 @@
                 {% for ii in range(7) %}
                      <td></td>
                 {% endfor %}
-                {% for vendor in project.vendorIds %}
-                    {% if filter is defined %}
-                        {{ mdebug("0 " + filter) }}
-                    {% endif %}
-                    {% if filter | length > 0 %}
-                        {% if vendor in filter %}
-                            {{ mdebug("1 " + vendor) }}
-                            <th colspan="2" style="text-align: center">
-                                <span id="spancbs" style="display:none">Compare</span>
-                                <input id="cbs" type="checkbox" name={{ vendor }} style="display:none" onclick="onCompareClick(this);">
-                            </th>
-                        {% else %}
-                            {{ mdebug("2 " + vendor) }}
-                        {% endif %}
-                    {% else %}
-                        <th colspan="2" style="text-align: center">
-                            <span id="spancbs" style="display:none">Compare</span>
-                            <input id="cbs" type="checkbox" name={{ vendor }} style="display:none" onclick="onCompareClick(this);">
-                        </th>
-                    {% endif %}
+                {% set vendorIds = project.vendorIds %}
+                {% if filteredVendorIds is defined %}
+                    {% set vendorIds = filteredVendorIds %}
+                {% endif %}
+                {% for vendor in vendorIds %}
+                    <th colspan="2" style="text-align: center">
+                        <span id="spancbs" style="display:none">Compare</span>
+                        <input id="cbs" type="checkbox" name={{ vendor }} style="display:none" onclick="onCompareClick(this);">
+                    </th>
                 {% endfor %}
                 </tr>
             </div>
@@ -204,7 +194,11 @@
             <th>Criterion</th>
             <th>Criteria</th>
             <th>Criteria Weight</th>
-            {% for vendor in project.vendorIds %}
+            {% set vendorIds = project.vendorIds %}
+            {% if filteredVendorIds is defined %}
+                {% set vendorIds = filteredVendorIds %}
+            {% endif %}
+            {% for vendor in vendorIds %}
                 <th style="border-left:1px solid;">
                     {{ vendor }} Score
                 </th>
@@ -245,7 +239,11 @@
                     <td>
                         {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
                     </td>
-                    {% for vendor in project.vendorIds %}
+                    {% set vendorIds = project.vendorIds %}
+                    {% if filteredVendorIds is defined %}
+                        {% set vendorIds = filteredVendorIds %}
+                    {% endif %}
+                    {% for vendor in vendorIds %}
                         <td style="border-left:1px solid;">
                             {% set key = vendor + "_vendor_score" %}
                             {{ '%0.2f'| format(ec.calculations[key]|float) }}

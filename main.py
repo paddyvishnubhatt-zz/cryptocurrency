@@ -341,6 +341,33 @@ def submitted_vendor():
     vendor = utils.update_vendor(vendorId, email, projectIds)
     return show_vendors()
 
+@app.route('/api/v1/filter_vendors/<projectId>', methods=['POST'])
+@requires_auth
+def filter_vendors(projectId):
+    filteredVendorIds = request.form.get("filter").split(",")
+    project = utils.get_project_from_db(projectId)
+    project = utils.get_project_from_db(projectId)
+    entrys = utils.get_entrys_from_given_project_db(projectId)
+    userId = request.authorization.username
+    bos_db, top_vendor = utils.get_business_objectives_from_db(projectId, True)
+    if top_vendor is None:
+        return render_template(
+            'summary.html',
+            current_user=request.authorization.username,
+            project=project,
+            bos_db=bos_db,
+            filteredVendorIds = filteredVendorIds,
+            userId=userId)
+    else:
+        return render_template(
+            'summary.html',
+            current_user=request.authorization.username,
+            top_vendor=top_vendor,
+            project=project,
+            bos_db=bos_db,
+            filteredVendorIds = filteredVendorIds,
+            userId=userId)
+
 @app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])
 @requires_auth
 def delete_project(projectId):
