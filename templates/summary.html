@@ -92,7 +92,7 @@
         var spans = [];
         var inputs = document.getElementsByTagName("span");
         for (ii = 0; ii < inputs.length; ii++) {
-            if (inputs[ii].name = "spancbs") {
+            if (inputs[ii].id.indexOf("spancbs") >= 0) {
                 spans.push(inputs[ii]);
             }
         }
@@ -132,22 +132,27 @@
     {{ percentage }}
     &nbsp;
     %
-    &nbsp;
-    &nbsp;
-    &nbsp;
-    {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
-    <a href={{ urlx }}>Entrys<span class="glyphicon glyphicon-chevron-right"></span></a>
 
 </div>
-<div id="out" style="float:right; padding-right: 10px">
+<div id="out" style="float:right; padding-right: 100px">
     <form method="post" action="{{ url_for('filter_vendors', projectId=project.projectId ) }}" onsubmit="return onRefresh()">
+        <input type="text" name="filter" id="filter" style="display:none">
         {% if filteredVendorIds is defined %}
         {% else %}
             <label>Compare</label>
             <input id = "compare" type="checkbox" name="compare" onclick="onCBClick(this);">
+            &nbsp;
+            &nbsp;
             <input type="submit" class="btn btn-default" name="refresh" id="refresh" style="display: none" value="Compare" >
-             <input type="text" name="filter" id="filter" style="display:none">
         {% endif %}
+            &nbsp;
+            &nbsp;
+        {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
+        <a href={{ urlx }}>
+            <label>Entrys
+                <span name="entryspan" class="glyphicon glyphicon-chevron-right"></span>
+            </label>
+        </a>
     </form>
 </div>
 <div id="parent" style="height: 90%; width: 90%">
@@ -168,7 +173,7 @@
                 {% endfor %}
                 {% for vendor in vendorIds %}
                     <th colspan="2" style="text-align: center">
-                        <span id="spancbs" style="display:none">Compare</span>
+                        <span id="spancbs_" + {{ vendor }} style="display:none">Compare</span>
                         <input id="cbs" type="checkbox" name={{ vendor }} style="display:none" onclick="onCompareClick(this);">
                     </th>
                 {% endfor %}
