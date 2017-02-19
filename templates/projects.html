@@ -50,7 +50,7 @@
                         {{ project.projectId }}
                      </td>
                     <td>
-                        {% set project_status = get_project_status(project.projectId) %}
+                        {% set project_status, percentage = get_project_status(project.projectId) %}
                         {% if project_status == "Late" %}
                             <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
                         {% elif project_status == "Incomplete" %}
@@ -58,6 +58,9 @@
                         {% else %}
                             <span class="glyphicon glyphicon-ok-sign" style="color:green"></span>
                         {% endif %}
+                        {{ percentage }}
+                        &nbsp;
+                        %
                         <a href={{ urlx }}>
                             <span class="glyphicon glyphicon-chevron-right"></span>
                         </a>

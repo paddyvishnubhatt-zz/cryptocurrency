@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <head>
     <title>Summary</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
@@ -11,134 +10,154 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
-     <script type="text/javascript" src="http://luz.bplaced.de/_jquery/tableheadfixer/tableHeadFixer.js"></script>
-  </head>
-  <nav class="navbar navbar-inverse navbar-static-top" >
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+    <script src="/static/jquery-2.1.3.js"></script>
+    <script src="/static/tableHeadFixer.js"></script>
+    <nav class="navbar navbar-inverse navbar-static-top" >
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
+                </ul>
+            </div>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
-            </ul>
-        </div>
-      </div>
-  </nav>
-  <body>
-    <script>
-        $(document).ready(function(){
-           //$("#fixTable1").tableHeadFixer({'left': 2, 'head':true, 'z-index':10000});
-           //$("#fixTable2").tableHeadFixer({'left' : 3, 'head' : false});
+    </nav>
+    <style>
+        #parent {
+            height: 600px;
+            width: 1000px;
+        }
+    </style>
+</head>
+<body>
+<script>
+    $(document).ready(function() {
+        var table = $('#fixTable').tableHeadFixer( {
+            left: 7
         });
-    </script>
-    <div class="container">
-    <br>
-      <table id="fixTable1" class="table table-condensed" >
+    });
+</script>
+<div id="parent">
+    {% set cs = project.vendorIds | length * 2 %}
+    <table id="fixTable" class="table table-condensed" >
         <thead>
-          <tr>
-              <th colspan="0.5">
-                  Project: {{ project.projectId }}
-                  &nbsp;
-                  &nbsp;
-                  &nbsp;
-                  {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
-                  <a href={{ urlx }}>Entrys<span class="glyphicon glyphicon-chevron-right"></span></a>
-              </th>
-          </tr>
-        </thead>
-          <tr>
-             <td>
-                <table id="fixTable2" class="table table-condensed" >
-                    <thead>
-                        <tr>
-                            <th colspan="3" style="text-align: center">Objectives</th>
-                            {% set cs = 4 + project.vendorIds | length * 2 %}
-                            <th colspan="{{ cs }}" style="text-align: center">Evaluation Criteria</th>
-                        </tr>
-                        <tr>
-                            <th>ID</th>
-                            <th>Description</th>
-                            <th>Weight</th>
-                            <th>Criteria ID</th>
-                            <th>Criterion</th>
-                            <th>Criteria %</th>
-                            <th>Criteria Weight</th>
-                            {% for vendor in project.vendorIds %}
-                                <th style="border-left:1px solid;">
-                                    {{ vendor }} Score
-                                </th>
-                                <th>
-                                    {{ vendor }} Weight Score
-                                </th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    {% if bos_db is defined %}
-                        {% for bo in bos_db %}
-                            <tr>
-                                <td>
-                                    {{ bo.objectiveId }}
-                                </td>
-                                <td>
-                                    {{ bo.description }}
-                                </td>
-                                <td>
-                                    {{ bo.weight }}
-                                </td>
-                                {% set count = [0] %}
-                                {% for ec in bo.evaluation_criteria %}
-                                    {% if count > [0] %}
-                                        <tr>
-                                            <td></td><td></td><td></td>
-                                    {% endif %}
-                                    <td>
-                                        {{ ec.evaluation_criterionId }}
-                                    </td>
-                                    <td>
-                                        {{ ec.evaluation_criterion }}
-                                    </td>
-                                    <td>
-                                        {{ '%0.2f'| format(ec.calculations["criteria_percentage"]|float)  }}
-                                    </td>
-                                    <td>
-                                        {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
-                                    </td>
-                                    {% for vendor in project.vendorIds %}
-                                        <td style="border-left:1px solid;">
-                                            {% set key = vendor + "_vendor_score" %}
-                                            {{ '%0.2f'| format(ec.calculations[key]|float) }}
-                                        </td>
-                                        <td>
-                                            {% set key = vendor + "_vendor_weighted_score" %}
-                                            {{ ec.calculations[key] }}
-                                            {% if top_vendor is defined %}
-                                                {% if vendor == top_vendor %}
-                                                    (*)
-                                                {% endif %}
-                                            {% endif %}
-                                        </td>
-                                    {% endfor %}
-                                    </tr>
-                                    {% if count.append(count.pop() + 1) %}{% endif %}
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    {% endif %}
-               </table>
-             </td>
-          </tr>
-       <tfoot>
         <tr>
-          <td>(*): Top vendor</td>
+            <th colspan=  "{{ 4+cs }}" >
+                Project: {{ project.projectId }}
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                {% set project_status, percentage = get_project_status(project.projectId) %}
+                {% if project_status == "Late" %}
+                    <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
+                {% elif project_status == "Incomplete" %}
+                    <span class="glyphicon glyphicon-exclamation-sign" style="color:orange"></span>
+                {% else %}
+                    <span class="glyphicon glyphicon-ok-sign" style="color:green"></span>
+                {% endif %}
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                {{ percentage }}
+                &nbsp;
+                %
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
+                <a href={{ urlx }}>Entrys<span class="glyphicon glyphicon-chevron-right"></span></a>
+            </th>
         </tr>
-       </tfoot>
-      </table>
-    </div>
-  </body>
+        <tr>
+            <th colspan="7" style="text-align: center">Objectives</th>
+            <th colspan="{{ cs }}" style="text-align: center">Evaluation Criteria</th>
+        </tr>
+        <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Weight</th>
+            <th>Criteria ID</th>
+            <th>Criterion</th>
+            <th>Criteria %</th>
+            <th>Criteria Weight</th>
+            {% for vendor in project.vendorIds %}
+                <th style="border-left:1px solid;">
+                    {{ vendor }} Score
+                </th>
+                <th>
+                    {{ vendor }} Weight Score
+                </th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% if bos_db is defined %}
+            {% for bo in bos_db %}
+                <tr>
+                    <td>
+                        {{ bo.objectiveId }}
+                    </td>
+                    <td>
+                        {{ bo.description }}
+                    </td>
+                    <td>
+                        {{ bo.weight }}
+                    </td>
+                    {% set count = [0] %}
+                    {% for ec in bo.evaluation_criteria %}
+                        {% if count > [0] %}
+                            <tr>
+                            <td></td><td></td><td></td>
+                        {% endif %}
+                    <td>
+                        {{ ec.evaluation_criterionId }}
+                    </td>
+                    <td>
+                        {{ ec.evaluation_criterion }}
+                    </td>
+                    <td>
+                        {{ '%0.2f'| format(ec.calculations["criteria_percentage"]|float)  }}
+                    </td>
+                    <td>
+                        {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
+                    </td>
+                    {% for vendor in project.vendorIds %}
+                        <td style="border-left:1px solid;">
+                            {% set key = vendor + "_vendor_score" %}
+                            {{ '%0.2f'| format(ec.calculations[key]|float) }}
+                        </td>
+                        <td>
+                            {% set key = vendor + "_vendor_weighted_score" %}
+                            {{ ec.calculations[key] }}
+                            {% if top_vendor is defined %}
+                                {% if vendor == top_vendor %}
+                                    (*)
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                        {% if count > [0] %}
+                            </tr>
+                        {% endif %}
+                    {% if count.append(count.pop() + 1) %}{% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="{{ 7+cs }}" >(*): Top vendor</td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+</body>
 </html>
 
 

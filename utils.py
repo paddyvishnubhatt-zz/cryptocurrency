@@ -186,16 +186,23 @@ def get_evaluation_criteria_from_db(projectId, objectiveId, evaluation_criterion
 
 def get_project_status(projectId):
     entrys = get_entrys_from_given_project_db(projectId)
+    status = "OK"
+    total = len(entrys)
+    current = 0
     for entry in entrys:
-        if len(entry.evaluation_criteria) == 0:
+        if len(entry.evaluation_criteria_output) == 0:
             project = get_project_from_db(projectId)
             cur_date = datetime.datetime.now()
             print str(project.due_date) + ", " + str(cur_date)
             if project.due_date < cur_date:
-                return "Late"
+                status = "Late"
             else:
-                return "Incomplete"
-    return "OK"
+                if status == "OK":
+                    status = "Incomplete"
+        else:
+            current = current + 1
+    percentage = float (current /total) * 100
+    return status, percentage
 
 def delete_project_from_db(projectId):
     print 'deleting ' + projectId
