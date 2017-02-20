@@ -67,7 +67,7 @@ def show_project(projectId):
         project = utils.get_project_from_db(projectId)
         userlist = project.userIds
         vendorlist = project.vendorIds
-        bos_db, vendorId = utils.get_business_objectives_from_db(projectId, False)
+        bos_db, vendorId, vs = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'project.html',
             current_user=request.authorization.username,
@@ -111,13 +111,14 @@ def show_summary(projectId):
     project = utils.get_project_from_db(projectId)
     entrys = utils.get_entrys_from_given_project_db(projectId)
     userId = request.authorization.username
-    bos_db, top_vendor = utils.get_business_objectives_from_db(projectId, True)
+    bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
     if top_vendor is None:
         return render_template(
             'summary.html',
             current_user=request.authorization.username,
             project = project,
             bos_db = bos_db,
+            vendor_sums = vs,
             userId = userId)
     else:
         return render_template(
@@ -126,6 +127,7 @@ def show_summary(projectId):
             top_vendor = top_vendor,
             project=project,
             bos_db=bos_db,
+            vendor_sums = vs,
             userId=userId)
 
 @app.route('/api/v1/show_entry/<projectId>/<userId>')
@@ -134,7 +136,7 @@ def show_entry(projectId, userId):
     project = utils.get_project_from_db(projectId)
     entry = utils.get_entry_from_db(projectId, userId)
     if entry:
-        bos_db, top_vendor = utils.get_business_objectives_from_db(projectId, True)
+        bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
         return render_template(
             'entry.html',
             current_user=request.authorization.username,
@@ -143,7 +145,7 @@ def show_entry(projectId, userId):
             bos_db = bos_db,
             entry=entry)
     else:
-        bos_db,vendorId = utils.get_business_objectives_from_db(projectId, False)
+        bos_db,vendorId, vs = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'entry.html',
             current_user=request.authorization.username,
@@ -349,13 +351,14 @@ def filter_vendors(projectId):
     project = utils.get_project_from_db(projectId)
     entrys = utils.get_entrys_from_given_project_db(projectId)
     userId = request.authorization.username
-    bos_db, top_vendor = utils.get_business_objectives_from_db(projectId, True)
+    bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
     if top_vendor is None:
         return render_template(
             'summary.html',
             current_user=request.authorization.username,
             project=project,
             bos_db=bos_db,
+            vendor_sums = vs,
             filteredVendorIds = filteredVendorIds,
             userId=userId)
     else:
@@ -365,6 +368,7 @@ def filter_vendors(projectId):
             top_vendor=top_vendor,
             project=project,
             bos_db=bos_db,
+            vendor_sums = vs,
             filteredVendorIds = filteredVendorIds,
             userId=userId)
 

@@ -193,7 +193,7 @@
                     {{ vendor }} Score
                 </th>
                 <th>
-                    {{ vendor }} Weight Score
+                    {{ vendor }} Weighted Score
                 </th>
             {% endfor %}
         </tr>
@@ -215,7 +215,9 @@
                     {% for ec in bo.evaluation_criteria %}
                         {% if count > [0] %}
                             <tr>
-                            <td></td><td></td><td></td>
+                            {% for ii in range(3) %}
+                                <td></td>
+                            {% endfor %}
                         {% endif %}
                     <td>
                         {{ ec.evaluation_criterionId }}
@@ -251,6 +253,16 @@
                     {% endfor %}
                 </tr>
             {% endfor %}
+            <tr>
+            <td>Total</td>
+            {% for ii in range(6) %}
+                 <td></td>
+            {% endfor %}
+            {% for vendor in vendorIds %}
+                 <td></td>
+                 <td>{{  '%0.2f'| format(vendor_sums[vendor]) | float }}</td>
+            {% endfor %}
+            </tr>
         {% endif %}
         </tbody>
         <tfoot>

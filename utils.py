@@ -347,17 +347,6 @@ def delete_vendors_from_db():
             if key:
                 key.delete()
 
-def get_criteria_percentage_from_calc(project, evaluation_criterion):
-    entrys = get_entrys_from_given_project_db(project.projectId)
-    percentage = 0.0
-    for entry in entrys:
-        for weight_splits in entry.weights:
-            req_weight = weight_splits.split(":")
-            if req_weight[0] == evaluation_criterion.evaluation_criterion:
-                percentage += float(req_weight[1])
-
-    return percentage
-
 def get_criteria_average_from_calc(project, evaluation_criterion):
     entrys = get_entrys_from_given_project_db(project.projectId)
     total = len(entrys)
@@ -378,18 +367,27 @@ def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
     score = 0
     ec = evaluation_criterion.evaluation_criterion.replace(" ", "^")
     key = vendorId + "^" + ec
+    lene = len(entrys)
     for entry in entrys:
         if entry.vendor_output:
             vsplits = json.loads(entry.vendor_output)
             if key in vsplits:
                 score += int(vsplits[key])
-    return score
+    if lene == 0:
+        average_score = 0
+    else:
+        average_score = float(score/lene)
+    return average_score
 
 def get_business_objectives_from_db(projectId, withCalc):
     bos_db = []
     vendorId = None
     maxWeightedScore = 0.0
     project = get_project_from_db(projectId)
+    vendor_sums = {}
+    for vendorId in project.vendorIds:
+        vendor_sums[vendorId] = 0.0
+
     for objectiveId in project.objectiveIds:
         objective = get_objective_from_db(projectId, objectiveId)
         if objective:
@@ -413,13 +411,14 @@ def get_business_objectives_from_db(projectId, withCalc):
                                 maxWeightedScore = vendor_weighted_score
                             key = vendorId + "_vendor_weighted_score"
                             calculations[key] = vendor_weighted_score
+                            vendor_sums[vendorId] += vendor_weighted_score
                         evaluation_criterion.calculations = calculations
                     evaluation_criteria.append(evaluation_criterion)
             objective.evaluation_criteria = evaluation_criteria
             bos_db.append(objective)
     if maxWeightedScore == 0:
         vendorId = None
-    return bos_db, vendorId
+    return bos_db, vendorId, vendor_sums
 
 def check_auth(identity, password):
     """This function is called to check if a username /
