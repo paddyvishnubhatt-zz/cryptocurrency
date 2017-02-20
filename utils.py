@@ -145,7 +145,10 @@ def update_project(projectId, department, group, description, defaultPassword, u
             nnbos.append(bo["objectiveId"])
         for pbo in project.objectiveIds:
             if pbo not in nnbos:
-                delete_objective_from_db(projectId, pbo)
+                print "deleting " + pbo
+                print project.objectiveIds
+    #            delete_objective_from_db(projectId, pbo)
+
     for bo in bol:
         #print bo["objectiveId"] + ", " + bo["description"] + ", " + bo["weight"]
         boid = bo["objectiveId"]
