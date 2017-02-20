@@ -43,6 +43,7 @@
         var array = ["projectId", "userIds[]", "vendorIds[]", "bos[]", "due_date", "department","group","description","password"];
         for (var xx = 0; xx < array.length; xx++) {
             var did = document.getElementById(array[xx]);
+            console.log(array[xx] + ", " + did);
             if (did == null) {
                 popup("Invalid or Incomplete data", "Please ensure all fields are entered appropriately");
                 return false;
@@ -59,7 +60,7 @@
 
     $(document).ready(function() {
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
-        $('#due_datepicker').datepicker({
+        $('#due_date').datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true
         }).on('changeDate', function(e) {
@@ -180,7 +181,7 @@
                         {% if project is defined %}
                             {% set regId = project.projectId %}
                         {% endif %}
-                        <input type="text" class="form-control" name="projectId" value="{{ regId }}">
+                        <input type="text" class="form-control" id="projectId" name="projectId" value="{{ regId }}">
                     </td>
                     <td>
                         Due Date
@@ -190,7 +191,7 @@
                         {%  else %}
                             {% set dt = get_current_date() %}
                         {% endif %}
-                        <input class="form-control" id="due_datepicker" name="due_date" value="{{ dt }}">
+                        <input class="form-control"  id="due_date" name="due_date" value="{{ dt }}">
                     </td>
                 </tr>
                 <tr>
@@ -200,7 +201,7 @@
                         {% if project is defined %}
                             {% set desc = project.description %}
                         {% endif %}
-                        <input type="text" class="form-control" name="description" value="{{ desc }}">
+                        <input type="text" class="form-control" id="description" name="description" value="{{ desc }}">
                     </td>
                     <td>
                         Department
@@ -208,7 +209,7 @@
                         {% if project is defined %}
                             {% set dept = project.department %}
                         {% endif %}
-                        <input type="text" class="form-control" name="department" value="{{ dept }}">
+                        <input type="text" class="form-control" id="department" name="department" value="{{ dept }}">
                     </td>
                 </tr>
                 <tr>
@@ -218,7 +219,7 @@
                         {% if project is defined %}
                             {% set grp = project.group %}
                         {% endif %}
-                        <input type="text" class="form-control" name="group" value="{{ grp }}">
+                        <input type="text" class="form-control" id="group" name="group" value="{{ grp }}">
                     </td>
                     <td>
                         Password
@@ -241,7 +242,7 @@
                             {% set urlx = "/api/v1/show_user/__CREATE__/__CREATE__" %}
                         {% endif %}
                         <br><a href={{ urlx | urlencode }}> Click on link button to add new user</a>
-                        <select class="form-control" name="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
+                        <select class="form-control" name="userIds[]" id="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
 
                         {% for user in users %}
                             {% if project is defined %}
@@ -266,7 +267,7 @@
                             {% set urlx = "/api/v1/show_vendor/__CREATE__/__CREATE__" %}
                         {% endif %}
                         <br><a href={{ urlx | urlencode }}> Click on link button to add new vendor</a>
-                        <select class="form-control" name="vendorIds[]" multiple size={{ vendors |length }} style='height: 100%;'>
+                        <select class="form-control" name="vendorIds[]" id="vendorIds[]" multiple size={{ vendors |length }} style='height: 100%;'>
 
                         {% for vendor in vendor_objects %}
                             {% if project is defined %}
