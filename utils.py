@@ -381,13 +381,11 @@ def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
 
 def get_business_objectives_from_db(projectId, withCalc):
     bos_db = []
-    vendorId = None
-    maxWeightedScore = 0.0
+    topVendor = None
     project = get_project_from_db(projectId)
     vendor_sums = {}
     for vendorId in project.vendorIds:
         vendor_sums[vendorId] = 0.0
-
     for objectiveId in project.objectiveIds:
         objective = get_objective_from_db(projectId, objectiveId)
         if objective:
@@ -407,8 +405,6 @@ def get_business_objectives_from_db(projectId, withCalc):
                             key = vendorId + "_vendor_score"
                             calculations[key] = vendor_score
                             vendor_weighted_score = float(vendor_score * criteria_weight)
-                            if vendor_weighted_score > maxWeightedScore:
-                                maxWeightedScore = vendor_weighted_score
                             key = vendorId + "_vendor_weighted_score"
                             calculations[key] = vendor_weighted_score
                             vendor_sums[vendorId] += vendor_weighted_score
@@ -416,9 +412,12 @@ def get_business_objectives_from_db(projectId, withCalc):
                     evaluation_criteria.append(evaluation_criterion)
             objective.evaluation_criteria = evaluation_criteria
             bos_db.append(objective)
-    if maxWeightedScore == 0:
-        vendorId = None
-    return bos_db, vendorId, vendor_sums
+    maxVal = 0
+    for vendorId in project.vendorIds:
+        if maxVal < vendor_sums[vendorId]:
+            topVendor = vendorId
+            maxVal = vendor_sums[vendorId]
+    return bos_db, topVendor, vendor_sums
 
 def check_auth(identity, password):
     """This function is called to check if a username /

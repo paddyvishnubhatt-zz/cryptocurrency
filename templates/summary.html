@@ -239,11 +239,6 @@
                         <td>
                             {% set key = vendor + "_vendor_weighted_score" %}
                             {{ ec.calculations[key] }}
-                            {% if top_vendor is defined %}
-                                {% if vendor == top_vendor %}
-                                    (*)
-                                {% endif %}
-                            {% endif %}
                         </td>
                     {% endfor %}
                         {% if count > [0] %}
@@ -260,7 +255,14 @@
             {% endfor %}
             {% for vendor in vendorIds %}
                  <td></td>
-                 <td>{{  '%0.2f'| format(vendor_sums[vendor]) | float }}</td>
+                 <td>
+                     {{ '%0.2f'| format(vendor_sums[vendor]) | float }}
+                    {% if top_vendor is defined %}
+                        {% if vendor == top_vendor %}
+                            (*)
+                        {% endif %}
+                    {% endif %}
+                </td>
             {% endfor %}
             </tr>
         {% endif %}
