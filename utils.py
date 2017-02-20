@@ -146,8 +146,8 @@ def update_project(projectId, department, group, description, defaultPassword, u
         for pbo in project.objectiveIds:
             if pbo not in nnbos:
                 print "deleting " + pbo
-                print project.objectiveIds
-    #            delete_objective_from_db(projectId, pbo)
+                project.objectiveIds.remove(pbo)
+                delete_objective_from_db(projectId, pbo)
 
     for bo in bol:
         #print bo["objectiveId"] + ", " + bo["description"] + ", " + bo["weight"]
@@ -157,23 +157,33 @@ def update_project(projectId, department, group, description, defaultPassword, u
             nbo = Objective(parent=project_db_key(project_name))
             nbo.objectiveId = boid
             nbo.projectId = projectId
+            nbo.evaluation_criteriaIds = []
         nbo.description = bo["description"]
         nbo.weight = int(bo["weight"])
-        nbo.evaluation_criteriaIds = []
-        for ec in bo["evaluation_criteria"]:
-            ecid = ec["evaluation_criteriaId"]
-            nec = get_evaluation_criteria_from_db(projectId, boid, ecid)
-            #print "\t" + projectId + ", " + ec["evaluation_criteriaId"] + ", " + ec["evaluation_criterion"] + "\n\t" + str(nec)
-            if nec is None:
-                nec = EvaluationCriteria(parent=project_db_key(project_name))
-                nec.evaluation_criterionId = ecid
-                nec.objectiveId = boid
-                nec.projectId = projectId
-            nec.evaluation_criterion = ec["evaluation_criterion"]
-            nec.put()
-            nbo.evaluation_criteriaIds.append(ecid)
+        if "evaluation_criteria" in bo:
+            for ec in bo["evaluation_criteria"]:
+                ecid = ec["evaluation_criteriaId"]
+                nec = get_evaluation_criteria_from_db(projectId, boid, ecid)
+                #print "\t" + projectId + ", " + ec["evaluation_criteriaId"] + ", " + ec["evaluation_criterion"] + "\n\t" + str(nec)
+                if nec is None:
+                    nec = EvaluationCriteria(parent=project_db_key(project_name))
+                    nec.evaluation_criterionId = ecid
+                    nec.objectiveId = boid
+                    nec.projectId = projectId
+                nec.evaluation_criterion = ec["evaluation_criterion"]
+                nec.put()
+                if ecid in nbo.evaluation_criteriaIds:
+                    iiidx = nbo.evaluation_criteriaIds.index(ecid)
+                    pnbo.evaluation_criteriaIds[iiidx] = ecid
+                else:
+                    nbo.evaluation_criteriaIds.append(ecid)
         nbo.put()
-        project.objectiveIds.append(nbo.objectiveId)
+        if nbo.objectiveId in project.objectiveIds:
+            iidx = project.objectiveIds.index(nbo.objectiveId)
+            project.objectiveIds[iidx] = nbo.objectiveId
+        else:
+            project.objectiveIds.append(nbo.objectiveId)
+
     project.put()
     return project
 
@@ -228,11 +238,11 @@ def delete_objective_from_db(projectId, objectiveId):
             if evaluation_criterion:
                 key = evaluation_criterion.key
                 if key:
-                    print 'deleting ' + evaluation_criterion.evaluation_criterion
+                    print '\tdeleting ' + evaluation_criterion.evaluation_criterion
                     key.delete()
         key = objective.key
         if key:
-            print 'deleting ' + objective.objectiveId
+            print '\tdeleting ' + objective.objectiveId
             key.delete()
 
 

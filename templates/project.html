@@ -47,55 +47,40 @@
         var bo_table = bo_list.children[1];
         var bo_rows = bo_table.children;
         for (var ii = 0; ii < bo_rows.length; ii++) {
-            var content = bo_rows[ii].cells[0].innerText;
+            var content = bo_rows[ii].firstElementChild.innerText;
+            //console.log(ii + ", " + content);
             if (content == objectiveId) {
                 {% for bo in bos_db %}
                 var objId = "{{ bo.objectiveId }}";
                 if (objId == objectiveId) {
-                    var len = "{{ bo.evaluation_criteria | length }}";
-                    console.log("Found " + objId + ", " + len);
-                    var startIdx = ii + parseInt(len) - 1;
+                    var len = parseInt("{{ bo.evaluation_criteria | length }}");
+                    //console.log("Found " + ii + ", " + objId + ", " + len);
+                    var startIdx = ii + len - 1;
                     var endIdx = ii;
-                    for (var jj = startIdx; jj >= endIdx; jj-- ) {
-                        console.log("\tDelete " + jj);
-                        bo_table.deleteRow(jj);
-
-                    }
-                    for (var ii = 0; ii < business_objectives.length; ii++) {
-                        var mbo = business_objectives[ii];
-                        if (mbo == objectiveId) {
-                            business_objectives.splice(ii, 1);
+                    if (len <= 0) {
+                        bo_table.deleteRow(ii);
+                    } else {
+                        for (var jj = startIdx; jj >= endIdx; jj--) {
+                            console.log("\tDelete " + jj);
+                            bo_table.deleteRow(jj);
                         }
                     }
-                } else {
-                    var foundIt = false;
-                    for (var ii = 0; ii < business_objectives.length; ii++) {
-                        var mbo = business_objectives[ii];
-                        if (mbo == objectiveId) {
-                            foundIt = true;
-                            break;
+                    for (var kk = 0; kk < business_objectives.length; kk++) {
+                        var mbo = JSON.parse(business_objectives[kk]);
+                        console.log(" * 1 " + mbo.objectiveId + "==" + objectiveId);
+                        if (mbo.objectiveId == objectiveId) {
+                            console.log(" **** deleting " + mbo);
+                            business_objectives.splice(kk, 1);
                         }
-                    }
-                    if (!foundIt) {
-                        var obj1 = {};
-                        obj1.objectiveId = "{{ bo.objectiveId | safe}}";
-                        obj1.description = "{{ bo.description | safe}}";
-                        obj1.weight = "{{ bo.weight | safe}}";
-                        obj1.evaluation_criteria = [];
-                        {% for ec in bo.evaluation_criteria %}
-                            var obj2 = {};
-                            obj2.evaluation_criteriaId = "{{ ec.evaluation_criteriaId | safe }}";
-                            obj2.evaluation_criterion = "{{ ec.evaluation_criterion | safe }}";
-                            obj1.evaluation_criteria.push(obj2);
-                        {% endfor %}
-                        var jobj = JSON.stringify(obj1);
-                        business_objectives.push(jobj);
                     }
                 }
                 {% endfor %}
             }
         }
-        console.log(business_objectives);
+        console.log(" * 4 " + business_objectives.length);
+        for (var vv = 0; vv < business_objectives.length; vv++) {
+            console.log("\t" + vv + ": " + business_objectives[vv]);
+        }
         document.getElementById("bos[]").value = business_objectives;
     }
 
@@ -103,7 +88,7 @@
         var array = ["projectId", "userIds[]", "vendorIds[]", "bos[]", "due_date", "department","group","description","password"];
         for (var xx = 0; xx < array.length; xx++) {
             var did = document.getElementById(array[xx]);
-            console.log(array[xx] + ", " + did);
+            // console.log(array[xx] + ", " + did);
             if (did == null) {
                 popup("Invalid or Incomplete data", "Please ensure all fields are entered appropriately");
                 return false;
@@ -119,6 +104,27 @@
     });
 
     $(document).ready(function() {
+        if (business_objectives.length == 0) {
+            {% for bo in bos_db %}
+                var obj1 = {};
+                obj1.objectiveId = "{{ bo.objectiveId | safe}}";
+                obj1.description = "{{ bo.description | safe}}";
+                obj1.weight = "{{ bo.weight | safe}}";
+                obj1.evaluation_criteria = [];
+                {% for ec in bo.evaluation_criteria %}
+                    var obj2 = {};
+                    obj2.evaluation_criteriaId = "{{ ec.evaluation_criteriaId | safe }}";
+                    obj2.evaluation_criterion = "{{ ec.evaluation_criterion | safe }}";
+                    obj1.evaluation_criteria.push(obj2);
+                {% endfor %}
+                var jobj = JSON.stringify(obj1);
+                business_objectives.push(jobj);
+            {% endfor %}
+        }
+        console.log(" * 1 " + business_objectives.length);
+        for (var vv = 0; vv < business_objectives.length; vv++) {
+            console.log("\t" + vv + ": " + business_objectives[vv]);
+        }
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
         $('#due_date').datepicker({
             format: 'yyyy-mm-dd',
@@ -145,7 +151,8 @@
 
                 var bo_list = document.getElementById("business-objectives-container");
                 var row = bo_list.insertRow(-1);
-                row.id = newValue.objectiveId.split(' ').join('___');
+                var oid = newValue.objectiveId.trim();
+                row.id = oid.split(' ').join('___');
                 var cell1 = row.insertCell(0);
                 cell1.innerHTML = newValue.objectiveId;
                 var cell2 = row.insertCell(1);
@@ -159,7 +166,7 @@
                                     '</a>';
                 document.getElementById("bos[]").value = business_objectives;
 
-                // console.log(" ***** 1 " + JSON.parse(business_objectives));
+                console.log(" * 2 " + business_objectives);
                 $.fn.modal.Constructor.prototype.enforceFocus = function() {};
                 $(eval(idd)).editable({
                     title: 'Enter Evalution Criteria details',
@@ -168,7 +175,7 @@
                         var irr = this.id.substring(23);
                         var iddd = irr.substring(irr.indexOf("_____") + 5);
                         var ir = irr.substring(4, irr.indexOf("_____"));
-                        console.log(this.id + ", " + irr + ", " + ir + ", " + iddd + ", " + business_objectives[iddd]);
+                        // console.log(this.id + ", " + irr + ", " + ir + ", " + iddd + ", " + business_objectives[iddd]);
                         var bo = JSON.parse(business_objectives[iddd]);
 
                         var lastIdx = 0;
@@ -212,7 +219,7 @@
                         var cell6 = idRow.insertCell(5);
                         cell6.innerHTML = nValue.evaluation_criterion;
 
-                        // console.log(business_objectives);
+                        console.log(" * 3 " + business_objectives);
                     }
                 });
             }
@@ -383,31 +390,45 @@
                                         </td>
                                         <td>
                                         </td>
+                                        {% set message =  "This will delete objective " + bo.objectiveId + ", " + bo.description %}
+                                        {% set hrefs =  "javascript:popupConfirm('Are you sure?', '" +
+                                                        message + ".<br><p>Yes to Continue or No to Close', function(){deleteObjective('" + bo.objectiveId + "');})" %}
                                         {% set count = [0] %}
-                                        {% for ec in bo.evaluation_criteria %}
-                                            {% if count > [0] %}
-                                                <tr>
-                                                    <td></td><td></td><td></td><td></td>
-                                            {% endif %}
-                                            <td>
-                                                {{ ec.evaluation_criterionId }}
-                                            </td>
-                                            <td>
-                                                {{ ec.evaluation_criterion }}
-                                            </td>
-                                            {% if count == [0] %}
-                                                <td style="text-align: center">
-                                                    {% set message =  "This will delete objective " + bo.objectiveId + ", " + bo.description %}
-                                                    {% set hrefs =  "javascript:popupConfirm('Are you sure?', '" +
-                                                                message + ".<br><p>Yes to Continue or No to Close', function(){deleteObjective('" + bo.objectiveId + "');})" %}
-                                                    <a href= "{{ hrefs }}" >
-                                                        <span class="glyphicon glyphicon-remove" style="color:red"/>
-                                                    </a>
+                                        {% set lec = bo.evaluation_criteria | length %}
+                                        {% if lec > 0 %}
+                                            {% for ec in bo.evaluation_criteria %}
+                                                {% if count > [0] %}
+                                                    <tr>
+                                                        {% for ii in range(4) %}
+                                                             <td></td>
+                                                        {% endfor %}
+                                                {% endif %}
+                                                <td>
+                                                    {{ ec.evaluation_criterionId }}
                                                 </td>
-                                            {% endif %}
-                                            </tr>
-                                            {% if count.append(count.pop() + 1) %}{% endif %}
-                                        {% endfor %}
+                                                <td>
+                                                    {{ ec.evaluation_criterion }}
+                                                </td>
+                                                {% if count == [0] %}
+                                                    <td style="text-align: center">
+                                                        <a href= "{{ hrefs }}" >
+                                                            <span class="glyphicon glyphicon-remove" style="color:red"/>
+                                                        </a>
+                                                    </td>
+                                                {% endif %}
+                                                </tr>
+                                                {% if count.append(count.pop() + 1) %}{% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            {% for ii in range(2) %}
+                                                 <td></td>
+                                            {% endfor %}
+                                            <td style="text-align: center">
+                                                <a href= "{{ hrefs }}" >
+                                                    <span class="glyphicon glyphicon-remove" style="color:red"/>
+                                                </a>
+                                            </td>
+                                        {% endif %}
                                 </tr>
                                 {% endfor %}
                             {% endif %}
