@@ -117,6 +117,7 @@ def update_project(projectId, department, group, description, defaultPassword, u
     if project is None:
         project = Project(parent=project_db_key(project_name))
         project.projectId = projectId
+        project.objectiveIds = []
     project.department = department
     project.description = description
     project.group = group
@@ -137,8 +138,14 @@ def update_project(projectId, department, group, description, defaultPassword, u
         project.due_date = datetime.datetime.now()
     else:
         project.due_date = datetime.datetime.strptime(due_date.split(" ")[0], "%Y-%m-%d")
-    project.objectiveIds = []
     bol = getArrayOfDict(bos)
+    if len(project.objectiveIds) > 0:
+        nnbos = []
+        for bo in bol:
+            nnbos.append(bo["objectiveId"])
+        for pbo in project.objectiveIds:
+            if pbo not in nnbos:
+                delete_objective_from_db(projectId, pbo)
     for bo in bol:
         #print bo["objectiveId"] + ", " + bo["description"] + ", " + bo["weight"]
         boid = bo["objectiveId"]
@@ -208,27 +215,31 @@ def get_project_status(projectId):
         status = "Incomplete"
     return status, percentage
 
+def delete_objective_from_db(projectId, objectiveId):
+    objective = get_objective_from_db(projectId, objectiveId)
+    if objective:
+        for ecid in objective.evaluation_criteriaIds:
+            # print objective
+            # print " *** looking for : " + objectiveId + ", " + ecid
+            evaluation_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, ecid)
+            if evaluation_criterion:
+                key = evaluation_criterion.key
+                if key:
+                    print 'deleting ' + evaluation_criterion.evaluation_criterion
+                    key.delete()
+        key = objective.key
+        if key:
+            print 'deleting ' + objective.objectiveId
+            key.delete()
+
+
 def delete_project_from_db(projectId):
     print 'deleting ' + projectId
     project = get_project_from_db(projectId)
     entrys = get_entrys_from_given_project_db(projectId)
     vendorIds = project.vendorIds
     for objectiveId in project.objectiveIds:
-        objective = get_objective_from_db(projectId, objectiveId)
-        if objective:
-            for ecid in objective.evaluation_criteriaIds:
-                #print objective
-                #print " *** looking for : " + objectiveId + ", " + ecid
-                evaluation_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, ecid)
-                if evaluation_criterion:
-                    key = evaluation_criterion.key
-                    if key:
-                        print 'deleting ' + evaluation_criterion.evaluation_criterion
-                        key.delete()
-            key = objective.key
-            if key:
-                print 'deleting ' + objective.objectiveId
-                key.delete()
+        delete_objective_from_db(projectId, objectiveId)
     for vid in vendorIds:
         vendor = get_vendor_from_db(vid)
         if vendor:

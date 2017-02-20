@@ -39,6 +39,66 @@
   <body>
   <script>
     var business_objectives = [];
+
+    function deleteObjective(objectiveId) {
+        console.log("got it " + objectiveId);
+        // Update UI
+        var bo_list = document.getElementById("business-objectives-container");
+        var bo_table = bo_list.children[1];
+        var bo_rows = bo_table.children;
+        for (var ii = 0; ii < bo_rows.length; ii++) {
+            var content = bo_rows[ii].cells[0].innerText;
+            if (content == objectiveId) {
+                {% for bo in bos_db %}
+                var objId = "{{ bo.objectiveId }}";
+                if (objId == objectiveId) {
+                    var len = "{{ bo.evaluation_criteria | length }}";
+                    console.log("Found " + objId + ", " + len);
+                    var startIdx = ii + parseInt(len) - 1;
+                    var endIdx = ii;
+                    for (var jj = startIdx; jj >= endIdx; jj-- ) {
+                        console.log("\tDelete " + jj);
+                        bo_table.deleteRow(jj);
+
+                    }
+                    for (var ii = 0; ii < business_objectives.length; ii++) {
+                        var mbo = business_objectives[ii];
+                        if (mbo == objectiveId) {
+                            business_objectives.splice(ii, 1);
+                        }
+                    }
+                } else {
+                    var foundIt = false;
+                    for (var ii = 0; ii < business_objectives.length; ii++) {
+                        var mbo = business_objectives[ii];
+                        if (mbo == objectiveId) {
+                            foundIt = true;
+                            break;
+                        }
+                    }
+                    if (!foundIt) {
+                        var obj1 = {};
+                        obj1.objectiveId = "{{ bo.objectiveId | safe}}";
+                        obj1.description = "{{ bo.description | safe}}";
+                        obj1.weight = "{{ bo.weight | safe}}";
+                        obj1.evaluation_criteria = [];
+                        {% for ec in bo.evaluation_criteria %}
+                            var obj2 = {};
+                            obj2.evaluation_criteriaId = "{{ ec.evaluation_criteriaId | safe }}";
+                            obj2.evaluation_criterion = "{{ ec.evaluation_criterion | safe }}";
+                            obj1.evaluation_criteria.push(obj2);
+                        {% endfor %}
+                        var jobj = JSON.stringify(obj1);
+                        business_objectives.push(jobj);
+                    }
+                }
+                {% endfor %}
+            }
+        }
+        console.log(business_objectives);
+        document.getElementById("bos[]").value = business_objectives;
+    }
+
     function validateForm() {
         var array = ["projectId", "userIds[]", "vendorIds[]", "bos[]", "due_date", "department","group","description","password"];
         for (var xx = 0; xx < array.length; xx++) {
@@ -85,7 +145,7 @@
 
                 var bo_list = document.getElementById("business-objectives-container");
                 var row = bo_list.insertRow(-1);
-                row.id = newValue.objectiveId;
+                row.id = newValue.objectiveId.split(' ').join('___');
                 var cell1 = row.insertCell(0);
                 cell1.innerHTML = newValue.objectiveId;
                 var cell2 = row.insertCell(1);
@@ -93,23 +153,22 @@
                 var cell3 = row.insertCell(2);
                 cell3.innerHTML = newValue.weight;
                 var cell4 = row.insertCell(3);
-                var idd = "evaluation_criteria_id_" + row.id + "_" + id;
+                var idd = "evaluation_criteria_id_____" + row.id + "_____" + id;
                 cell4.innerHTML = '<a href="#" id=' + idd + ' data-type="evaluation_criteria" data-pk="1">' +
                                     '<span class="glyphicon glyphicon-plus"></span>' +
                                     '</a>';
                 document.getElementById("bos[]").value = business_objectives;
 
                 // console.log(" ***** 1 " + JSON.parse(business_objectives));
-
                 $.fn.modal.Constructor.prototype.enforceFocus = function() {};
                 $(eval(idd)).editable({
                     title: 'Enter Evalution Criteria details',
                     mode: 'popup',
                     success: function(response, nValue) {
-                        var ir = this.id.substring(23);
-                        var iddd = ir.substring(ir.indexOf("_") + 1);
-                        ir = ir.substring(0, ir.indexOf("_"));
-                        //console.log(ir + ", " + iddd + ", " + business_objectives[iddd]);
+                        var irr = this.id.substring(23);
+                        var iddd = irr.substring(irr.indexOf("_____") + 5);
+                        var ir = irr.substring(4, irr.indexOf("_____"));
+                        console.log(this.id + ", " + irr + ", " + ir + ", " + iddd + ", " + business_objectives[iddd]);
                         var bo = JSON.parse(business_objectives[iddd]);
 
                         var lastIdx = 0;
@@ -139,7 +198,7 @@
 
                         var obj1 = {};
                         obj1.evaluation_criteriaId = nValue.evaluation_criteriaId;
-                        obj1.evaluation_criterion = nValue.evaluation_criterion
+                        obj1.evaluation_criterion = nValue.evaluation_criterion;
                         bo.evaluation_criteria.push(obj1);
 
                         var jobj = JSON.stringify(bo);
@@ -336,10 +395,18 @@
                                             <td>
                                                 {{ ec.evaluation_criterion }}
                                             </td>
-                                            {% if count > 0  %}
-                                                </tr>
-                                                {% if count.append(count.pop() + 1) %}{% endif %}
+                                            {% if count == [0] %}
+                                                <td style="text-align: center">
+                                                    {% set message =  "This will delete objective " + bo.objectiveId + ", " + bo.description %}
+                                                    {% set hrefs =  "javascript:popupConfirm('Are you sure?', '" +
+                                                                message + ".<br><p>Yes to Continue or No to Close', function(){deleteObjective('" + bo.objectiveId + "');})" %}
+                                                    <a href= "{{ hrefs }}" >
+                                                        <span class="glyphicon glyphicon-remove" style="color:red"/>
+                                                    </a>
+                                                </td>
                                             {% endif %}
+                                            </tr>
+                                            {% if count.append(count.pop() + 1) %}{% endif %}
                                         {% endfor %}
                                 </tr>
                                 {% endfor %}
