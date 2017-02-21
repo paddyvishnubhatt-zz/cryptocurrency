@@ -41,7 +41,7 @@
     var business_objectives = [];
 
     function deleteObjective(objectiveId) {
-        console.log("got it " + objectiveId);
+        // console.log("got it " + objectiveId);
         // Update UI
         var bo_list = document.getElementById("business-objectives-container");
         var bo_table = bo_list.children[1];
@@ -61,15 +61,15 @@
                         bo_table.deleteRow(ii);
                     } else {
                         for (var jj = startIdx; jj >= endIdx; jj--) {
-                            console.log("\tDelete " + jj);
+                            // console.log("\tDelete " + jj);
                             bo_table.deleteRow(jj);
                         }
                     }
                     for (var kk = 0; kk < business_objectives.length; kk++) {
                         var mbo = JSON.parse(business_objectives[kk]);
-                        console.log(" * 1 " + mbo.objectiveId + "==" + objectiveId);
+                        // console.log(" * 1 " + mbo.objectiveId + "==" + objectiveId);
                         if (mbo.objectiveId == objectiveId) {
-                            console.log(" **** deleting " + mbo);
+                            // console.log(" **** deleting " + mbo);
                             business_objectives.splice(kk, 1);
                         }
                     }
@@ -77,9 +77,9 @@
                 {% endfor %}
             }
         }
-        console.log(" * 4 " + business_objectives.length);
+        // console.log(" * 4 " + business_objectives.length);
         for (var vv = 0; vv < business_objectives.length; vv++) {
-            console.log("\t" + vv + ": " + business_objectives[vv]);
+            // console.log("\t" + vv + ": " + business_objectives[vv]);
         }
         document.getElementById("bos[]").value = business_objectives;
     }
@@ -121,9 +121,9 @@
                 business_objectives.push(jobj);
             {% endfor %}
         }
-        console.log(" * 1 " + business_objectives.length);
+        // console.log(" * 1 " + business_objectives.length);
         for (var vv = 0; vv < business_objectives.length; vv++) {
-            console.log("\t" + vv + ": " + business_objectives[vv]);
+            // console.log("\t" + vv + ": " + business_objectives[vv]);
         }
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
         $('#due_date').datepicker({
@@ -166,7 +166,7 @@
                                     '</a>';
                 document.getElementById("bos[]").value = business_objectives;
 
-                console.log(" * 2 " + business_objectives);
+                // console.log(" * 2 " + business_objectives);
                 $.fn.modal.Constructor.prototype.enforceFocus = function() {};
                 $(eval(idd)).editable({
                     title: 'Enter Evalution Criteria details',
@@ -219,7 +219,7 @@
                         var cell6 = idRow.insertCell(5);
                         cell6.innerHTML = nValue.evaluation_criterion;
 
-                        console.log(" * 3 " + business_objectives);
+                        // console.log(" * 3 " + business_objectives);
                     }
                 });
             }

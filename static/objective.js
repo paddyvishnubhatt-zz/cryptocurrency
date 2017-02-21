@@ -1,26 +1,6 @@
 /**
  * Created by pvishn200 on 2/4/17.
 Objective editable input.
-Internally value stored as {id: "Moscow", desc: "Lenina", weight: "15"}
-
-@class objective
-@extends abstractinput
-@final
-@example
-<a href="#" id="objective" data-type="objective" data-pk="1">awesome</a>
-<script>
-$(function(){
-    $('#objective').editable({
-        url: '/post',
-        title: 'Enter city, street and building #',
-        value: {
-            city: "Moscow",
-            street: "Lenina",
-            building: "15"
-        }
-    });
-});
-</script>
  **/
 (function ($) {
     "use strict";
@@ -40,6 +20,7 @@ $(function(){
         **/
         render: function() {
            this.$input = this.$tpl.find('input');
+           this.$select = this.$tpl.find('select');
         },
 
         /**
@@ -123,7 +104,7 @@ $(function(){
            }
            this.$input.filter('[name="objectiveId"]').val(value.objectiveId);
            this.$input.filter('[name="description"]').val(value.description);
-           this.$input.filter('[name="weight"]').val(value.weight);
+           this.$select.filter('[name="weight"]').val(value.weight);
        },
 
        /**
@@ -135,7 +116,7 @@ $(function(){
            return {
               objectiveId: this.$input.filter('[name="objectiveId"]').val(),
               description: this.$input.filter('[name="description"]').val(),
-              weight: this.$input.filter('[name="weight"]').val()
+              weight: this.$select.filter('[name="weight"]').val()
            };
        },
 
@@ -165,7 +146,13 @@ $(function(){
     Objective.defaults = $.extend({}, $.fn.editabletypes.abstractinput.defaults, {
         tpl: '<div class="editable-objective"><label><span>Id: </span><input type="text" name="objectiveId" class="input-small"></label></div>'+
              '<div class="editable-objective"><label><span>Desc: </span><input type="text" name="description" class="input-small"></label></div>'+
-             '<div class="editable-objective"><label><span>Weight: </span><input type="text" name="weight" class="input-mini"></label></div>',
+             '<div class="editable-objective"><label><span>Weight: </span><select type="select" name="weight" class="input-small">' +
+        '       <option value="1">1</option>' +
+        '       <option value="2">2</option>' +
+        '       <option value="3">3</option>' +
+        '       <option value="4">4</option>' +
+        '       <option value="5">5</option>' +
+        '       </select></label></div>',
 
         inputclass: ''
     });
