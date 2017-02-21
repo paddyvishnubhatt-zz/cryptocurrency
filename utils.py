@@ -174,7 +174,7 @@ def update_project(projectId, department, group, description, defaultPassword, u
                 nec.put()
                 if ecid in nbo.evaluation_criteriaIds:
                     iiidx = nbo.evaluation_criteriaIds.index(ecid)
-                    pnbo.evaluation_criteriaIds[iiidx] = ecid
+                    nbo.evaluation_criteriaIds[iiidx] = ecid
                 else:
                     nbo.evaluation_criteriaIds.append(ecid)
         nbo.put()
