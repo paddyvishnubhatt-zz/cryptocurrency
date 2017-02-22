@@ -197,6 +197,8 @@
                         if ( lastIdx > 0) {
                             var bo_list = document.getElementById("business-objectives-container");
                             var rIdx = idRow.rowIndex;
+                            rIdx = (boa.length <= 1) ? rIdx : rIdx + boa.length-1;
+                            //console.log("rIdx="+rIdx + ", " + boa.length);
                             idRow = bo_list.insertRow(rIdx+1);
                             for (var xx = 0; xx < 4; xx++) {
                                 idRow.insertCell(xx);
