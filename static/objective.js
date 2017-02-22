@@ -20,7 +20,6 @@ Objective editable input.
         **/
         render: function() {
            this.$input = this.$tpl.find('input');
-           this.$select = this.$tpl.find('select');
         },
 
         /**
@@ -104,7 +103,7 @@ Objective editable input.
            }
            this.$input.filter('[name="objectiveId"]').val(value.objectiveId);
            this.$input.filter('[name="description"]').val(value.description);
-           this.$select.filter('[name="weight"]').val(value.weight);
+           this.$input.filter('[name="weight"]').val(value.weight);
        },
 
        /**
@@ -116,7 +115,7 @@ Objective editable input.
            return {
               objectiveId: this.$input.filter('[name="objectiveId"]').val(),
               description: this.$input.filter('[name="description"]').val(),
-              weight: this.$select.filter('[name="weight"]').val()
+              weight: this.$input.filter('[name="weight"]').val()
            };
        },
 
@@ -146,13 +145,7 @@ Objective editable input.
     Objective.defaults = $.extend({}, $.fn.editabletypes.abstractinput.defaults, {
         tpl: '<div class="editable-objective"><label><span>Id: </span><input type="text" name="objectiveId" class="input-small"></label></div>'+
              '<div class="editable-objective"><label><span>Desc: </span><input type="text" name="description" class="input-small"></label></div>'+
-             '<div class="editable-objective"><label><span>Weight: </span><select type="select" name="weight" class="input-small">' +
-        '       <option value="1">1</option>' +
-        '       <option value="2">2</option>' +
-        '       <option value="3">3</option>' +
-        '       <option value="4">4</option>' +
-        '       <option value="5">5</option>' +
-        '       </select></label></div>',
+             '<div class="editable-objective"><label><span>Weight: </span><input type="number" name="weight" class="input-small"min="1" max="5"></div>',
 
         inputclass: ''
     });
