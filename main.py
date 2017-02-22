@@ -378,10 +378,22 @@ def delete_project(projectId):
     utils.delete_project_from_db(projectId)
     return "OK", 200
 
+@app.route('/api/v1/delete_user/<userId>', methods=['DELETE'])
+@requires_auth
+def delete_user(userId):
+    utils.delete_user_from_db(userId)
+    return "OK", 200
+
 @app.route('/api/v1/delete_users', methods=['DELETE'])
 @requires_auth
 def delete_users():
     utils.delete_users_from_db()
+    return "OK", 200
+
+@app.route('/api/v1/delete_vendor/<vendorId>', methods=['DELETE'])
+@requires_auth
+def delete_vendor(vendorId):
+    utils.delete_vendor_from_db(vendorId)
     return "OK", 200
 
 @app.route('/api/v1/delete_vendors', methods=['DELETE'])

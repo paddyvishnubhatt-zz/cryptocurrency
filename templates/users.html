@@ -28,9 +28,42 @@
       </div>
   </nav>
   <body>
+    <script>
+        function deleteUser(userId) {
+            console.log("got it " + userId);
+            // Update UI
+            var bo_list = document.getElementById("users-container");
+            var bo_table = bo_list.children[0];
+            var bo_rows = bo_table.children;
+            for (var ii = 0; ii < bo_rows.length; ii++) {
+                var content = bo_rows[ii].firstElementChild.innerText;
+                console.log(ii + ", " + content);
+                if (content == userId) {
+                    {% for iuser in users %}
+                    var objId = "{{ iuser.identity }}";
+                    if (objId == userId) {
+                        bo_table.deleteRow(ii);
+                    }
+                    {% endfor %}
+                }
+            }
+            // Update DB
+            $.ajax({
+                url: "/api/v1/delete_user/" + userId,
+                type: "DELETE",
+                success: function (data, textStatus, jqXHR) {
+                    console.log("Success" + data + ", " + textStatus + ", " + jqXHR);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log("Error" + jqXHR + ", " + textStatus + ", " + errorThrown);
+                }
+            });
+        }
+    </script>
+
     <div class="container">
     <br>
-      <table class="table table-striped table-hover table-condensed">
+      <table id="users-container" class="table table-striped table-condensed">
         <th style="text-align:justify">
             Users
         </th>
@@ -47,7 +80,7 @@
                 {% else %}
                     {% set urlx = "/api/v1/show_user/__CREATE__/" + iuser.identity %}
                 {% endif %}
-                <TR onclick="location.href='{{ urlx }}'"}>
+                <TR>
                     <td>
                         {{ iuser.identity }}
                     </td>
@@ -56,6 +89,16 @@
                             <span class="glyphicon glyphicon-edit"></span>
                         </a>
                     </td>
+                    {% set message =  "This will delete user " + iuser.identity  %}
+                    {% set hrefs =  "javascript:popupConfirm('Are you sure?', '" +
+                            message + ".<br><p>OK to Continue or Cancel to Close', function(){deleteUser('" + iuser.identity + "');})" %}
+
+                    <td style="text-align: center">
+                        <a href= "{{ hrefs }}" >
+                            <span class="glyphicon glyphicon-remove" style="color:red"/>
+                        </a>
+                     </td>
+
                 </tr>
             {% endfor %}
         {% endif %}

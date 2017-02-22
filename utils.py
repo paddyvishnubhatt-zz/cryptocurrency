@@ -251,14 +251,17 @@ def delete_project_from_db(projectId):
     project = get_project_from_db(projectId)
     entrys = get_entrys_from_given_project_db(projectId)
     vendorIds = project.vendorIds
+    for vendorId in vendorIds:
+        vendor = get_vendor_from_db(vendorId)
+        vendor.projectIds.remove(projectId)
+        vendor.put()
+    userIds = project.userIds
+    for userId in userIds:
+        user = get_vendor_from_db(userId)
+        user.projectIds.remove(projectId)
+        user.put()
     for objectiveId in project.objectiveIds:
         delete_objective_from_db(projectId, objectiveId)
-    for vid in vendorIds:
-        vendor = get_vendor_from_db(vid)
-        if vendor:
-            key = vendor.key
-            if key:
-                key.delete()
     for entry in entrys:
         key = entry.key
         if key:
@@ -274,6 +277,13 @@ def delete_users_from_db():
             key = user.key
             if key:
                 key.delete()
+
+def delete_user_from_db(userId):
+    user = get_user_from_db(userId)
+    if user:
+        key = user.key
+        if key:
+            key.delete()
 
 def update_entry(projectId, userId, evaluation_criteria, evaluation_criteria_output, vendor_output, weights):
     entry = get_entry_from_db(projectId, userId)
@@ -338,6 +348,14 @@ def update_vendor(vendorId, email, projectIds):
     vendor.put()
     time.sleep(1)
     return vendor
+
+
+def delete_vendor_from_db(vendorId):
+    vendor = get_vendor_from_db(vendorId)
+    if vendor:
+        key = vendor.key
+        if key:
+            key.delete()
 
 def delete_vendors_from_db():
     vendors = get_vendors_from_db(None)
