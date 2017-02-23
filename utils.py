@@ -253,13 +253,17 @@ def delete_project_from_db(projectId):
     vendorIds = project.vendorIds
     for vendorId in vendorIds:
         vendor = get_vendor_from_db(vendorId)
-        vendor.projectIds.remove(projectId)
-        vendor.put()
+        if vendor:
+            if projectId in vendor.projectIds:
+                vendor.projectIds.remove(projectId)
+                vendor.put()
     userIds = project.userIds
     for userId in userIds:
         user = get_vendor_from_db(userId)
-        user.projectIds.remove(projectId)
-        user.put()
+        if user:
+            if projectId in user.projectIds:
+                user.projectIds.remove(projectId)
+                user.put()
     for objectiveId in project.objectiveIds:
         delete_objective_from_db(projectId, objectiveId)
     for entry in entrys:
@@ -443,7 +447,10 @@ def check_auth(identity, password):
         """
     user = get_user_from_db(identity)
     if user:
-        return True
+        if user.password == password:
+            return True
+        else:
+            return False
     else:
         if identity == 'superuser' and password == 'password':
             update_user('superuser', 'superuser@lafoot.com', 'Superuser', 'password', None)

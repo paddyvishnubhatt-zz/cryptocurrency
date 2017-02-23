@@ -32,6 +32,29 @@
   </nav>
   <body>
     <script>
+        function showDeletes() {
+            console.log("showDeletes");
+            var bo_list = document.getElementById("projects-container");
+            var bo_table = bo_list.children[0];
+            var bo_rows = bo_table.children;
+            for (var ii = 1; ii < bo_rows.length; ii++) {
+                var cell = bo_rows[ii].insertCell(2);
+                var identity = bo_rows[ii].cells[0].innerHTML;
+                var hrefs = "javascript:popupConfirm('Are you sure?', " +
+                                "'This will delete project " +
+                                identity.trim() +
+                                ".<br><p> OK to Continue or Cancel to Close', " +
+                                "function(){deleteProject('" +
+                                identity.trim() +
+                                "');})";
+                // console.log(hrefs);
+                cell.innerHTML = '<a href="'  + hrefs + '" >' +
+                                    '<span class="glyphicon glyphicon-remove" style="color:red"/>' +
+                                 '</a>';
+                bo_rows[ii].onclick  = function() {return hrefs;};
+            }
+        }
+
         function deleteProject(projectId) {
             console.log("got it " + projectId);
             // Update UI
@@ -56,6 +79,9 @@
                 type: "DELETE",
                 success: function (data, textStatus, jqXHR) {
                     console.log("Success" + data + ", " + textStatus + ", " + jqXHR);
+                    setTimeout(function(){
+                        location.reload();
+                    }, 2000);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log("Error" + jqXHR + ", " + textStatus + ", " + errorThrown);
@@ -66,7 +92,7 @@
 
       <div class="container">
       <br>
-        <table id="projects-container" class="table table-striped">
+        <table id="projects-container" class="table table-hover table-striped">
           <th>
             Projects
           </th>
@@ -76,14 +102,17 @@
                  <span class="glyphicon glyphicon-plus"></span>
               </a>
           </th>
+          <th tyle="text-align:justify">
+              <a href="javascript:showDeletes()">
+                  <span class="glyphicon glyphicon-edit"></span>
+              </a>
+          </th>
           {% if projects is defined %}
               {% for project in projects %}
                  {%  set urlx = "/api/v1/show_project/" + project.projectId | urlencode%}
-                 <TR>
+                 <TR onclick="location.href='{{ urlx }}'">
                      <td style="width:75%">
-                        <a href={{ urlx }}>
                         {{ project.projectId }}
-                        </a>
                      </td>
                     <td>
                         {% set project_status, percentage = get_project_status(project.projectId) %}
@@ -101,16 +130,6 @@
                             <span class="glyphicon glyphicon-chevron-right"></span>
                         </a>
                     </td>
-                    {% set message =  "This will delete project " + project.projectId + ", " + project.description %}
-                    {% set hrefs =  "javascript:popupConfirm('Are you sure?', '" +
-                            message + ".<br><p>OK to Continue or Cancel to Close', function(){deleteProject('" + project.projectId + "');})" %}
-
-                    <td style="text-align: center">
-                        <a href= "{{ hrefs }}" >
-                            <span class="glyphicon glyphicon-remove" style="color:red"/>
-                        </a>
-                     </td>
-
                  </TR>
               {% endfor %}
            {% endif %}

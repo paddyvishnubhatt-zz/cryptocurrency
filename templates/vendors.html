@@ -13,8 +13,9 @@
     <script type="text/javascript" src="/static/common.js"></script>
   </head>
   <nav class="navbar navbar-inverse navbar-static-top" >
-      <div class="container">
+      <div class="container-fluid">
         <div class="navbar-header">
+          <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"/></a>
           <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
@@ -29,6 +30,29 @@
   </nav>
   <body>
     <script>
+        function showDeletes() {
+            console.log("showDeletes");
+            var bo_list = document.getElementById("vendors-container");
+            var bo_table = bo_list.children[0];
+            var bo_rows = bo_table.children;
+            for (var ii = 1; ii < bo_rows.length; ii++) {
+                var cell = bo_rows[ii].insertCell(2);
+                var identity = bo_rows[ii].cells[0].innerHTML;
+                var hrefs = "javascript:popupConfirm('Are you sure?', " +
+                                "'This will delete vendor " +
+                                identity.trim() +
+                                ".<br><p> OK to Continue or Cancel to Close', " +
+                                "function(){deleteVendor('" +
+                                identity.trim() +
+                                "');})";
+                // console.log(hrefs);
+                cell.innerHTML = '<a href="'  + hrefs + '" >' +
+                                    '<span class="glyphicon glyphicon-remove" style="color:red"/>' +
+                                 '</a>';
+                bo_rows[ii].onclick  = function() {return hrefs;};
+            }
+        }
+
         function deleteVendor(vendorId) {
             console.log("got it " + vendorId);
             // Update UI
@@ -53,6 +77,9 @@
                 type: "DELETE",
                 success: function (data, textStatus, jqXHR) {
                     console.log("Success" + data + ", " + textStatus + ", " + jqXHR);
+                    setTimeout(function(){
+                        location.reload();
+                    }, 2000);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log("Error" + jqXHR + ", " + textStatus + ", " + errorThrown);
@@ -63,7 +90,7 @@
 
     <div class="container">
     <br>
-      <table id="vendors-container" class="table table-striped table-condensed">
+      <table id="vendors-container" class="table table-striped table-hover table-condensed">
         <th style="text-align:justify">
             Vendors
         </th>
@@ -73,6 +100,12 @@
                 <span class="glyphicon glyphicon-plus"></span>
             </a>
         </th>
+        <th tyle="text-align:justify">
+            <a href="javascript:showDeletes()">
+                <span class="glyphicon glyphicon-edit"></span>
+            </a>
+        </th>
+
         {% if vendors %}
             {% for ivendor in vendors %}
                 {% if ivendor.projectIds %}
@@ -80,7 +113,7 @@
                 {% else %}
                     {% set urlx = "/api/v1/show_vendor/__CREATE__/" + ivendor.identity %}
                 {% endif %}
-                <TR>
+                <TR onclick="location.href='{{ urlx }}'">
                     <td>
                         {{ ivendor.identity }}
                     </td>
@@ -89,15 +122,6 @@
                             <span class="glyphicon glyphicon-edit"></span>
                         </a>
                     </td>
-                    {% set message =  "This will delete vendor " + ivendor.identity  %}
-                    {% set hrefs =  "javascript:popupConfirm('Are you sure?', '" +
-                            message + ".<br><p>OK to Continue or Cancel to Close', function(){deleteVendor('" + ivendor.identity + "');})" %}
-
-                    <td style="text-align: center">
-                        <a href= "{{ hrefs }}" >
-                            <span class="glyphicon glyphicon-remove" style="color:red"/>
-                        </a>
-                     </td>
                 </tr>
             {% endfor %}
         {% endif %}
