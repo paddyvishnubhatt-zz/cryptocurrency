@@ -162,9 +162,9 @@ def update_project(projectId, department, group, description, defaultPassword, u
         nbo.weight = int(bo["weight"])
         if "evaluation_criteria" in bo:
             for ec in bo["evaluation_criteria"]:
-                ecid = ec["evaluation_criteriaId"]
+                ecid = ec["evaluation_criterionId"]
                 nec = get_evaluation_criteria_from_db(projectId, boid, ecid)
-                #print "\t" + projectId + ", " + ec["evaluation_criteriaId"] + ", " + ec["evaluation_criterion"] + "\n\t" + str(nec)
+                #print "\t" + projectId + ", " + ec["evaluation_criterionId"] + ", " + ec["evaluation_criterion"] + "\n\t" + str(nec)
                 if nec is None:
                     nec = EvaluationCriteria(parent=project_db_key(project_name))
                     nec.evaluation_criterionId = ecid
@@ -413,8 +413,8 @@ def get_business_objectives_from_db(projectId, withCalc):
         if objective:
             evaluation_criteriaIds = objective.evaluation_criteriaIds
             evaluation_criteria = []
-            for evaluation_criteriaId in evaluation_criteriaIds:
-                evaluation_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, evaluation_criteriaId)
+            for evaluation_criterionId in evaluation_criteriaIds:
+                evaluation_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, evaluation_criterionId)
                 if evaluation_criterion:
                     if withCalc:
                         calculations = {}

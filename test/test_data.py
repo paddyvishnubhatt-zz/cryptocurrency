@@ -11,13 +11,13 @@ num_users = 3
 num_vendors = 3
 num_entrys = num_users
 BOS=[u'{"objectiveId":"objective1","description":"this is objective1","weight":"1",'
-                                u'"evaluation_criteria":[{"evaluation_criteriaId":"1","evaluation_criterion":"criterion 1"},'
-                                u'{"evaluation_criteriaId":"2","evaluation_criterion":"criterion 2"},'
-                                u'{"evaluation_criteriaId":"3","evaluation_criterion":"criterion 3"}]},'
+                                u'"evaluation_criteria":[{"evaluation_criterionId":"1","evaluation_criterion":"criterion 1"},'
+                                u'{"evaluation_criterionId":"2","evaluation_criterion":"criterion 2"},'
+                                u'{"evaluation_criterionId":"3","evaluation_criterion":"criterion 3"}]},'
                                 u'{"objectiveId":"objective2","description":"this is objective2","weight":"2",'
-                                u'"evaluation_criteria":[{"evaluation_criteriaId":"4","evaluation_criterion":"criterion 4"},'
-                                u'{"evaluation_criteriaId":"5","evaluation_criterion":"criterion 5"},'
-                                u'{"evaluation_criteriaId":"6","evaluation_criterion":"criterion 6"}]}']
+                                u'"evaluation_criteria":[{"evaluation_criterionId":"4","evaluation_criterion":"criterion 4"},'
+                                u'{"evaluation_criterionId":"5","evaluation_criterion":"criterion 5"},'
+                                u'{"evaluation_criterionId":"6","evaluation_criterion":"criterion 6"}]}']
 
 def post_vendors(projectId):
     url = URL + "/api/v1/submitted_vendor"

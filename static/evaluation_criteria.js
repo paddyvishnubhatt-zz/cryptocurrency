@@ -32,7 +32,7 @@ Objective editable input.
                 $(element).empty();
                 return;
             }
-            var html = $('<div>').text(value.evaluation_criteriaId).html() + ', ' +
+            var html = $('<div>').text(value.evaluation_criterionId).html() + ', ' +
                 $('<div>').text(value.evalution_criterion).html() + ',' +
                 $('<div>').text(value.criterion_percentage).html();
 
@@ -48,12 +48,12 @@ Objective editable input.
         html2value: function(html) {
           /*
             you may write parsing method to get value by element's html
-            e.g. "Moscow, st. Lenina, bld. 15" => {evaluation_criteriaId: "Moscow", evaluation_criterion: "Lenina", criterion_percentage: "15"}
+            e.g. "Moscow, st. Lenina, bld. 15" => {evaluation_criterionId: "Moscow", evaluation_criterion: "Lenina", criterion_percentage: "15"}
             but for complex structures it's not recommended.
             Better set value directly via javascript, e.g.
             editable({
                 value: {
-                    evaluation_criteriaId: "Moscow",
+                    evaluation_criterionId: "Moscow",
                     evaluation_criterion: "Lenina",
                     criterion_percentage: "15"
                 }
@@ -101,7 +101,7 @@ Objective editable input.
            if(!value) {
              return;
            }
-           this.$input.filter('[name="evaluation_criteriaId"]').val(value.evaluation_criteriaId);
+           this.$input.filter('[name="evaluation_criterionId"]').val(value.evaluation_criterionId);
            this.$input.filter('[name="evaluation_criterion"]').val(value.evaluation_criterion);
        },
 
@@ -112,7 +112,7 @@ Objective editable input.
        **/
        input2value: function() {
            return {
-              evaluation_criteriaId: this.$input.filter('[name="evaluation_criteriaId"]').val(),
+              evaluation_criterionId: this.$input.filter('[name="evaluation_criterionId"]').val(),
               evaluation_criterion: this.$input.filter('[name="evaluation_criterion"]').val()
            };
        },
@@ -123,7 +123,7 @@ Objective editable input.
         @method activate()
        **/
        activate: function() {
-            this.$input.filter('[name="evaluation_criteriaId"]').focus();
+            this.$input.filter('[name="evaluation_criterionId"]').focus();
        },
 
        /**
@@ -141,7 +141,7 @@ Objective editable input.
     });
 
     Evaluation_criteria.defaults = $.extend({}, $.fn.editabletypes.abstractinput.defaults, {
-        tpl: '<div class="editable-evaluation_criteria" style="padding-right: 1px;" align="right"><label><span>Eval Criteria Id: </span><input type="text" name="evaluation_criteriaId" class="input-small" ></label></div>'+
+        tpl: '<div class="editable-evaluation_criteria" style="padding-right: 1px;" align="right"><label><span>Eval Criterion Id: </span><input type="text" name="evaluation_criterionId" class="input-small" ></label></div>'+
              '<div class="editable-evaluation_criteria" style="padding-right: 1px;" align="right"><label><span>Criterion: </span><input type="text" name="evaluation_criterion" class="input-small"></label></div>',
 
         inputclass: ''

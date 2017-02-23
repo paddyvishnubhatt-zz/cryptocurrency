@@ -114,11 +114,12 @@
                 obj1.evaluation_criteria = [];
                 {% for ec in bo.evaluation_criteria %}
                     var obj2 = {};
-                    obj2.evaluation_criteriaId = "{{ ec.evaluation_criteriaId | safe }}";
+                    obj2.evaluation_criterionId = "{{ ec.evaluation_criterionId | safe }}";
                     obj2.evaluation_criterion = "{{ ec.evaluation_criterion | safe }}";
                     obj1.evaluation_criteria.push(obj2);
                 {% endfor %}
                 var jobj = JSON.stringify(obj1);
+                console.log(jobj);
                 business_objectives.push(jobj);
             {% endfor %}
         }
@@ -182,9 +183,9 @@
                         var lastIdx = 0;
                         if (bo.evaluation_criteria !== undefined) {
                             boa = bo.evaluation_criteria;
-                            if (boa.filter(function(e) {return e.evaluation_criteriaId == nValue.evaluation_criteriaId}).length > 0 ||
+                            if (boa.filter(function(e) {return e.evaluation_criterionId == nValue.evaluation_criterionId}).length > 0 ||
                                 boa.filter(function(e) {return e.evaluation_criterion == nValue.evaluation_criterion}).length > 0)  {
-                                popup("Criteria already exists", "Criteria entered: " + nValue.evaluation_criteriaId +
+                                popup("Criteria already exists", "Criteria entered: " + nValue.evaluation_criterionId +
                                         ", " + nValue.evaluation_criterion +
                                         "\nalready exists (please use distinct id and criterion)");
                                 return;
@@ -207,7 +208,7 @@
                         }
 
                         var obj1 = {};
-                        obj1.evaluation_criteriaId = nValue.evaluation_criteriaId;
+                        obj1.evaluation_criterionId = nValue.evaluation_criterionId;
                         obj1.evaluation_criterion = nValue.evaluation_criterion;
                         bo.evaluation_criteria.push(obj1);
 
@@ -218,11 +219,11 @@
 
                         var weight = idRow.cells[2].innerHTML;
                         var cell5 = idRow.insertCell(4);
-                        cell5.innerHTML = nValue.evaluation_criteriaId;
+                        cell5.innerHTML = nValue.evaluation_criterionId;
                         var cell6 = idRow.insertCell(5);
                         cell6.innerHTML = nValue.evaluation_criterion;
 
-                        // console.log(" * 3 " + business_objectives);
+                        console.log(" * 3 " + business_objectives);
                     }
                 });
             }
