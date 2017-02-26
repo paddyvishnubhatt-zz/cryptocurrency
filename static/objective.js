@@ -35,7 +35,7 @@ Objective editable input.
             var html = $('<div>').text(value.objectiveId).html() + ', ' +
                 $('<div>').text(value.description).html() + ',' +
                 $('<div>').text(value.weight).html();
-            $(element).html('<span class="glyphicon glyphicon-plus"></span>');
+            // $(element).html('<span class="glyphicon glyphicon-plus"></span>');
 
             // $(element).html(html);
         },

@@ -1,45 +1,115 @@
 <html>
-  <head>
+<head>
     <title>Submit a form</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
-    <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/css/bootstrap-editable.css"
+          rel="stylesheet"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/js/bootstrap-editable.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
     <script type="text/javascript" src="/static/objective.js"></script>
     <link href="/static/objective.css" rel="stylesheet">
     <link href="/static/style.css" rel="stylesheet">
     <script type="text/javascript" src="/static/evaluation_criteria.js"></script>
     <link href="/static/evaluation_criteria.css" rel="stylesheet">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
 
-  </head>
-    <nav class="navbar navbar-inverse navbar-static-top">
-      <div class="container-fluid">
+</head>
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"/></a>
-          <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+            <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"/></a>
+            <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
+                <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span
+                        class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
             </ul>
         </div>
-      </div>
-  </nav>
+    </div>
+</nav>
 
-  <body>
-  <script>
+<body>
+<script>
     var business_objectives = [];
+    var editMode = false;
+
+    function getECLength(boid) {
+        for (var kk = 0; kk < business_objectives.length; kk++) {
+            var mbo = JSON.parse(business_objectives[kk]);
+            if (mbo.objectiveId == boid) {
+                var ec = mbo.evaluation_criteria;
+                return ec.length;
+            }
+        }
+        return 0;
+    }
+
+    function deleteEvaluationCriterion(boid, ecid) {
+        console.log("got it boid=" + boid + ", ecid=" + ecid);
+        var bo_list = document.getElementById("business-objectives-container");
+        var bo_table = bo_list.children[1];
+        var bo_rows = bo_table.children;
+        for (var ii = 0; ii < bo_rows.length; ii++) {
+            var content = bo_rows[ii].cells[0].innerText.trim();
+            console.log(content + ", " + boid);
+            if (content == boid.trim()) {
+                var lenec = getECLength(boid);
+                for (var jj = ii; jj < ii + lenec; jj++) {
+                    var econtent = bo_rows[jj].cells[4].innerText.trim();
+                    if (econtent == ecid) {
+                        // Update UI
+                        if (jj == ii) {
+                            // move rows up
+                            for (var kk = ii+lenec-1; kk > ii; kk--) {
+                                console.log(bo_rows[kk].cells[4].innerHTML + " < " + bo_rows[kk-1].cells[4].innerHTML);
+                                bo_rows[kk-1].cells[4].innerHTML = bo_rows[kk].cells[4].innerHTML.trim();
+                                bo_rows[kk-1].cells[5].innerHTML = bo_rows[kk].cells[5].innerHTML.trim();
+                            }
+                            bo_table.deleteRow(ii+lenec-1);
+                        } else {
+                            // simple
+                            bo_table.deleteRow(jj);
+                        }
+                        // Update Model
+                        for (var kk = 0; kk < business_objectives.length; kk++) {
+                            var mbo = JSON.parse(business_objectives[kk]);
+                            if (mbo.objectiveId == boid) {
+                                console.log("**** " + mbo.objectiveId + "==" + boid + ", " + lenec);
+                                for (var mm = 0; mm < lenec; mm++) {
+                                    if (mbo.evaluation_criteria[mm].evaluation_criterionId == ecid) {
+                                        console.log("\t**** " + ecid + "==" + mbo.evaluation_criteria[mm]);
+                                        mbo.evaluation_criteria.splice(mm, 1);
+                                        var jobj = JSON.stringify(mbo);
+                                        business_objectives[kk] = jobj;
+                                        document.getElementById("bos[]").value = business_objectives;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        console.log(" * 4 " + business_objectives.length);
+        for (var vv = 0; vv < business_objectives.length; vv++) {
+            console.log("\t" + vv + ": " + business_objectives[vv]);
+        }
+    }
 
     function deleteObjective(objectiveId) {
         // console.log("got it " + objectiveId);
@@ -50,32 +120,33 @@
         for (var ii = 0; ii < bo_rows.length; ii++) {
             var content = bo_rows[ii].firstElementChild.innerText;
             //console.log(ii + ", " + content);
-            if (content == objectiveId) {
-                {% for bo in bos_db %}
-                var objId = "{{ bo.objectiveId }}";
-                if (objId == objectiveId) {
-                    var len = parseInt("{{ bo.evaluation_criteria | length }}");
-                    //console.log("Found " + ii + ", " + objId + ", " + len);
-                    var startIdx = ii + len - 1;
-                    var endIdx = ii;
-                    if (len <= 0) {
-                        bo_table.deleteRow(ii);
-                    } else {
-                        for (var jj = startIdx; jj >= endIdx; jj--) {
-                            // console.log("\tDelete " + jj);
-                            bo_table.deleteRow(jj);
+            if (content == objectiveId.trim()) {
+                for (var kk = 0; kk < business_objectives.length; kk++) {
+                    var mbo = JSON.parse(business_objectives[kk]);
+                    if (mbo.objectiveId == objectiveId) {
+                        var ec = mbo.evaluation_criteria;
+                        var len = ec.length;
+                        //console.log("Found " + ii + ", " + objId + ", " + len);
+                        var startIdx = ii + len - 1;
+                        var endIdx = ii;
+                        if (len <= 0) {
+                            bo_table.deleteRow(ii);
+                        } else {
+                            for (var jj = startIdx; jj >= endIdx; jj--) {
+                                // console.log("\tDelete " + jj);
+                                bo_table.deleteRow(jj);
+                            }
                         }
-                    }
-                    for (var kk = 0; kk < business_objectives.length; kk++) {
-                        var mbo = JSON.parse(business_objectives[kk]);
-                        // console.log(" * 1 " + mbo.objectiveId + "==" + objectiveId);
-                        if (mbo.objectiveId == objectiveId) {
-                            // console.log(" **** deleting " + mbo);
-                            business_objectives.splice(kk, 1);
+                        for (var kk = 0; kk < business_objectives.length; kk++) {
+                            var mbo = JSON.parse(business_objectives[kk]);
+                            // console.log(" * 1 " + mbo.objectiveId + "==" + objectiveId);
+                            if (mbo.objectiveId == objectiveId) {
+                                // console.log(" **** deleting " + mbo);
+                                business_objectives.splice(kk, 1);
+                            }
                         }
                     }
                 }
-                {% endfor %}
             }
         }
         // console.log(" * 4 " + business_objectives.length);
@@ -86,7 +157,7 @@
     }
 
     function validateForm() {
-        var array = ["projectId", "userIds[]", "vendorIds[]", "bos[]", "due_date", "department","group","description","password"];
+        var array = ["projectId", "userIds[]", "vendorIds[]", "bos[]", "due_date", "department", "group", "description", "password"];
         for (var xx = 0; xx < array.length; xx++) {
             var did = document.getElementById(array[xx]);
             // console.log(array[xx] + ", " + did);
@@ -98,13 +169,199 @@
         return true;
     }
 
-    $(document).ready(function(){
-        $('#checkbox').on('change', function(){
-            $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
+    function addObjective(newValue) {
+        var obj1 = {};
+        obj1.objectiveId = newValue.objectiveId;
+        obj1.description = newValue.description;
+        obj1.weight = newValue.weight;
+        var jobj = JSON.stringify(obj1);
+        var id = business_objectives.push(jobj) - 1;
+
+        var bo_list = document.getElementById("business-objectives-container");
+        var row = bo_list.insertRow(-1);
+        var oid = newValue.objectiveId.trim();
+        row.id = oid.split(' ').join('___');
+        var cell1 = row.insertCell(0);
+        var innerId = "edit_objective_" + oid.split(' ').join('_');
+        cell1.innerHTML = '<a class="btn btn-default" href="#" id=' + innerId + ' data-type="objective" data-pk="1">' +
+                            '<span>' + newValue.objectiveId + '</span></a>';
+        var cell2 = row.insertCell(1);
+        cell2.innerHTML = newValue.description;
+        var cell3 = row.insertCell(2);
+        cell3.innerHTML = newValue.weight;
+        var cell4 = row.insertCell(3);
+        var idd = "edit_evaluation_criteria_id_____" + row.id + "_____" + id + "_____" + 0;
+        cell4.innerHTML = '<a href="#" id=' + idd + ' data-type="evaluation_criteria" data-pk="1">' +
+            '<span class="glyphicon glyphicon-plus"></span>' +
+            '</a>';
+        document.getElementById("bos[]").value = business_objectives;
+
+        // console.log(" * 2 " + business_objectives);
+
+        $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+        $(eval(idd)).editable({
+            title: 'Enter Evaluation Criteria details',
+            mode: 'popup',
+            success: function (response, nValue) {
+                var irr = this.id.substring(28);
+                var iddd = irr.substring(irr.indexOf("_____") + 5);
+                iddd = iddd.substring(0, iddd.indexOf("_____"));
+                var ir = irr.substring(4, irr.indexOf("_____")); // name of first cell of row
+                console.log(this.id + ", " + irr + ", " + ir + ", " + iddd );
+                addEvaluationCriteria(iddd, ir, nValue);
+            }
+        });
+        initializeInternalEditObjective(obj1);
+    }
+
+    function updateObjective(boid, nValue) {
+        for (var kk = 0; kk < business_objectives.length; kk++) {
+            var mbo = JSON.parse(business_objectives[kk]);
+            if (mbo.objectiveId == boid) {
+                mbo.description = nValue.description;
+                mbo.weight = nValue.weight;
+                var jobj = JSON.stringify(mbo);
+                business_objectives[kk] = jobj;
+                document.getElementById("bos[]").value = business_objectives;
+                break;
+            }
+        }
+        var bo_list = document.getElementById("business-objectives-container");
+        var bo_table = bo_list.children[1];
+        var bo_rows = bo_table.children;
+
+        for (var jj = 0; jj < bo_rows.length; jj++) {
+            var content = bo_rows[jj].firstElementChild.firstElementChild.innerText;
+            console.log("debug");
+            if (content == boid) {
+                var cell1 = bo_rows[jj].cells[1];
+                cell1.innerHTML = nValue.description;
+                var cell2 = bo_rows[jj].cells[2];
+                cell2.innerHTML = nValue.weight;
+                break;
+            }
+        }
+
+        console.log(" * after update objective " + business_objectives.length);
+        for (var vv = 0; vv < business_objectives.length; vv++) {
+            console.log("\t" + vv + ": " + business_objectives[vv]);
+        }
+    }
+
+    function updateEvaluationCriteria(iddd, eecid, nValue) {
+        var mbo = JSON.parse(business_objectives[iddd]);
+        for (var rr = 0; rr  < mbo.evaluation_criteria.length; rr++) {
+            if (mbo.evaluation_criteria[rr].evaluation_criterionId == eecid) {
+                mbo.evaluation_criteria[rr].evaluation_criterion = nValue.evaluation_criterion;
+                var jobj = JSON.stringify(mbo);
+                business_objectives[iddd] = jobj;
+                document.getElementById("bos[]").value = business_objectives;
+                break;
+            }
+        }
+        var bo_list = document.getElementById("business-objectives-container");
+        var bo_table = bo_list.children[1];
+        var bo_rows = bo_table.children;
+
+        for (var jj = 0; jj < bo_rows.length; jj++) {
+            var content = bo_rows[jj].firstElementChild.innerText;
+            if (content == mbo.objectiveId) {
+                for (var ii = jj; ii < jj + mbo.evaluation_criteria.length; ii++) {
+                    var econtent = bo_rows[ii].cells[4].firstElementChild.innerText;
+                    if (econtent == eecid) {
+                        var cell6 = bo_rows[ii].cells[5];
+                        cell6.innerHTML = nValue.evaluation_criterion;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        console.log(" * after update eval crit " + business_objectives.length);
+        for (var vv = 0; vv < business_objectives.length; vv++) {
+            console.log("\t" + vv + ": " + business_objectives[vv]);
+        }
+    }
+
+    function addEvaluationCriteria(iddd, ir, nValue) {
+        var bo = JSON.parse(business_objectives[iddd]);
+
+        var lastIdx = 0;
+        if (bo.evaluation_criteria !== undefined) {
+            boa = bo.evaluation_criteria;
+            if (boa.filter(function (e) {
+                    return e.evaluation_criterionId == nValue.evaluation_criterionId
+                }).length > 0 ||
+                boa.filter(function (e) {
+                    return e.evaluation_criterion == nValue.evaluation_criterion
+                }).length > 0) {
+                popup("Criteria already exists", "Criteria entered: " + nValue.evaluation_criterionId +
+                    ", " + nValue.evaluation_criterion +
+                    "\nalready exists (please use distinct id and criterion)");
+                return;
+            } else {
+                lastIdx = bo.evaluation_criteria.length;
+            }
+        } else {
+            bo.evaluation_criteria = [];
+        }
+        var idRow = document.getElementById(ir);
+        if (lastIdx > 0) {
+            var bo_list = document.getElementById("business-objectives-container");
+            var rIdx = idRow.rowIndex;
+            rIdx = (boa.length <= 1) ? rIdx : rIdx + boa.length - 1;
+            //console.log("rIdx="+rIdx + ", " + boa.length);
+            idRow = bo_list.insertRow(rIdx + 1);
+            for (var xx = 0; xx < 4; xx++) {
+                idRow.insertCell(xx);
+            }
+        }
+
+        var obj1 = {};
+        obj1.evaluation_criterionId = nValue.evaluation_criterionId;
+        obj1.evaluation_criterion = nValue.evaluation_criterion;
+        bo.evaluation_criteria.push(obj1);
+
+        var jobj = JSON.stringify(bo);
+
+        business_objectives[iddd] = jobj;
+        document.getElementById("bos[]").value = business_objectives;
+
+        var weight = idRow.cells[2].innerHTML;
+        var cell5 = idRow.insertCell(4);
+        var jj = getECLength(bo.objectiveId);
+        var innerId = "edit_evaluation_criteria_id_____" + bo.objectiveId.split(' ').join('___') + "_____"  + iddd + "_____" + jj;
+        console.log("***** " + innerId);
+        cell5.innerHTML = '<a class="btn btn-default" href="#" id=' + innerId + ' data-type="evaluation_criteria" data-pk="1">' +
+                            '<span>' + nValue.evaluation_criterionId + '</span></a>';
+
+        var cell6 = idRow.insertCell(5);
+        cell6.innerHTML = nValue.evaluation_criterion;
+
+        var cell7 = idRow.insertCell(6);
+        cell7.style.textAlign = "center";
+        innerId = "remove_" + bo.objectiveId.split(' ').join('_') + "_" + nValue.evaluation_criterionId;
+        var message1 =  "This will delete evaluation criterion " + nValue.evaluation_criterionId + ", " + nValue.evaluation_criterion;
+        var hrefs1 =  "javascript:popupConfirm('Are you sure?', '" + message1 + ".<br><p>OK to Continue or Cancel to Close', function(){deleteEvaluationCriterion('" + bo.objectiveId.trim() + "','" + nValue.evaluation_criterionId + "');})";
+        var removeText = '<a href="' + hrefs1 + '">' +
+                                '<span style="color:red;"  id=' +
+                                        innerId +
+                                    ' class="glyphicon glyphicon-remove"/></a>';
+        cell7.innerHTML =  removeText;
+
+
+        // console.log(" * 3 " + business_objectives);
+        var ecid = bo.objectiveId.split(' ').join('___') + "_____" + iddd + "_____" + jj;
+        initializeInternalEvaluationCriteria(ecid, obj1);
+    }
+
+    $(document).ready(function () {
+        $('#checkbox').on('change', function () {
+            $('#password').attr('type', $('#checkbox').prop('checked') == true ? "text" : "password");
         });
     });
 
-    $(document).ready(function() {
+    function initializeModel() {
         if (business_objectives.length == 0) {
             {% for bo in bos_db %}
                 var obj1 = {};
@@ -119,7 +376,7 @@
                     obj1.evaluation_criteria.push(obj2);
                 {% endfor %}
                 var jobj = JSON.stringify(obj1);
-                console.log(jobj);
+                // console.log(jobj);
                 business_objectives.push(jobj);
             {% endfor %}
         }
@@ -127,113 +384,185 @@
         for (var vv = 0; vv < business_objectives.length; vv++) {
             // console.log("\t" + vv + ": " + business_objectives[vv]);
         }
-        $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+    }
+
+    function initalizeDatePicker() {
         $('#due_date').datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true
-        }).on('changeDate', function(e) {
+        }).on('changeDate', function (e) {
             // Revalidate the date field
             console.log(e);
             // document.getElementById("due_date").value = newValue.format("YYYY-MM-DD");
         });
-        $('#objective').editable({
+
+    }
+
+    function initializeEditObjectives() {
+        for (var kk = 0; kk < business_objectives.length; kk++) {
+            var mbo = JSON.parse(business_objectives[kk]);
+            initializeInternalEditObjective(mbo);
+        }
+    }
+
+    function initializeInternalEditObjective(mbo) {
+        if (!mbo) {
+            return;
+        }
+        var boid = mbo.objectiveId.split(' ').join('_');
+        $('#edit_objective_' + boid).editable({
             title: 'Enter objective details',
             mode: 'popup',
-            success: function(response, newValue) {
-                if (business_objectives == null) {
-                    business_objectives = [];
+            value: new Object({
+                "objectiveId": mbo.objectiveId,
+                "description": mbo.description,
+                "weight": mbo.weight
+            }),
+            success: function (response, newValue) {
+                var eoid = mbo.objectiveId;
+                var eweight = mbo.weight;
+                var edescr = mbo.description;
+                if (newValue.objectiveId != eoid) {
+                    console.log("create");
+                    addObjective(newValue);
+                    // What a hack!
+                    setTimeout(function(){
+                        $('#edit_objective_' + boid).editable('setValue', new Object({
+                            "objectiveId": mbo.objectiveId,
+                            "description": mbo.description,
+                            "weight": mbo.weight
+                        }));
+                    }, 1000);
+                } else if (newValue.description != edescr || newValue.weight != eweight) {
+                    console.log("update");
+                    updateObjective(eoid, newValue);
                 }
-
-                var obj1 = {};
-                obj1.objectiveId = newValue.objectiveId;
-                obj1.description = newValue.description;
-                obj1.weight = newValue.weight;
-                var jobj = JSON.stringify(obj1);
-                var id = business_objectives.push(jobj) - 1;
-
-                var bo_list = document.getElementById("business-objectives-container");
-                var row = bo_list.insertRow(-1);
-                var oid = newValue.objectiveId.trim();
-                row.id = oid.split(' ').join('___');
-                var cell1 = row.insertCell(0);
-                cell1.innerHTML = newValue.objectiveId;
-                var cell2 = row.insertCell(1);
-                cell2.innerHTML = newValue.description;
-                var cell3 = row.insertCell(2);
-                cell3.innerHTML = newValue.weight;
-                var cell4 = row.insertCell(3);
-                var idd = "evaluation_criteria_id_____" + row.id + "_____" + id;
-                cell4.innerHTML = '<a href="#" id=' + idd + ' data-type="evaluation_criteria" data-pk="1">' +
-                                    '<span class="glyphicon glyphicon-plus"></span>' +
-                                    '</a>';
-                document.getElementById("bos[]").value = business_objectives;
-
-                // console.log(" * 2 " + business_objectives);
-                $.fn.modal.Constructor.prototype.enforceFocus = function() {};
-                $(eval(idd)).editable({
-                    title: 'Enter Evalution Criteria details',
-                    mode: 'popup',
-                    success: function(response, nValue) {
-                        var irr = this.id.substring(23);
-                        var iddd = irr.substring(irr.indexOf("_____") + 5);
-                        var ir = irr.substring(4, irr.indexOf("_____"));
-                        // console.log(this.id + ", " + irr + ", " + ir + ", " + iddd + ", " + business_objectives[iddd]);
-                        var bo = JSON.parse(business_objectives[iddd]);
-
-                        var lastIdx = 0;
-                        if (bo.evaluation_criteria !== undefined) {
-                            boa = bo.evaluation_criteria;
-                            if (boa.filter(function(e) {return e.evaluation_criterionId == nValue.evaluation_criterionId}).length > 0 ||
-                                boa.filter(function(e) {return e.evaluation_criterion == nValue.evaluation_criterion}).length > 0)  {
-                                popup("Criteria already exists", "Criteria entered: " + nValue.evaluation_criterionId +
-                                        ", " + nValue.evaluation_criterion +
-                                        "\nalready exists (please use distinct id and criterion)");
-                                return;
-                            } else {
-                                lastIdx = bo.evaluation_criteria.length;
-                            }
-                        } else {
-                            bo.evaluation_criteria = [];
-                        }
-                        var idRow = document.getElementById(ir);
-                        if ( lastIdx > 0) {
-                            var bo_list = document.getElementById("business-objectives-container");
-                            var rIdx = idRow.rowIndex;
-                            rIdx = (boa.length <= 1) ? rIdx : rIdx + boa.length-1;
-                            //console.log("rIdx="+rIdx + ", " + boa.length);
-                            idRow = bo_list.insertRow(rIdx+1);
-                            for (var xx = 0; xx < 4; xx++) {
-                                idRow.insertCell(xx);
-                            }
-                        }
-
-                        var obj1 = {};
-                        obj1.evaluation_criterionId = nValue.evaluation_criterionId;
-                        obj1.evaluation_criterion = nValue.evaluation_criterion;
-                        bo.evaluation_criteria.push(obj1);
-
-                        var jobj = JSON.stringify(bo);
-
-                        business_objectives[iddd] = jobj;
-                        document.getElementById("bos[]").value = business_objectives;
-
-                        var weight = idRow.cells[2].innerHTML;
-                        var cell5 = idRow.insertCell(4);
-                        cell5.innerHTML = nValue.evaluation_criterionId;
-                        var cell6 = idRow.insertCell(5);
-                        cell6.innerHTML = nValue.evaluation_criterion;
-
-                        console.log(" * 3 " + business_objectives);
-                    }
-                });
             }
         });
+    }
+
+    function initializeObjective() {
+        $('#edit_objective').editable({
+            title: 'Enter objective details',
+            mode: 'popup',
+            success: function (response, newValue) {
+                addObjective(newValue);
+            }
+        });
+    }
+
+    function initializeEvaluationCriteria() {
+        for (var kk = 0; kk < business_objectives.length; kk++) {
+            var mbo = JSON.parse(business_objectives[kk]);
+            var idx_ec = 0;
+            for (var jj = 0; jj < mbo.evaluation_criteria.length; jj++) {
+                var ecid = mbo.objectiveId.split(' ').join('___') + "_____" + kk + "_____" + jj;
+                var ec = mbo.evaluation_criteria[jj];
+                initializeInternalEvaluationCriteria(ecid, ec);
+            }
+        }
+    }
+
+    function initializeInternalEvaluationCriteria(ecid, ec) {
+        console.log(ecid + ", " + ec.evaluation_criterionId + ", " + ec.evaluation_criterion);
+        $('#edit_evaluation_criteria_id_____' + ecid).editable({
+            title: 'Enter Evaluation Criteria details',
+            mode: 'popup',
+            value: new Object({
+                "evaluation_criterionId": ec.evaluation_criterionId,
+                "evaluation_criterion": ec.evaluation_criterion
+            }),
+            success: function (response, newValue) {
+                var eecid = ec.evaluation_criterionId;
+                var eecrit = ec.evaluation_criterion;
+                console.log(eecid + ", " + eecrit + ", " + newValue.evaluation_criterionId + ", " +
+                    newValue.evaluation_criterion);
+                var irr = this.id.substring(28);
+                var iddd = irr.substring(irr.indexOf("_____") + 5);
+                iddd = iddd.substring(0, iddd.indexOf("_____"));
+                var ir = irr.substring(4, irr.indexOf("_____")); // name of first cell of row
+                console.log(this.id + ", " + irr + ", " + ir + ", " + iddd );
+                if (newValue.evaluation_criterionId != eecid) {
+                    console.log("create");
+                    addEvaluationCriteria(iddd, ir, newValue);
+                    // What a hack!
+                    setTimeout(function(){
+                        $('#edit_evaluation_criteria_id_____' + ecid).editable('setValue', new Object({
+                                "evaluation_criterionId": ec.evaluation_criterionId,
+                                "evaluation_criterion": ec.evaluation_criterion
+                            }));
+                    }, 1000);
+                } else if (newValue.evaluation_criterion != eecrit) {
+                    console.log("update");
+                    updateEvaluationCriteria(iddd, eecid, newValue);
+                }
+            }
+        });
+    }
+
+    function editTable() {
+        var inputs = document.getElementsByTagName("span");
+        if (!editMode) {
+            editMode = true;
+        } else {
+            editMode = false;
+        }
+
+        for (ii = 0; ii < inputs.length; ii++) {
+            if (inputs[ii].id.indexOf("remove_") >= 0) {
+                if (editMode) {
+                    inputs[ii].style.display = "inline";
+                } else {
+                    inputs[ii].style.display = "None";
+                }
+            }
+        }
+        enableLinks();
+    }
+
+    function enableLinks() {
+        var inputs = document.getElementsByTagName("a");
+        {% if project is defined %}
+        for (ii = 0; ii < inputs.length; ii++) {
+            if (inputs[ii].id.indexOf("edit_") >= 0) {
+                if (inputs[ii].id.indexOf("edit_evaluation") >= 0) {
+                    console.log(inputs[ii].id);
+                }
+                if (editMode) {
+                    inputs[ii].style.pointerEvents = "auto";
+                    inputs[ii].className = "btn btn-default";
+                    if (inputs[ii].id == "edit_objective") {
+                        inputs[ii].style.display = "Inline";
+                    }
+                } else {
+                    inputs[ii].style.pointerEvents = "None";
+                    inputs[ii].className = "";
+                    if (inputs[ii].id == "edit_objective") {
+                        inputs[ii].style.display = "None";
+                    }
+                }
+            }
+        }
+        {% else %}
+        var input = document.getElementById("editTable");
+        input.style.display="None";
+        {% endif %}
+    }
+
+    $(document).ready(function () {
+        initializeModel();
+        $.fn.modal.Constructor.prototype.enforceFocus = function () {};
+        initalizeDatePicker();
+        initializeEditObjectives();
+        initializeObjective();
+        initializeEvaluationCriteria();
+        enableLinks();
     });
 
-    </script>
-    <div id="container">
-      <div id="main">
-          <form method="post" action="{{ url_for('submitted_project') }}" onsubmit="return validateForm()">
+</script>
+<div id="container">
+    <div id="main">
+        <form method="post" action="{{ url_for('submitted_project') }}" onsubmit="return validateForm()">
             <table class="table table-condensed">
                 <th width="50%">
                     Project Details
@@ -255,13 +584,13 @@
                     </td>
                     <td>
                         Due Date
-                        {%  set dt = "" %}
-                        {%  if project is defined %}
+                        {% set dt = "" %}
+                        {% if project is defined %}
                             {% set dt = project.due_date | replace(" 00:00:00", '') %}
-                        {%  else %}
+                        {% else %}
                             {% set dt = get_current_date() %}
                         {% endif %}
-                        <input class="form-control"  id="due_date" name="due_date" value="{{ dt }}">
+                        <input class="form-control" id="due_date" name="due_date" value="{{ dt }}">
                     </td>
                 </tr>
                 <tr>
@@ -312,17 +641,18 @@
                             {% set urlx = "/api/v1/show_user/__CREATE__/__CREATE__" %}
                         {% endif %}
                         <br><a href={{ urlx | urlencode }}> Click on link button to add new user</a>
-                        <select class="form-control" name="userIds[]" id="userIds[]" multiple size={{ users |length }} style='height: 100%;'>
+                        <select class="form-control" name="userIds[]" id="userIds[]" multiple
+                                size={{ users |length }} style='height: 100%;'>
 
                         {% for user in users %}
                             {% if project is defined %}
-                                {%  if user.identity in userlist %}
-                                    <option value="{{  user.identity }}" selected> {{ user.identity }}</option>
+                                {% if user.identity in userlist %}
+                                    <option value="{{ user.identity }}" selected> {{ user.identity }}</option>
                                 {% else %}
-                                    <option value="{{  user.identity }}"> {{ user.identity }}</option>
+                                    <option value="{{ user.identity }}"> {{ user.identity }}</option>
                                 {% endif %}
                             {% else %}
-                                <option value="{{  user.identity }}"> {{ user.identity }}</option>
+                                <option value="{{ user.identity }}"> {{ user.identity }}</option>
                             {% endif %}
                         {% endfor %}
                         </select>
@@ -337,17 +667,18 @@
                             {% set urlx = "/api/v1/show_vendor/__CREATE__/__CREATE__" %}
                         {% endif %}
                         <br><a href={{ urlx | urlencode }}> Click on link button to add new vendor</a>
-                        <select class="form-control" name="vendorIds[]" id="vendorIds[]" multiple size={{ vendors |length }} style='height: 100%;'>
+                        <select class="form-control" name="vendorIds[]" id="vendorIds[]" multiple
+                                size={{ vendors |length }} style='height: 100%;'>
 
                         {% for vendor in vendor_objects %}
                             {% if project is defined %}
-                                {%  if vendor.identity in vendorlist %}
-                                    <option value="{{  vendor.identity }}" selected> {{ vendor.identity }}</option>
+                                {% if vendor.identity in vendorlist %}
+                                    <option value="{{ vendor.identity }}" selected> {{ vendor.identity }}</option>
                                 {% else %}
-                                    <option value="{{  vendor.identity }}"> {{ vendor.identity }}</option>
+                                    <option value="{{ vendor.identity }}"> {{ vendor.identity }}</option>
                                 {% endif %}
                             {% else %}
-                                <option value="{{  vendor.identity }}"> {{ vendor.identity }}</option>
+                                <option value="{{ vendor.identity }}"> {{ vendor.identity }}</option>
                             {% endif %}
                         {% endfor %}
                         </select>
@@ -359,32 +690,49 @@
                     </td>
                 </TR>
                 <TR>
-                    <td colspan="2" style="padding-left: 40px;" align="right">
-                        <table id="business-objectives-container" class="table table-striped table-hover table-condensed" style="width:100%">
+                    <td colspan="2" align="right">
+                        <table id="business-objectives-container" class="table table-striped table-condensed"
+                               style="width:100%">
                             <thead>
-                                <tr>
-                                    <th>
-                                        <a href="#" id="objective" data-type="objective" data-pk="1">
-                                            <span class="glyphicon glyphicon-plus"></span>
-                                        </a>
-                                    </th>
-                                    <th colspan="3" style="text-align: center">Objectives</th>
-                                    <th colspan="9" style="text-align: center">Evaluation Criteria</th>
-                                </tr>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Description</th>
-                                    <th>Weight</th>
-                                    <th>   </th>
-                                    <th>Criteria ID</th>
-                                    <th>Criterion</th>
-                                </tr>
+                            <tr>
+                                <th colspan="1">
+                                    <a class="btn btn-default" id="edit_objective" href="#" id="objective" data-type="objective" data-pk="1">
+                                        <span class="glyphicon glyphicon-plus"></span>
+                                    </a>
+                                </th>
+                                <th colspan="2" style="text-align: center">Objectives</th>
+                                <th colspan="1"></th>
+                                <th colspan="2" style="text-align: center">Evaluation Criteria</th>
+                                <th colspan="1" style="text-align: center">
+                                    <a id="editTable" href="javascript:editTable()">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </a>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Description</th>
+                                <th>Weight</th>
+                                <th></th>
+                                <th>Criteria ID</th>
+                                <th>Criterion</th>
+                                <th></th>
+                            </tr>
                             </thead>
                             {% if bos_db is defined %}
+                                {% set bcount = [0] %}
                                 {% for bo in bos_db %}
-                                    <tr>
+                                    {% set oid = bo.objectiveId | replace(" ", "___") %}
+                                    {% set message =  "This will delete objective " + bo.objectiveId + ", " + bo.description %}
+                                    {% set hrefs =  "javascript:popupConfirm('Are you sure?', '" +
+                                                    message + ".<br><p>OK to Continue or Cancel to Close', function(){deleteObjective('" + bo.objectiveId + "');})" %}
+                                    <tr id= {{ oid }}>
                                         <td>
-                                            {{ bo.objectiveId }}
+                                            <a href="#"
+                                               id={{ "edit_objective_" + bo.objectiveId | replace(" ", "_") }} data-type="objective"
+                                               data-pk="1">
+                                                <span>{{ bo.objectiveId }}</span>
+                                            </a>
                                         </td>
                                         <td>
                                             {{ bo.description }}
@@ -392,61 +740,67 @@
                                         <td>
                                             {{ bo.weight }}
                                         </td>
-                                        <td>
+                                        <td style="text-align: center; " >
+                                            <a href="{{ hrefs }}">
+                                                <span style="color:red; display: None" id='{{ "remove_" + bo.objectiveId }}' class="glyphicon glyphicon-remove"/>
+                                            </a>
                                         </td>
-                                        {% set message =  "This will delete objective " + bo.objectiveId + ", " + bo.description %}
-                                        {% set hrefs =  "javascript:popupConfirm('Are you sure?', '" +
-                                                        message + ".<br><p>OK to Continue or Cancel to Close', function(){deleteObjective('" + bo.objectiveId + "');})" %}
                                         {% set count = [0] %}
                                         {% set lec = bo.evaluation_criteria | length %}
                                         {% if lec > 0 %}
                                             {% for ec in bo.evaluation_criteria %}
+                                                {% set message1 =  "This will delete evaluation criterion " + ec.evaluation_criterionId + ", " + ec.evaluation_criterion %}
+                                                {% set hrefs1 =  "javascript:popupConfirm('Are you sure?', '" +
+                                                        message1 + ".<br><p>OK to Continue or Cancel to Close', function(){deleteEvaluationCriterion('" + bo.objectiveId + "','" + ec.evaluation_criterionId + "');})" %}
                                                 {% if count > [0] %}
                                                     <tr>
-                                                        {% for ii in range(4) %}
-                                                             <td></td>
-                                                        {% endfor %}
+                                                    {% for ii in range(4) %}
+                                                        <td></td>
+                                                    {% endfor %}
                                                 {% endif %}
-                                                <td>
-                                                    {{ ec.evaluation_criterionId }}
-                                                </td>
-                                                <td>
-                                                    {{ ec.evaluation_criterion }}
-                                                </td>
-                                                {% if count == [0] %}
-                                                    <td style="text-align: center">
-                                                        <a href= "{{ hrefs }}" >
-                                                            <span class="glyphicon glyphicon-remove" style="color:red"/>
-                                                        </a>
-                                                    </td>
-                                                {% endif %}
-                                                </tr>
+                                            <td>
+                                                {% set teid = "edit_evaluation_criteria_id_____" + bo.objectiveId | replace(" ", "___") +  "_____"  + bcount[0] | safe + "_____"  + count[0] | safe %}
+                                                <a href="#" id={{ teid }} data-type="evaluation_criteria" data-pk="1">
+                                                    <span>{{ ec.evaluation_criterionId }}</span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                {{ ec.evaluation_criterion }}
+                                            </td>
+                                            <td style="text-align: center">
+                                                <a href="{{ hrefs1 }}">
+                                                    <span style="color:red; display: None"  id='{{ "remove_" + bo.objectiveId + "_" + ec.evaluation_criterionId}}' class="glyphicon glyphicon-remove"/>
+
+                                                </a>
+                                            </td>
+                                            </tr>
                                                 {% if count.append(count.pop() + 1) %}{% endif %}
                                             {% endfor %}
                                         {% else %}
                                             {% for ii in range(2) %}
-                                                 <td></td>
+                                                <td></td>
                                             {% endfor %}
                                             <td style="text-align: center">
-                                                <a href= "{{ hrefs }}" >
-                                                    <span class="glyphicon glyphicon-remove" style="color:red"/>
+                                                <a href="{{ hrefs }}">
+                                                    <span style="color:red; display: None"  id='{{ "remove_" + bo.objectiveId + "_" + ec.evaluation_criterionId}}' class="glyphicon glyphicon-remove"/>
                                                 </a>
                                             </td>
                                         {% endif %}
-                                </tr>
+                                    </tr>
+                                    {% if bcount.append(bcount.pop() + 1) %}{% endif %}
                                 {% endfor %}
                             {% endif %}
                         </table>
                     </td>
                 </TR>
             </table>
-            <input type="submit" value="Save" >
+            <input type="submit" value="Save">
             <div>
                 <input type="hidden" name="bos[]" id="bos[]" style="display:none">
                 <input type="hidden" name="vendors" id="vendors" style="display:none">
             </div>
-          </form>
-      </div>
+        </form>
     </div>
-  </body>
+</div>
+</body>
 </html>

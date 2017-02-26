@@ -33,10 +33,9 @@ Objective editable input.
                 return;
             }
             var html = $('<div>').text(value.evaluation_criterionId).html() + ', ' +
-                $('<div>').text(value.evalution_criterion).html() + ',' +
-                $('<div>').text(value.criterion_percentage).html();
+                $('<div>').text(value.evaluation_criterion).html() ;
 
-            $(element).html('<span class="glyphicon glyphicon-plus"></span>');
+            // $(element).html('<span class="glyphicon glyphicon-plus"></span>');
             // $(element).html(html);
         },
 

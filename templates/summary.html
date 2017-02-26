@@ -10,6 +10,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
+    <script type="text/javascript" src="/static/jquery.hotkeys-0.7.9.min.js"></script>
     <script src="/static/tableHeadFixer.js"></script>
     <nav class="navbar navbar-inverse navbar-static-top" >
         <div class="container-fluid">
@@ -33,6 +34,7 @@
 <body>
 <script>
     var filter = [];
+    var blast = [];
     $(document).ready(function(){
         console.log("ready " + filter);
         var table = $('#fixTable').tableHeadFixer( {
@@ -41,7 +43,48 @@
             foot:true,
             'z-index':99999
         });
+        $(document).bind('keydown', 'ctrl+z', undo);
+        var table = document.getElementById("fixTable");
+        var thead = table.getElementsByTagName("thead")[0];
+        thead.onclick = function (e) {
+           e = e || window.event;
+           var th = e.target || e.srcElement;  //assumes there are no other elements in the th
+           console.log(th.innerHTML.trim() + ", " + th.cellIndex);
+           onBlast(th);
+        }
     });
+
+    function undo() {
+        // console.log("**** 1 " + blast);
+        for (var vv = 0; vv < 2; vv++) {
+            var idx = blast[blast.length - 1];
+            // console.log("\t****  " + vv + ": " + idx  + ", " + blast);
+            if (idx == "" || idx == NaN) {
+                return;
+            }
+            $('th:nth-child(' + idx  + '), td:nth-child(' + idx  + ')').show();
+            blast.pop();
+        }
+        // console.log("**** 2 " + blast);
+    }
+
+    function onBlast(th) {
+        if (th.innerHTML.indexOf("Score") < 0) {
+            return;
+        }
+        var idx =  th.cellIndex + 1;
+        var idx1 = idx + 1;
+        if (th.innerHTML.indexOf("Weighted") >= 0) {
+            idx1 = idx - 1;
+        }
+
+        console.log(idx + ", " + idx1);
+        $('th:nth-child(' + idx +  '), td:nth-child(' + idx +  ')').hide();
+        $('th:nth-child(' + idx1 + '), td:nth-child(' + idx1 + ')').hide();
+
+        blast.push(idx);
+        blast.push(idx1);
+    }
 
     function onCompareClick(cb) {
         console.log(cb.name);
@@ -56,7 +99,7 @@
     function onRefresh() {
         console.log(filter);
         document.getElementById("filter").value = filter;
-        return true;
+        return false;
     }
 
     function showCompares(displayFlag) {
