@@ -212,4 +212,13 @@ weighted score (calculated)
   Q: Does the (user) user see vendors and have any input for vendor/options?
   Yes, each user has to enter YES/NO/MAYBE for each evaluation criteria for each vendor.
 
-
+02/26/2017
+----------
+Steps Deploy to appengine
+1. Get google account
+2. Create a project
+3. Login into google cloud from command line (this will prompt browser login/oauth): 
+ - gcloud auth login
+4. Deploy app using:
+ - gcloud app deploy app.yaml index.yaml --project daranalysis-160000
+5. gcloud app browser --project ...
