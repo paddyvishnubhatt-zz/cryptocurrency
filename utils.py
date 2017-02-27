@@ -145,13 +145,15 @@ def update_project(projectId, department, group, description, defaultPassword, u
         for bo in bol:
             nnbos.append(bo["objectiveId"])
             nnecs = []
-            for ec in bo["evaluation_criteria"]:
-                nnecs.append(ec["evaluation_criterionId"])
-            rbo = get_objective_from_db(projectId, bo["objectiveId"])
-            for pec in rbo.evaluation_criteriaIds:
-                if pec not in nnecs:
-                    print "deleting " + pec
-                    delete_evaluation_criterion_from_db(projectId, rbo.objectiveId, pec)
+            if "evaluation_criteria" in bo:
+                for ec in bo["evaluation_criteria"]:
+                    nnecs.append(ec["evaluation_criterionId"])
+                rbo = get_objective_from_db(projectId, bo["objectiveId"])
+                if rbo:
+                    for pec in rbo.evaluation_criteriaIds:
+                        if pec not in nnecs:
+                            print "deleting " + pec
+                            delete_evaluation_criterion_from_db(projectId, rbo.objectiveId, pec)
 
         for pbo in project.objectiveIds:
             if pbo not in nnbos:

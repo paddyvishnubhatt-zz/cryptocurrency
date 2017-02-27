@@ -380,10 +380,11 @@
                 business_objectives.push(jobj);
             {% endfor %}
         }
-        // console.log(" * 1 " + business_objectives.length);
+        console.log(" * 1 " + business_objectives.length);
         for (var vv = 0; vv < business_objectives.length; vv++) {
-            // console.log("\t" + vv + ": " + business_objectives[vv]);
+            console.log("\t" + vv + ": " + business_objectives[vv]);
         }
+        document.getElementById("bos[]").value = business_objectives;
     }
 
     function initalizeDatePicker() {
@@ -776,15 +777,6 @@
                                             </tr>
                                                 {% if count.append(count.pop() + 1) %}{% endif %}
                                             {% endfor %}
-                                        {% else %}
-                                            {% for ii in range(2) %}
-                                                <td></td>
-                                            {% endfor %}
-                                            <td style="text-align: center">
-                                                <a href="{{ hrefs }}">
-                                                    <span style="color:red; display: None"  id='{{ "remove_" + bo.objectiveId + "_" + ec.evaluation_criterionId}}' class="glyphicon glyphicon-remove"/>
-                                                </a>
-                                            </td>
                                         {% endif %}
                                     </tr>
                                     {% if bcount.append(bcount.pop() + 1) %}{% endif %}
