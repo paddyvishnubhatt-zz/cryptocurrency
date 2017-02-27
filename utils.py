@@ -138,11 +138,21 @@ def update_project(projectId, department, group, description, defaultPassword, u
         project.due_date = datetime.datetime.now()
     else:
         project.due_date = datetime.datetime.strptime(due_date.split(" ")[0], "%Y-%m-%d")
+
     bol = getArrayOfDict(bos)
     if len(project.objectiveIds) > 0:
         nnbos = []
         for bo in bol:
             nnbos.append(bo["objectiveId"])
+            nnecs = []
+            for ec in bo["evaluation_criteria"]:
+                nnecs.append(ec["evaluation_criterionId"])
+            rbo = get_objective_from_db(projectId, bo["objectiveId"])
+            for pec in rbo.evaluation_criteriaIds:
+                if pec not in nnecs:
+                    print "deleting " + pec
+                    delete_evaluation_criterion_from_db(projectId, rbo.objectiveId, pec)
+
         for pbo in project.objectiveIds:
             if pbo not in nnbos:
                 print "deleting " + pbo
@@ -227,6 +237,17 @@ def get_project_status(projectId):
         percentage = 0
         status = "Incomplete"
     return status, percentage
+
+def delete_evaluation_criterion_from_db(projectId, objectiveId, ecid):
+    eval_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, ecid)
+    objective = get_objective_from_db(projectId, objectiveId)
+    objective.evaluation_criteriaIds.remove(ecid)
+    objective.put()
+    if eval_criterion:
+        key = eval_criterion.key
+        if key:
+            print '\tdeleting ' + eval_criterion.evaluation_criterionId
+            key.delete()
 
 def delete_objective_from_db(projectId, objectiveId):
     objective = get_objective_from_db(projectId, objectiveId)
