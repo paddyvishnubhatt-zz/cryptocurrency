@@ -64,7 +64,7 @@
         var bo_rows = bo_table.children;
         for (var ii = 0; ii < bo_rows.length; ii++) {
             var content = bo_rows[ii].cells[0].innerText.trim();
-            console.log(content + ", " + boid);
+            // console.log(content + ", " + boid);
             if (content == boid.trim()) {
                 var lenec = getECLength(boid);
                 for (var jj = ii; jj < ii + lenec; jj++) {
@@ -74,7 +74,7 @@
                         if (jj == ii) {
                             // move rows up
                             for (var kk = ii+lenec-1; kk > ii; kk--) {
-                                console.log(bo_rows[kk].cells[4].innerHTML + " < " + bo_rows[kk-1].cells[4].innerHTML);
+                                // console.log(bo_rows[kk].cells[4].innerHTML + " < " + bo_rows[kk-1].cells[4].innerHTML);
                                 bo_rows[kk-1].cells[4].innerHTML = bo_rows[kk].cells[4].innerHTML.trim();
                                 bo_rows[kk-1].cells[5].innerHTML = bo_rows[kk].cells[5].innerHTML.trim();
                             }
@@ -87,10 +87,10 @@
                         for (var kk = 0; kk < business_objectives.length; kk++) {
                             var mbo = JSON.parse(business_objectives[kk]);
                             if (mbo.objectiveId == boid) {
-                                console.log("**** " + mbo.objectiveId + "==" + boid + ", " + lenec);
+                                // console.log("**** " + mbo.objectiveId + "==" + boid + ", " + lenec);
                                 for (var mm = 0; mm < lenec; mm++) {
                                     if (mbo.evaluation_criteria[mm].evaluation_criterionId == ecid) {
-                                        console.log("\t**** " + ecid + "==" + mbo.evaluation_criteria[mm]);
+                                        // console.log("\t**** " + ecid + "==" + mbo.evaluation_criteria[mm]);
                                         mbo.evaluation_criteria.splice(mm, 1);
                                         var jobj = JSON.stringify(mbo);
                                         business_objectives[kk] = jobj;
@@ -112,7 +112,7 @@
     }
 
     function deleteObjective(objectiveId) {
-        // console.log("got it " + objectiveId);
+        console.log("got it " + objectiveId);
         // Update UI
         var bo_list = document.getElementById("business-objectives-container");
         var bo_table = bo_list.children[1];
@@ -149,9 +149,9 @@
                 }
             }
         }
-        // console.log(" * 4 " + business_objectives.length);
+        console.log(" * 4 " + business_objectives.length);
         for (var vv = 0; vv < business_objectives.length; vv++) {
-            // console.log("\t" + vv + ": " + business_objectives[vv]);
+            console.log("\t" + vv + ": " + business_objectives[vv]);
         }
         document.getElementById("bos[]").value = business_objectives;
     }
@@ -207,7 +207,7 @@
                 var iddd = irr.substring(irr.indexOf("_____") + 5);
                 iddd = iddd.substring(0, iddd.indexOf("_____"));
                 var ir = irr.substring(4, irr.indexOf("_____")); // name of first cell of row
-                console.log(this.id + ", " + irr + ", " + ir + ", " + iddd );
+                //console.log(this.id + ", " + irr + ", " + ir + ", " + iddd );
                 addEvaluationCriteria(iddd, ir, nValue);
             }
         });
@@ -232,7 +232,6 @@
 
         for (var jj = 0; jj < bo_rows.length; jj++) {
             var content = bo_rows[jj].firstElementChild.firstElementChild.innerText;
-            console.log("debug");
             if (content == boid) {
                 var cell1 = bo_rows[jj].cells[1];
                 cell1.innerHTML = nValue.description;
@@ -277,9 +276,9 @@
                 break;
             }
         }
-        console.log(" * after update eval crit " + business_objectives.length);
+        //console.log(" * after update eval crit " + business_objectives.length);
         for (var vv = 0; vv < business_objectives.length; vv++) {
-            console.log("\t" + vv + ": " + business_objectives[vv]);
+            //console.log("\t" + vv + ": " + business_objectives[vv]);
         }
     }
 
@@ -331,7 +330,6 @@
         var cell5 = idRow.insertCell(4);
         var jj = getECLength(bo.objectiveId);
         var innerId = "edit_evaluation_criteria_id_____" + bo.objectiveId.split(' ').join('___') + "_____"  + iddd + "_____" + jj;
-        console.log("***** " + innerId);
         cell5.innerHTML = '<a class="btn btn-default" href="#" id=' + innerId + ' data-type="evaluation_criteria" data-pk="1">' +
                             '<span>' + nValue.evaluation_criterionId + '</span></a>';
 
@@ -380,9 +378,9 @@
                 business_objectives.push(jobj);
             {% endfor %}
         }
-        console.log(" * 1 " + business_objectives.length);
+        // console.log(" * 1 " + business_objectives.length);
         for (var vv = 0; vv < business_objectives.length; vv++) {
-            console.log("\t" + vv + ": " + business_objectives[vv]);
+            //console.log("\t" + vv + ": " + business_objectives[vv]);
         }
         document.getElementById("bos[]").value = business_objectives;
     }
@@ -393,7 +391,7 @@
             autoclose: true
         }).on('changeDate', function (e) {
             // Revalidate the date field
-            console.log(e);
+            // console.log(e);
             // document.getElementById("due_date").value = newValue.format("YYYY-MM-DD");
         });
 
@@ -465,7 +463,7 @@
     }
 
     function initializeInternalEvaluationCriteria(ecid, ec) {
-        console.log(ecid + ", " + ec.evaluation_criterionId + ", " + ec.evaluation_criterion);
+        // console.log(ecid + ", " + ec.evaluation_criterionId + ", " + ec.evaluation_criterion);
         $('#edit_evaluation_criteria_id_____' + ecid).editable({
             title: 'Enter Evaluation Criteria details',
             mode: 'popup',
@@ -476,13 +474,13 @@
             success: function (response, newValue) {
                 var eecid = ec.evaluation_criterionId;
                 var eecrit = ec.evaluation_criterion;
-                console.log(eecid + ", " + eecrit + ", " + newValue.evaluation_criterionId + ", " +
+                // console.log(eecid + ", " + eecrit + ", " + newValue.evaluation_criterionId + ", " +
                     newValue.evaluation_criterion);
                 var irr = this.id.substring(28);
                 var iddd = irr.substring(irr.indexOf("_____") + 5);
                 iddd = iddd.substring(0, iddd.indexOf("_____"));
                 var ir = irr.substring(4, irr.indexOf("_____")); // name of first cell of row
-                console.log(this.id + ", " + irr + ", " + ir + ", " + iddd );
+                // console.log(this.id + ", " + irr + ", " + ir + ", " + iddd );
                 if (newValue.evaluation_criterionId != eecid) {
                     console.log("create");
                     addEvaluationCriteria(iddd, ir, newValue);
@@ -527,7 +525,7 @@
         for (ii = 0; ii < inputs.length; ii++) {
             if (inputs[ii].id.indexOf("edit_") >= 0) {
                 if (inputs[ii].id.indexOf("edit_evaluation") >= 0) {
-                    console.log(inputs[ii].id);
+                    // console.log(inputs[ii].id);
                 }
                 if (editMode) {
                     inputs[ii].style.pointerEvents = "auto";
