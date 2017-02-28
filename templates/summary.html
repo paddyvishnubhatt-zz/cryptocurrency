@@ -266,13 +266,17 @@
                         {{ ec.evaluation_criterionId }}
                     </td>
                     <td>
-                        {% set user_map = [""] %}
-                        {% for key, value in criteria_to_users_map.iteritems() %}
-                            {% if key == ec.evaluation_criterion | replace(" ", "^") %}
-                                {% if user_map.append(user_map.pop() + ", " + value | safe) %}{% endif %}
-                            {% endif %}
-                        {% endfor %}
-                        {% set  href = "javascript:popup('Users', 'Coming soon')" %}
+                        {% set ldata = criteria_to_users_map.get(ec.evaluation_criterion | replace(" ", "^"))  %}
+                        {% if ldata %}
+                            {% set udata = [""] %}
+                            {% for idata in ldata %}
+                                {% set tstr = '%15s  (%3.2f)'| format(idata.get("userId"), idata.get("weight") | float) + "<br>"%}
+                                {% if udata.append(udata.pop() + tstr ) %}{% endif %}
+                            {% endfor %}
+                            {% set  href = 'javascript:popup("Users & Weights", "' + udata[0]  + '")' %}
+                        {% else %}
+                            {% set href = "#" %}
+                        {% endif %}
                         <a href="{{ href }}" class="btn btn-default"> {{ ec.evaluation_criterion }}</a>
                     </td>
                     <td>

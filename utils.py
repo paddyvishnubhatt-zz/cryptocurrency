@@ -423,7 +423,6 @@ def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
         average_score = float(score/lene)
     return average_score
 
-
 def get_criteria_to_users_from_db(projectId):
     criteria_to_users_map = {}
     project = get_project_from_db(projectId)
@@ -438,11 +437,10 @@ def get_criteria_to_users_from_db(projectId):
                     eco = str(ueco)
                     if eco in criteria_to_users_map:
                         criteria_to_users_map[eco] = []
-                        criteria_to_users_map[eco].append({"userId" : userId, "weight" : weight})
+                        criteria_to_users_map[eco].append({"userId" : str(userId), "weight" : str(weight)})
                     else:
-                        criteria_to_users_map[eco] = {"userId" : userId, "weight" : weight}
-
-    return criteria_to_users_map
+                        criteria_to_users_map[eco] = {"userId" : str(userId), "weight" : weight}
+    return json.loads(json.dumps(criteria_to_users_map))
 
 def get_business_objectives_from_db(projectId, withCalc):
     bos_db = []
