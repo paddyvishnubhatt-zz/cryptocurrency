@@ -311,11 +311,17 @@
             var num_checked = 0;
             var sub_totals_cols = [];
             var weight_cells = [];
+            var eval_crit_row_cells = {};
+            var eval_crit_col_cells = {};
             for (col = 1; col <= num_reqs; col++) {
                 var sub_total_col = 0;
                 var subtotalCell = null;
                 var weightCell = null;
+                eval_crit_col_cells[table.rows[1].cells[col].textContent.trim()] = table.rows[1].cells[col];
+                table.rows[1].cells[col].style.backgroundColor = "white";
                 for (row = 0; row < table.rows.length; row++) {
+                    table.rows[row].cells[0].style.backgroundColor = "white";
+                    eval_crit_row_cells[table.rows[row].cells[0].textContent.trim()] = table.rows[row].cells[0];
                     var cl = table.rows[row].cells[col];
                     if (cl) {
                         var ccl = cl.children[0];
@@ -344,6 +350,8 @@
                 weight_cells.push(weightCell);
             }
 
+            var max_weight = 0.0;
+            var max_weight_col_name;
             for (ii = 0; ii < weight_cells.length; ii++) {
                 var sub_total_col = sub_totals_cols[ii];
                 var weight_col = (sub_total_col / num_checked).toFixed(2);
@@ -351,9 +359,16 @@
                 weight_col = (isNaN(weight_col)) ? "x" : weight_col * 100;
                 var weightCell = weight_cells[ii];
                 var reqName = weightCell.id.substring(7);
+                if (max_weight <= weight_col) {
+                    max_weight = weight_col;
+                    max_weight_col_name = reqName;
+                }
                 weightCell.innerHTML  = weight_col;
                 weights[reqName] = weight_col;
             }
+
+            eval_crit_col_cells[max_weight_col_name].style.backgroundColor = "#ffdab9";
+            eval_crit_row_cells[max_weight_col_name].style.backgroundColor = "#ffdab9";
         }
    </script>
   <nav class="navbar navbar-inverse navbar-static-top" >

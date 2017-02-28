@@ -4,7 +4,7 @@ function popup(title, message) {
     size: BootstrapDialog.SIZE_NORMAL,
     title: title,
     message: message,
-        buttons: [{
+    buttons: [{
             label: 'Close',
             action: function(dialogItself){
                 dialogItself.close();

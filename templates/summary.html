@@ -36,12 +36,11 @@
     var filter = [];
     var blast = [];
     $(document).ready(function(){
-        console.log("ready " + filter);
         var table = $('#fixTable').tableHeadFixer( {
             left: 7,
             head:true,
             foot:true,
-            'z-index':99999
+            'z-index':999
         });
         $(document).bind('keydown', 'ctrl+z', undo);
         var table = document.getElementById("fixTable");
@@ -267,7 +266,14 @@
                         {{ ec.evaluation_criterionId }}
                     </td>
                     <td>
-                        {{ ec.evaluation_criterion }}
+                        {% set user_map = [""] %}
+                        {% for key, value in criteria_to_users_map.iteritems() %}
+                            {% if key == ec.evaluation_criterion | replace(" ", "^") %}
+                                {% if user_map.append(user_map.pop() + ", " + value | safe) %}{% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set  href = "javascript:popup('Users', 'Coming soon')" %}
+                        <a href="{{ href }}" class="btn btn-default"> {{ ec.evaluation_criterion }}</a>
                     </td>
                     <td>
                         {{ '%0.2f'| format(ec.calculations["criteria_percentage"]|float)  }}

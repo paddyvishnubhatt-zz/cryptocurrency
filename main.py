@@ -111,6 +111,8 @@ def show_summary(projectId):
     project = utils.get_project_from_db(projectId)
     entrys = utils.get_entrys_from_given_project_db(projectId)
     userId = request.authorization.username
+    criteria_to_users_map = utils.get_criteria_to_users_from_db(projectId)
+    print criteria_to_users_map
     bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
     if top_vendor is None:
         return render_template(
@@ -119,6 +121,7 @@ def show_summary(projectId):
             project = project,
             bos_db = bos_db,
             vendor_sums = vs,
+            criteria_to_users_map = criteria_to_users_map,
             userId = userId)
     else:
         return render_template(
@@ -128,6 +131,7 @@ def show_summary(projectId):
             project=project,
             bos_db=bos_db,
             vendor_sums = vs,
+            criteria_to_users_map = criteria_to_users_map,
             userId=userId)
 
 @app.route('/api/v1/show_entry/<projectId>/<userId>')
@@ -351,6 +355,7 @@ def filter_vendors(projectId):
     project = utils.get_project_from_db(projectId)
     entrys = utils.get_entrys_from_given_project_db(projectId)
     userId = request.authorization.username
+    criteria_to_users_map = utils.get_criteria_to_users_from_db(projectId)
     bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
     if top_vendor is None:
         return render_template(
@@ -360,6 +365,7 @@ def filter_vendors(projectId):
             bos_db=bos_db,
             vendor_sums = vs,
             filteredVendorIds = filteredVendorIds,
+            criteria_to_users_map=criteria_to_users_map,
             userId=userId)
     else:
         return render_template(
@@ -370,6 +376,7 @@ def filter_vendors(projectId):
             bos_db=bos_db,
             vendor_sums = vs,
             filteredVendorIds = filteredVendorIds,
+            criteria_to_users_map=criteria_to_users_map,
             userId=userId)
 
 @app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])

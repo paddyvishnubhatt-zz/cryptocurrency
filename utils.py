@@ -43,9 +43,8 @@ def get_entrys_from_given_project_db(projectId):
     entrys_query = Entry.query(Entry.project.projectId == projectId)
     return entrys_query.fetch(100)
 
-def get_entrys_from_given_user_db(userId):
-    user = get_user_from_db(userId)
-    entrys_query = Entry.query(Entry.user == user)
+def get_entrys_from_given_user_db(projectId, userId):
+    entrys_query = Entry.query(Entry.user.identity == userId, Entry.project.projectId == projectId)
     return entrys_query.fetch(100)
 
 def get_users_from_db(projectId=None):
@@ -423,6 +422,27 @@ def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
     else:
         average_score = float(score/lene)
     return average_score
+
+
+def get_criteria_to_users_from_db(projectId):
+    criteria_to_users_map = {}
+    project = get_project_from_db(projectId)
+    for userId in project.userIds:
+        entrys = get_entrys_from_given_user_db(projectId, userId)
+        for entry in entrys:
+            ecos = entry.evaluation_criteria_output
+            weight = 0
+            for iecos in ecos:
+                iiecos = iecos.split("_")
+                for ueco in iiecos:
+                    eco = str(ueco)
+                    if eco in criteria_to_users_map:
+                        criteria_to_users_map[eco] = []
+                        criteria_to_users_map[eco].append({"userId" : userId, "weight" : weight})
+                    else:
+                        criteria_to_users_map[eco] = {"userId" : userId, "weight" : weight}
+
+    return criteria_to_users_map
 
 def get_business_objectives_from_db(projectId, withCalc):
     bos_db = []
