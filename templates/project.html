@@ -344,7 +344,7 @@
         var removeText = '<a href="' + hrefs1 + '">' +
                                 '<span style="color:red;"  id=' +
                                         innerId +
-                                    ' class="glyphicon glyphicon-remove"/></a>';
+                                    ' class="glyphicon glyphicon-trash"/></a>';
         cell7.innerHTML =  removeText;
 
 
@@ -744,7 +744,7 @@
                                         </td>
                                         <td style="text-align: center; " >
                                             <a href="{{ hrefs }}">
-                                                <span style="color:red; display: None" id='{{ "remove_" + bo.objectiveId }}' class="glyphicon glyphicon-remove"/>
+                                                <span style="color:red; display: None" id='{{ "remove_" + bo.objectiveId }}' class="glyphicon glyphicon-trash"/>
                                             </a>
                                         </td>
                                         <td style="text-align: center; " >
@@ -777,7 +777,7 @@
                                             </td>
                                             <td style="text-align: center">
                                                 <a href="{{ hrefs1 }}">
-                                                    <span style="color:red; display: None"  id='{{ "remove_" + bo.objectiveId + "_" + ec.evaluation_criterionId}}' class="glyphicon glyphicon-remove"/>
+                                                    <span style="color:red; display: None"  id='{{ "remove_" + bo.objectiveId + "_" + ec.evaluation_criterionId}}' class="glyphicon glyphicon-trash"/>
 
                                                 </a>
                                             </td>
