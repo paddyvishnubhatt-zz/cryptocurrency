@@ -50,8 +50,8 @@
       </tr>
       {% for entry in entrys %}
           {%  set userId = entry.user.identity %}
-          {%  set urlstr = "/api/v1/show_entry/" + entry.project.projectId + "/" + userId  %}
-           <tr onclick="location.href='{{ urlstr | urlencode}}'">
+          {%  set urlstr = "/api/v1/show_entry/" + entry.project.projectId | urlencode + "/" + userId | urlencode %}
+           <tr onclick="location.href='{{ urlstr }}'">
                 <td>
                     Entry = {{ entry.user.identity }}
                 </td>
@@ -59,7 +59,7 @@
                     Project = {{ entry.project.projectId }}
                 </td>
                 <td>
-                    <a href={{ urlstr | urlencode}}>
+                    <a href={{ urlstr }}>
                         {% if entry.evaluation_criteria | length == 0%}
                             {% if entry.project.due_date < current_date %}
                                 <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
