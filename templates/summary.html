@@ -273,9 +273,9 @@
                                 {% set tstr = '%15s  (%3.2f)'| format(idata.get("userId"), idata.get("weight") | float) + "<br>"%}
                                 {% if udata.append(udata.pop() + tstr ) %}{% endif %}
                             {% endfor %}
-                            {% set  href = 'javascript:popup("Users & Weights", "' + udata[0]  + '")' %}
+                            {% set  href = 'javascript:popup("Users & Weights -' + ec.evaluation_criterion + '", "' + udata[0]  + '")' %}
                         {% else %}
-                            {% set href = "#" %}
+                            {% set href = 'javascript:popup("Users & Weights -' + ec.evaluation_criterion + '", "No user(s) entered data for ' + ec.evaluation_criterion + '")'  %}
                         {% endif %}
                         <a href="{{ href }}" class="btn btn-default"> {{ ec.evaluation_criterion }}</a>
                     </td>
