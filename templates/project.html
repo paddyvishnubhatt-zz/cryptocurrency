@@ -311,7 +311,7 @@
             rIdx = (boa.length <= 1) ? rIdx : rIdx + boa.length - 1;
             //console.log("rIdx="+rIdx + ", " + boa.length);
             idRow = bo_list.insertRow(rIdx + 1);
-            for (var xx = 0; xx < 4; xx++) {
+            for (var xx = 0; xx < 5; xx++) {
                 idRow.insertCell(xx);
             }
         }
@@ -327,16 +327,16 @@
         document.getElementById("bos[]").value = business_objectives;
 
         var weight = idRow.cells[2].innerHTML;
-        var cell5 = idRow.insertCell(4);
+        var cell5 = idRow.insertCell(5);
         var jj = getECLength(bo.objectiveId);
         var innerId = "edit_evaluation_criteria_id_____" + bo.objectiveId.split(' ').join('___') + "_____"  + iddd + "_____" + jj;
         cell5.innerHTML = '<a class="btn btn-default" href="#" id=' + innerId + ' data-type="evaluation_criteria" data-pk="1">' +
                             '<span>' + nValue.evaluation_criterionId + '</span></a>';
 
-        var cell6 = idRow.insertCell(5);
+        var cell6 = idRow.insertCell(6);
         cell6.innerHTML = nValue.evaluation_criterion;
 
-        var cell7 = idRow.insertCell(6);
+        var cell7 = idRow.insertCell(7);
         cell7.style.textAlign = "center";
         innerId = "remove_" + bo.objectiveId.split(' ').join('_') + "_" + nValue.evaluation_criterionId;
         var message1 =  "This will delete evaluation criterion " + nValue.evaluation_criterionId + ", " + nValue.evaluation_criterion;
@@ -459,6 +459,7 @@
                 var ec = mbo.evaluation_criteria[jj];
                 initializeInternalEvaluationCriteria(ecid, ec);
             }
+            initializeInternalEvaluationCriteria(mbo.objectiveId.split(' ').join('___') + "_____" + kk + "_____999", new Object());
         }
     }
 
@@ -474,7 +475,7 @@
             success: function (response, newValue) {
                 var eecid = ec.evaluation_criterionId;
                 var eecrit = ec.evaluation_criterion;
-                // console.log(eecid + ", " + eecrit + ", " + newValue.evaluation_criterionId + ", " +
+                console.log(eecid + ", " + eecrit + ", " + newValue.evaluation_criterionId + ", " +
                     newValue.evaluation_criterion);
                 var irr = this.id.substring(28);
                 var iddd = irr.substring(irr.indexOf("_____") + 5);
@@ -641,7 +642,7 @@
                         {% endif %}
                         <br><a href={{ urlx | urlencode }}> Click on link button to add new user</a>
                         <select class="form-control" name="userIds[]" id="userIds[]" multiple
-                                size={{ users |length }} style='height: 100%;'>
+                                size={{ users |length }} style="height: 100%;">
 
                         {% for user in users %}
                             {% if project is defined %}
@@ -701,6 +702,7 @@
                                 </th>
                                 <th colspan="2" style="text-align: center">Objectives</th>
                                 <th colspan="1"></th>
+                                <th colspan="1"></th>
                                 <th colspan="2" style="text-align: center">Evaluation Criteria</th>
                                 <th colspan="1" style="text-align: center">
                                     <a id="editTable" href="javascript:editTable()">
@@ -712,6 +714,7 @@
                                 <th>ID</th>
                                 <th>Description</th>
                                 <th>Weight</th>
+                                <th></th>
                                 <th></th>
                                 <th>Criteria ID</th>
                                 <th>Criterion</th>
@@ -744,6 +747,12 @@
                                                 <span style="color:red; display: None" id='{{ "remove_" + bo.objectiveId }}' class="glyphicon glyphicon-remove"/>
                                             </a>
                                         </td>
+                                        <td style="text-align: center; " >
+                                            {% set teid1 = "edit_evaluation_criteria_id_____" + bo.objectiveId | replace(" ", "___") +  "_____" + bcount[0] | safe + "_____999" | safe %}
+                                            <a href="#" id={{ teid1 }} data-type="evaluation_criteria" data-pk="1" data-value="new Object({'evaluation_criterionId':'','evaluation_criterion':''})">
+                                                <span style="display: None" id='{{ "remove_actually_not_" + bo.objectiveId }}' class="glyphicon glyphicon-plus"/>
+                                            </a>
+                                        </td>
                                         {% set count = [0] %}
                                         {% set lec = bo.evaluation_criteria | length %}
                                         {% if lec > 0 %}
@@ -753,11 +762,11 @@
                                                         message1 + ".<br><p>OK to Continue or Cancel to Close', function(){deleteEvaluationCriterion('" + bo.objectiveId + "','" + ec.evaluation_criterionId + "');})" %}
                                                 {% if count > [0] %}
                                                     <tr>
-                                                    {% for ii in range(4) %}
+                                                    {% for ii in range(5) %}
                                                         <td></td>
                                                     {% endfor %}
                                                 {% endif %}
-                                            <td>
+                                            <td  >
                                                 {% set teid = "edit_evaluation_criteria_id_____" + bo.objectiveId | replace(" ", "___") +  "_____"  + bcount[0] | safe + "_____"  + count[0] | safe %}
                                                 <a href="#" id={{ teid }} data-type="evaluation_criteria" data-pk="1">
                                                     <span>{{ ec.evaluation_criterionId }}</span>
