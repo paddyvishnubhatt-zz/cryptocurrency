@@ -73,12 +73,17 @@
                         // Update UI
                         if (jj == ii) {
                             // move rows up
-                            for (var kk = ii+lenec-1; kk > ii; kk--) {
-                                // console.log(bo_rows[kk].cells[4].innerHTML + " < " + bo_rows[kk-1].cells[4].innerHTML);
-                                bo_rows[kk-1].cells[5].innerHTML = bo_rows[kk].cells[5].innerHTML.trim();
-                                bo_rows[kk-1].cells[6].innerHTML = bo_rows[kk].cells[6].innerHTML.trim();
+                            if (lenec == 1) {
+                                bo_rows[ii].cells[5].innerHTML = "";
+                                bo_rows[ii].cells[6].innerHTML = "";
+                            } else {
+                                for (var kk = ii+lenec-1; kk > ii; kk--) {
+                                    // console.log(bo_rows[kk].cells[4].innerHTML + " < " + bo_rows[kk-1].cells[4].innerHTML);
+                                    bo_rows[kk-1].cells[5].innerHTML = bo_rows[kk].cells[5].innerHTML.trim();
+                                    bo_rows[kk-1].cells[6].innerHTML = bo_rows[kk].cells[6].innerHTML.trim();
+                                }
+                                bo_table.deleteRow(ii+lenec-1);
                             }
-                            bo_table.deleteRow(ii+lenec-1);
                         } else {
                             // simple
                             bo_table.deleteRow(jj);
