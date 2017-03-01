@@ -440,15 +440,16 @@ def utility_functions():
         import datetime
         return datetime.date.today().strftime("%Y-%m-%d")
 
-    @app.template_filter('urlencode')
-    def urlencode_filter(s):
-        if type(s) == 'Markup':
-            s = s.unescape()
-        s = s.encode('utf8')
-        s = urllib.quote_plus(s)
-        return Markup(s)
+        @app.template_filter('urlencode')
+        def urlencode_filter(s):
+            if type(s) == 'Markup':
+                s = s.unescape()
+            s = s.encode('utf8')
+            #s = urllib.quote_plus(s)
+            s = urllib.quote(s)
+            return Markup(s)
 
-    app.jinja_env.globals['urlencode'] = urlencode_filter
-    return dict(urlencode=urlencode_filter, get_project_status=get_project_status, mdebug=print_in_console, str_to_obj=str_to_obj, get_current_date=get_current_date)
+        app.jinja_env.globals['urlencode'] = urlencode_filter
+    return dict(get_project_status=get_project_status, mdebug=print_in_console, str_to_obj=str_to_obj, get_current_date=get_current_date)
 
 # [END app]
