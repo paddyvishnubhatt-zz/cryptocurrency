@@ -68,15 +68,15 @@
             if (content == boid.trim()) {
                 var lenec = getECLength(boid);
                 for (var jj = ii; jj < ii + lenec; jj++) {
-                    var econtent = bo_rows[jj].cells[4].innerText.trim();
+                    var econtent = bo_rows[jj].cells[5].innerText.trim();
                     if (econtent == ecid) {
                         // Update UI
                         if (jj == ii) {
                             // move rows up
                             for (var kk = ii+lenec-1; kk > ii; kk--) {
                                 // console.log(bo_rows[kk].cells[4].innerHTML + " < " + bo_rows[kk-1].cells[4].innerHTML);
-                                bo_rows[kk-1].cells[4].innerHTML = bo_rows[kk].cells[4].innerHTML.trim();
                                 bo_rows[kk-1].cells[5].innerHTML = bo_rows[kk].cells[5].innerHTML.trim();
+                                bo_rows[kk-1].cells[6].innerHTML = bo_rows[kk].cells[6].innerHTML.trim();
                             }
                             bo_table.deleteRow(ii+lenec-1);
                         } else {
