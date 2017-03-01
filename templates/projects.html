@@ -102,14 +102,16 @@
                  <span class="glyphicon glyphicon-plus"></span>
               </a>
           </th>
+          {% if projects | length > 0 %}
           <th tyle="text-align:justify">
               <a href="javascript:showDeletes()">
                   <span class="glyphicon glyphicon-edit"></span>
               </a>
           </th>
+          {% endif %}
           {% if projects is defined %}
               {% for project in projects %}
-                 {%  set urlx = "/api/v1/show_project/" + project.projectId | urlencode%}
+                 {%  set urlx = "/api/v1/show_project/" + project.projectId | urlencode %}
                  <TR onclick="location.href='{{ urlx }}'">
                      <td style="width:75%">
                         {{ project.projectId }}
