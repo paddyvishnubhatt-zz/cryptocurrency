@@ -423,6 +423,15 @@ def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
         average_score = float(score/lene)
     return average_score
 
+def get_weight_from_weights_from_db(criterion, weights):
+    for weight_splits in weights:
+        req_weight = weight_splits.split(":")
+        if req_weight[0] == criterion:
+            return float(req_weight[1])
+
+    return 0
+
+
 def get_criteria_to_users_from_db(projectId):
     criteria_to_users_map = {}
     project = get_project_from_db(projectId)
@@ -430,16 +439,15 @@ def get_criteria_to_users_from_db(projectId):
         entrys = get_entrys_from_given_user_db(projectId, userId)
         for entry in entrys:
             ecos = entry.evaluation_criteria_output
-            weight = 0
             for iecos in ecos:
                 iiecos = iecos.split("_")
                 for ueco in iiecos:
                     eco = str(ueco)
-                    if eco in criteria_to_users_map:
+                    leco = eco.replace("^", " ")
+                    weight = get_weight_from_weights_from_db(leco, entry.weights)
+                    if eco not in criteria_to_users_map:
                         criteria_to_users_map[eco] = []
-                        criteria_to_users_map[eco].append({"userId" : str(userId), "weight" : str(weight)})
-                    else:
-                        criteria_to_users_map[eco] = {"userId" : str(userId), "weight" : weight}
+                    criteria_to_users_map[eco].append({"userId": str(userId), "weight": weight})
     return json.loads(json.dumps(criteria_to_users_map))
 
 def get_business_objectives_from_db(projectId, withCalc):

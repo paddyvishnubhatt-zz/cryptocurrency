@@ -270,7 +270,7 @@
                         {% if ldata %}
                             {% set udata = ["<table class='table table-condensed' ><tr><th>Users</th><th>Weights</th></tr>"] %}
                             {% for idata in ldata %}
-                                {% set tstr = '<tr><td>%15s</td><td>(%3.2f)</td>'| format(idata.get("userId"), idata.get("weight") | float) + "</tr>"%}
+                                {% set tstr = '<tr><td>%15s</td><td>%3.2f</td>'| format(idata.get("userId"), idata.get("weight") | float) + "</tr>"%}
                                 {% if udata.append(udata.pop() + tstr ) %}{% endif %}
                             {% endfor %}
                             {% if udata.append("</table>") %}{% endif %}
