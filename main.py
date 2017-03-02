@@ -7,6 +7,7 @@ from utils import requires_auth
 import json
 import urllib
 from markupsafe import Markup
+import time
 
 app = Flask(__name__)
 
@@ -100,6 +101,7 @@ def submitted_project():
     description = request.form.get('description')
     defaultPassword = request.form.get('password')
     utils.update_project(projectId, department, group, description, defaultPassword, userIds, vendorIds, due_date, bos)
+    time.sleep(1)
     return redirect(url_for('landing_page'))
 
 @app.route('/api/v1/show_summary/<projectId>')

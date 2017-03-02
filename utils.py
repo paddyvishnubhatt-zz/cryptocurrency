@@ -159,7 +159,9 @@ def update_project(projectId, department, group, description, defaultPassword, u
                 print "deleting " + pbo
                 project.objectiveIds.remove(pbo)
                 delete_objective_from_db(projectId, pbo)
-
+    # get basic in
+    project.put()
+    #get more stuff
     for bo in bol:
         #print bo["objectiveId"] + ", " + bo["description"] + ", " + bo["weight"]
         boid = bo["objectiveId"]
