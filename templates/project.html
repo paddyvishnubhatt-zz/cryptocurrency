@@ -74,8 +74,9 @@
                         if (jj == ii) {
                             // move rows up
                             if (lenec == 1) {
-                                bo_rows[ii].cells[5].innerHTML = "";
-                                bo_rows[ii].cells[6].innerHTML = "";
+                                bo_rows[ii].deleteCell(7);
+                                bo_rows[ii].deleteCell(6);
+                                bo_rows[ii].deleteCell(5);
                             } else {
                                 for (var kk = ii+lenec-1; kk > ii; kk--) {
                                     // console.log(bo_rows[kk].cells[4].innerHTML + " < " + bo_rows[kk-1].cells[4].innerHTML);
@@ -203,11 +204,11 @@
         document.getElementById("bos[]").value = business_objectives;
 
         // console.log(" * 2 " + business_objectives);
-
         $.fn.modal.Constructor.prototype.enforceFocus = function () {};
         $(eval(idd)).editable({
             title: 'Enter Evaluation Criteria details',
             mode: 'popup',
+            savenochange: 'True',
             success: function (response, nValue) {
                 var irr = this.id.substring(28);
                 var iddd = irr.substring(irr.indexOf("_____") + 5);
@@ -272,9 +273,9 @@
             var content = bo_rows[jj].firstElementChild.innerText;
             if (content == mbo.objectiveId) {
                 for (var ii = jj; ii < jj + mbo.evaluation_criteria.length; ii++) {
-                    var econtent = bo_rows[ii].cells[4].firstElementChild.innerText;
+                    var econtent = bo_rows[ii].cells[5].firstElementChild.innerText;
                     if (econtent == eecid) {
-                        var cell6 = bo_rows[ii].cells[5];
+                        var cell6 = bo_rows[ii].cells[6];
                         cell6.innerHTML = nValue.evaluation_criterion;
                         break;
                     }
