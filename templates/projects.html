@@ -32,7 +32,15 @@
   </nav>
   <body>
     <script>
+        var deleteMode = false;
+
         function showDeletes() {
+            if (deleteMode) {
+                deleteMode = false;
+                location.reload();
+                return;
+            }
+            deleteMode = true;
             console.log("showDeletes");
             var bo_list = document.getElementById("projects-container");
             var bo_table = bo_list.children[0];
