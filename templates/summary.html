@@ -40,8 +40,11 @@
 <script>
     var blast = [];
     var table = null;
+    var vendors = [];
+    var filters = [];
 
     $(document).ready(function(){
+        initVendorModel();
         table = $('#fixTable').DataTable({
             fixedHeader:    true,
             scrollY:        true,
@@ -83,6 +86,10 @@
     }
 
     function onBlast(th) {
+        if (th.innerText == "Vendor Scores") {
+            return;
+        }
+
         if (th.innerHTML.indexOf("Score") < 0) {
             return;
         }
@@ -98,6 +105,73 @@
 
         blast.push(idx);
         blast.push(idx1);
+    }
+
+    function initVendorModel() {
+        vendors = [];
+        filters = [];
+        {% set vendorIds = project.vendorIds %}
+        {% for vendor in vendorIds %}
+            vendors.push("{{ vendor | safe}}");
+            filters.push("{{ vendor | safe}}");
+        {% endfor %}
+    }
+
+    function onCBClick(cb) {
+        console.log(filters);
+        if (filters.length <= 1) {
+            cb.checked = true;
+            alert("At least one filter is needed");
+            return;
+        }
+        if (cb.checked) {
+            if ($.inArray(cb.name, filters) < 0) {
+                filters.push(cb.name);
+            }
+        } else {
+            if ($.inArray(cb.name, filters) >= 0) {
+                var idx = filters.indexOf(cb.name);
+                filters.splice(idx, 1);
+            }
+        }
+    }
+
+    function showVendors() {
+        var message = "<table class='table table-condensed' ><thead><tr><th>Select</th><th>Vendors</th></tr></thead><tbody>";
+        for (var vv = 0; vv < vendors.length; vv++) {
+            var smsg = "<input id=" + vendors[vv] + " type='checkbox' name=" + vendors[vv] + " onclick=onCBClick(this);";
+            if ($.inArray(vendors[vv], filters) < 0) {
+                smsg += " >";
+            } else {
+                smsg += " checked >";
+            }
+            var msg = "<tr><td>" + smsg + "</td><td>" + vendors[vv] + "</td></tr>";
+            message += msg;
+        }
+        message += "</tbody></table>";
+        popupConfirm("Select Vendors to Show (OK to confirm)",   message ,function(){hideColumns();})
+    }
+
+    function hideColumns() {
+        console.log(filters);
+        var diff = $(vendors).not(filters).get();
+        console.log(diff);
+        var len = 7 + vendors.length * 2;
+        for (var hh = 7; hh < len; hh++) {
+            var idx = table.column( hh ).index()    ;
+            var title = table.columns( idx ).header();
+            var hid  = title[0].id;
+            var itext = hid.substring(0, hid.indexOf("_"));
+            console.log("\t" + idx +  ", " + itext);
+            if ($.inArray(itext, diff) >= 0) {
+                console.log("\tremoving " + hh + ", " +     itext);
+                table.column(hh).visible(false);
+            } else {
+                console.log("\tshowing " + hh + ", " +     itext);
+                table.column(hh).visible(true);
+            }
+        }
+        table.draw();
     }
 
 </script>
@@ -135,15 +209,15 @@
 </div>
 <div id="parent" style="height: 90%; width: 90%">
     {% set vendorIds = project.vendorIds %}
-    {% if filteredVendorIds is defined %}
-        {% set vendorIds = filteredVendorIds %}
-    {% endif %}
     {% set cs = vendorIds | length * 2 %}
     <table id="fixTable" class="table table-condensed" >
         <thead>
         <tr>
             <th colspan="7" style="text-align: center; background-color: #fff;" >Objectives</th>
-            <th colspan="{{ cs }}" style="text-align: center; background-color: #fff;">Evaluation Criteria</th>
+            {% set hrefvs = 'javascript:showVendors()' %}
+            <th colspan="{{ cs }}" style="text-align: center; background-color: #fff;">
+                <a href="{{ hrefvs }}" class="btn btn-default">Vendor Scores</a>
+            </th>
         </tr>
         <tr>
             <th style="background-color: #fff;">ID</th>
@@ -154,10 +228,10 @@
             <th style="background-color: #fff;">Criteria</th>
             <th style="background-color: #fff; border-right:1px solid;">Criteria Weight</th>
             {% for vendor in vendorIds %}
-                <th style="border-left:1px solid;">
+                <th id="{{ vendor + "_score" }}" style="border-left:1px solid;">
                     {{ vendor }} Score
                 </th>
-                <th>
+                <th id="{{ vendor + "_weighted" }}" >
                     {{ vendor }} Weighted Score
                 </th>
             {% endfor %}

@@ -351,38 +351,6 @@ def submitted_vendor():
     vendor = utils.update_vendor(vendorId, email, projectIds)
     return show_vendors()
 
-@app.route('/api/v1/filter_vendors/<projectId>', methods=['POST'])
-@requires_auth
-def filter_vendors(projectId):
-    filteredVendorIds = request.form.get("filter").split(",")
-    project = utils.get_project_from_db(projectId)
-    project = utils.get_project_from_db(projectId)
-    entrys = utils.get_entrys_from_given_project_db(projectId)
-    userId = request.authorization.username
-    criteria_to_users_map = utils.get_criteria_to_users_from_db(projectId)
-    bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
-    if top_vendor is None:
-        return render_template(
-            'summary.html',
-            current_user=request.authorization.username,
-            project=project,
-            bos_db=bos_db,
-            vendor_sums = vs,
-            filteredVendorIds = filteredVendorIds,
-            criteria_to_users_map=criteria_to_users_map,
-            userId=userId)
-    else:
-        return render_template(
-            'summary.html',
-            current_user=request.authorization.username,
-            top_vendor=top_vendor,
-            project=project,
-            bos_db=bos_db,
-            vendor_sums = vs,
-            filteredVendorIds = filteredVendorIds,
-            criteria_to_users_map=criteria_to_users_map,
-            userId=userId)
-
 @app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])
 @requires_auth
 def delete_project(projectId):
