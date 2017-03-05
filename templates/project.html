@@ -234,17 +234,19 @@
             }
         }
         var bo_list = document.getElementById("business-objectives-container");
-        var bo_table = bo_list.children[1];
-        var bo_rows = bo_table.children;
+        var bo_rows = bo_list.rows;
 
         for (var jj = 0; jj < bo_rows.length; jj++) {
-            var content = bo_rows[jj].firstElementChild.firstElementChild.innerText;
-            if (content == boid) {
-                var cell1 = bo_rows[jj].cells[1];
-                cell1.innerHTML = nValue.description;
-                var cell2 = bo_rows[jj].cells[2];
-                cell2.innerHTML = nValue.weight;
-                break;
+            var cell = bo_rows[jj].cells[0].firstElementChild;
+            if (cell != null) {
+                var content = cell.innerText;
+                if (content == boid) {
+                    var cell1 = bo_rows[jj].cells[1];
+                    cell1.innerHTML = nValue.description;
+                    var cell2 = bo_rows[jj].cells[2];
+                    cell2.innerHTML = nValue.weight;
+                    break;
+                }
             }
         }
 

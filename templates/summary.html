@@ -293,7 +293,7 @@
                         </td>
                         <td>
                             {% set key = vendor + "_vendor_weighted_score" %}
-                            {{ ec.calculations[key] }}
+                            {{ '%0.2f'| format(ec.calculations[key]|float) }}
                         </td>
                     {% endfor %}
                         {% if count > [0] %}
