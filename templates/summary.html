@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>DAR - Summary</title>
-    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <title>DAR - Summary 2</title>
+    <link rel`="stylesheet" type="text/css" href="/static/style.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -11,6 +11,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
     <script type="text/javascript" src="/static/jquery.hotkeys-0.7.9.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.colVis.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css">
+
     <script src="/static/tableHeadFixer.js"></script>
     <nav class="navbar navbar-inverse navbar-static-top" >
         <div class="container-fluid">
@@ -28,43 +35,55 @@
             </div>
         </div>
     </nav>
-    <style>
-    </style>
 </head>
 <body>
 <script>
-    var filter = [];
     var blast = [];
+    var table = null;
+
     $(document).ready(function(){
-        var table = $('#fixTable').tableHeadFixer( {
-            left: 7,
-            head:true,
-            foot:true,
-            'z-index':999
+        initializeModel();
+        table = $('#fixTable').DataTable({
+            fixedHeader:    true,
+            scrollY:        true,
+            scrollX:        true,
+            scrollCollapse: true,
+            paging:         false,
+            sorting:        false,
+            searching:      false,
+            ordering:       false,
+            bInfo:          false,
+                aoColumnDefs: [
+                { "bVisible": false, "aTargets": [2] }
+            ],
+            fixedColumns:   {
+                leftColumns: 7
+            }
         });
+
         $(document).bind('keydown', 'ctrl+z', undo);
-        var table = document.getElementById("fixTable");
-        var thead = table.getElementsByTagName("thead")[0];
-        thead.onclick = function (e) {
-           e = e || window.event;
-           var th = e.target || e.srcElement;  //assumes there are no other elements in the th
-           console.log(th.innerHTML.trim() + ", " + th.cellIndex);
-           onBlast(th);
-        }
+
+        $("th").on('click', function(e) {
+            onBlast(e.currentTarget);
+            table.draw();
+        });
     });
 
     function undo() {
-        // console.log("**** 1 " + blast);
-        for (var vv = 0; vv < 2; vv++) {
-            var idx = blast[blast.length - 1];
-            // console.log("\t****  " + vv + ": " + idx  + ", " + blast);
-            if (idx == "" || idx == NaN) {
-                return;
+        console.log("**** 1 " + blast);
+        if (blast.length > 0) {
+            for (var vv = 0; vv < 2; vv++) {
+                var idx = blast[blast.length - 1];
+                // console.log("\t****  " + vv + ": " + idx  + ", " + blast);
+                if (idx == "" || idx == NaN) {
+                    return;
+                }
+                $('th:nth-child(' + idx + '), td:nth-child(' + idx + ')').show();
+                blast.pop();
             }
-            $('th:nth-child(' + idx  + '), td:nth-child(' + idx  + ')').show();
-            blast.pop();
+            console.log("**** 2 " + blast);
+            table.draw();
         }
-        // console.log("**** 2 " + blast);
     }
 
     function onBlast(th) {
@@ -83,76 +102,6 @@
 
         blast.push(idx);
         blast.push(idx1);
-    }
-
-    function onCompareClick(cb) {
-        console.log(cb.name);
-        if (cb.checked) {
-            filter.push(cb.name);
-        } else {
-            var idx = filter.indexOf(cb.name);
-            filter.splice(idx, 1);
-        }
-    }
-
-    function onRefresh() {
-        console.log(filter);
-        document.getElementById("filter").value = filter;
-        return false;
-    }
-
-    function showCompares(displayFlag) {
-        var cbs = getCbList();
-        var spans = getSpans();
-        if (displayFlag) {
-            for (var ii = 0; ii < cbs.length; ii++) {
-                cbs[ii].style.display = "inline"
-            }
-            for (var ii = 0; ii < spans.length; ii++) {
-                spans[ii].style.display = "inline"
-            }
-            compareCBRow.style.display = "table-row";
-            refresh.style.display = "inline";
-        } else {
-            for (var ii = 0; ii < cbs.length; ii++) {
-                cbs[ii].style.display = "none"
-            }
-            for (var ii = 0; ii < spans.length; ii++) {
-                spans[ii].style.display = "none"
-            }
-            compareCBRow.style.display = "none";
-            refresh.style.display = "none";
-            filter = [];
-        }
-
-
-    }
-    function onCBClick(cb) {
-        showCompares(cb.checked);
-    }
-
-    function getSpans() {
-        var spans = [];
-        var inputs = document.getElementsByTagName("span");
-        for (ii = 0; ii < inputs.length; ii++) {
-            if (inputs[ii].id.indexOf("spancbs") >= 0) {
-                spans.push(inputs[ii]);
-            }
-        }
-        return spans;
-    }
-
-    function getCbList() {
-        var inputs = document.getElementsByTagName("input");
-        var cbs = [];
-        for (ii = 0; ii < inputs.length; ii++) {
-            if(inputs[ii].type == "checkbox") {
-                if (inputs[ii].name != 'compare') {
-                    cbs.push(inputs[ii]);
-                }
-            }
-        }
-        return cbs;
     }
 
 </script>
@@ -178,18 +127,8 @@
 
 </div>
 <div id="out" style="float:right; padding-right: 100px">
-    <form method="post" action="{{ url_for('filter_vendors', projectId=project.projectId ) }}" onsubmit="return onRefresh()">
+    <form method="post" action="{{ url_for('filter_vendors', projectId=project.projectId ) }}" >
         <input type="text" name="filter" id="filter" style="display:none">
-        {% if filteredVendorIds is defined %}
-        {% else %}
-            <label>Compare</label>
-            <input id = "compare" type="checkbox" name="compare" onclick="onCBClick(this);">
-            &nbsp;
-            &nbsp;
-            <input type="submit" class="btn btn-default" name="refresh" id="refresh" style="display: none" value="Compare" >
-        {% endif %}
-            &nbsp;
-            &nbsp;
         {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
         <a href={{ urlx }}>
             <label>Entrys
@@ -207,30 +146,17 @@
     <table id="fixTable" class="table table-condensed" >
         <thead>
         <tr>
-            <th colspan="7" style="text-align: center">Objectives</th>
-            <th colspan="{{ cs }}" style="text-align: center">Evaluation Criteria</th>
-            <div id="compareCB" style="display:inline">
-                <tr id="compareCBRow" style="display: none;">
-                {% for ii in range(7) %}
-                     <td></td>
-                {% endfor %}
-                {% for vendor in vendorIds %}
-                    <th colspan="2" style="text-align: center">
-                        <span id="spancbs_" + {{ vendor }} style="display:none">Compare</span>
-                        <input id="cbs" type="checkbox" name={{ vendor }} style="display:none" onclick="onCompareClick(this);">
-                    </th>
-                {% endfor %}
-                </tr>
-            </div>
+            <th colspan="7" style="text-align: center; background-color: #fff;" >Objectives</th>
+            <th colspan="{{ cs }}" style="text-align: center; background-color: #fff;">Evaluation Criteria</th>
         </tr>
         <tr>
-            <th>ID</th>
-            <th>Description</th>
-            <th>Weight</th>
-            <th>Criteria ID</th>
-            <th>Criterion</th>
-            <th>Criteria</th>
-            <th>Criteria Weight</th>
+            <th style="background-color: #fff;">ID</th>
+            <th style="background-color: #fff;">Description</th>
+            <th style="background-color: #fff;">Weight</th>
+            <th style="background-color: #fff;">Criteria ID</th>
+            <th style="background-color: #fff;">Criterion</th>
+            <th style="background-color: #fff;">Criteria</th>
+            <th style="background-color: #fff; border-right:1px solid;">Criteria Weight</th>
             {% for vendor in vendorIds %}
                 <th style="border-left:1px solid;">
                     {{ vendor }} Score
@@ -283,7 +209,7 @@
                     <td>
                         {{ '%0.2f'| format(ec.calculations["criteria_percentage"]|float)  }}
                     </td>
-                    <td>
+                    <td style="border-right:1px solid;">
                         {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
                     </td>
                     {% for vendor in vendorIds %}
@@ -323,7 +249,7 @@
         {% endif %}
         </tbody>
         <tfoot>
-        <tr>
+        <tr style="background-color: #fff;">
             <td colspan="{{ 7+cs }}" >(*): Top vendor</td>
         </tr>
         </tfoot>
