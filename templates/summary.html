@@ -61,6 +61,13 @@
         });
 
         $(document).bind('keydown', 'ctrl+z', undo);
+        $(document).bind('keydown.ctrl_z keydown.meta_z', function(event) {
+            event.preventDefault();
+            var key = event.keyCode || event.charCode || 0;
+            if (key == 90) {
+                undo();
+            }
+        });
 
         $("th").on('click', function(e) {
             onBlast(e.currentTarget);
