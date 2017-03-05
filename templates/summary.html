@@ -196,17 +196,6 @@
     %
 
 </div>
-<div id="out" style="float:right; padding-right: 100px">
-    <form method="post" action="{{ url_for('filter_vendors', projectId=project.projectId ) }}" >
-        <input type="text" name="filter" id="filter" style="display:none">
-        {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
-        <a href={{ urlx }}>
-            <label>Entrys
-                <span name="entryspan" class="glyphicon glyphicon-chevron-right"></span>
-            </label>
-        </a>
-    </form>
-</div>
 <div id="parent" style="height: 90%; width: 90%">
     {% set vendorIds = project.vendorIds %}
     {% set cs = vendorIds | length * 2 %}
