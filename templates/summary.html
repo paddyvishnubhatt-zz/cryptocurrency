@@ -14,8 +14,8 @@
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.colVis.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.colVis.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css">
 
     <script src="/static/tableHeadFixer.js"></script>
@@ -207,7 +207,7 @@
 <div id="parent" style="height: 90%; width: 90%">
     {% set vendorIds = project.vendorIds %}
     {% set cs = vendorIds | length * 2 %}
-    <table id="fixTable" class="table table-condensed" >
+    <table id="fixTable" class="table table-condensed" style="max-width: inherit">
         <thead>
         <tr>
             <th colspan="7" style="text-align: center; background-color: #fff;" >Objectives</th>
@@ -224,6 +224,7 @@
             <th style="background-color: #fff;">Criterion</th>
             <th style="background-color: #fff;">Criteria</th>
             <th style="background-color: #fff; border-right:1px solid;">Criteria Weight</th>
+
             {% for vendor in vendorIds %}
                 <th id="{{ vendor + "_score" }}" style="border-left:1px solid;">
                     {{ vendor }} Score
@@ -271,6 +272,7 @@
                         {% else %}
                             {% set href = 'javascript:popup("Users & Weights - ' + ec.evaluation_criterion + '", "No user(s) entered data for ' + ec.evaluation_criterion + '")'  %}
                         {% endif %}
+
                         <a href="{{ href }}" class="btn btn-default"> {{ ec.evaluation_criterion }}</a>
                     </td>
                     <td>
@@ -279,46 +281,44 @@
                     <td style="border-right:1px solid;">
                         {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
                     </td>
-                    {% for vendor in vendorIds %}
-                        <td style="border-left:1px solid;">
-                            {% set key = vendor + "_vendor_score" %}
-                            {{ '%0.2f'| format(ec.calculations[key]|float) }}
-                        </td>
-                        <td>
-                            {% set key = vendor + "_vendor_weighted_score" %}
-                            {{ '%0.2f'| format(ec.calculations[key]|float) }}
-                        </td>
-                    {% endfor %}
-                        {% if count > [0] %}
-                            </tr>
-                        {% endif %}
+                        {% for vendor in vendorIds %}
+                            <td style="border-left:1px solid;">
+                                {% set key = vendor + "_vendor_score" %}
+                                {{ '%0.2f'| format(ec.calculations[key]|float) }}
+                            </td>
+                            <td>
+                                {% set key = vendor + "_vendor_weighted_score" %}
+                                {{ '%0.2f'| format(ec.calculations[key]|float) }}
+                            </td>
+                        {% endfor %}
+                    </tr>
                     {% if count.append(count.pop() + 1) %}{% endif %}
                     {% endfor %}
                 </tr>
             {% endfor %}
             <tr>
-            <td>Total</td>
-            {% for ii in range(6) %}
-                 <td></td>
-            {% endfor %}
-            {% for vendor in vendorIds %}
-                 <td></td>
-                 <td>
-                     {{ '%0.2f'| format(vendor_sums[vendor]) | float }}
-                    {% if top_vendor is defined %}
-                        {% if vendor == top_vendor %}
-                            (*)
+                <td>Total</td>
+                {% for ii in range(6) %}
+                     <td></td>
+                {% endfor %}
+                {% for vendor in vendorIds %}
+                     <td></td>
+                     <td>
+                         {{ '%0.2f'| format(vendor_sums[vendor]) | float }}
+                        {% if top_vendor is defined %}
+                            {% if vendor == top_vendor %}
+                                (*)
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
-                </td>
-            {% endfor %}
+                    </td>
+                {% endfor %}
             </tr>
         {% endif %}
         </tbody>
         <tfoot>
-        <tr style="background-color: #fff;">
-            <td colspan="{{ 7+cs }}" >(*): Top vendor</td>
-        </tr>
+            <tr style="background-color: #fff;">
+                <td colspan="{{ 7+cs }}" >(*): Top vendor</td>
+            </tr>
         </tfoot>
     </table>
 </div>
