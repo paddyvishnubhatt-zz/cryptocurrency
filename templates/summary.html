@@ -42,7 +42,6 @@
     var table = null;
 
     $(document).ready(function(){
-        initializeModel();
         table = $('#fixTable').DataTable({
             fixedHeader:    true,
             scrollY:        true,
@@ -53,9 +52,6 @@
             searching:      false,
             ordering:       false,
             bInfo:          false,
-                aoColumnDefs: [
-                { "bVisible": false, "aTargets": [2] }
-            ],
             fixedColumns:   {
                 leftColumns: 7
             }
