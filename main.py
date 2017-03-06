@@ -102,7 +102,7 @@ def submitted_project():
     defaultPassword = request.form.get('password')
     userId = request.authorization.username
     if userId not in userIds:
-        userIds.append(userId)
+        userIds.add(userId)
     utils.update_project(projectId, department, group, description, defaultPassword, userIds, vendorIds, due_date, bos)
     time.sleep(1)
     return redirect(url_for('landing_page'))

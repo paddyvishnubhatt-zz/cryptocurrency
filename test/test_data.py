@@ -6,18 +6,46 @@ from datetime import timedelta
 import datetime
 
 URL = "http://localhost:8080"
-num_projects = 2
-num_users = 3
-num_vendors = 3
+num_projects = 4
+num_users = 4
+num_vendors = 4
+num_objectives = 5
+num_eval_criteria = 10
 num_entrys = num_users
-BOS=[u'{"objectiveId":"objective1","description":"this is objective1","weight":"1",'
-                                u'"evaluation_criteria":[{"evaluation_criterionId":"1","evaluation_criterion":"criterion 1"},'
-                                u'{"evaluation_criterionId":"2","evaluation_criterion":"criterion 2"},'
-                                u'{"evaluation_criterionId":"3","evaluation_criterion":"criterion 3"}]},'
-                                u'{"objectiveId":"objective2","description":"this is objective2","weight":"2",'
-                                u'"evaluation_criteria":[{"evaluation_criterionId":"4","evaluation_criterion":"criterion 4"},'
-                                u'{"evaluation_criterionId":"5","evaluation_criterion":"criterion 5"},'
-                                u'{"evaluation_criterionId":"6","evaluation_criterion":"criterion 6"}]}']
+
+bos=[u'{"objectiveId":"objective1","description":"this is objective1","weight":"1",'
+            u'"evaluation_criteria":[{"evaluation_criterionId":"1","evaluation_criterion":"criterion 1"},'
+            u'{"evaluation_criterionId":"2","evaluation_criterion":"criterion 2"},'
+            u'{"evaluation_criterionId":"3","evaluation_criterion":"criterion 3"}]},'
+    u'{"objectiveId":"objective2","description":"this is objective2","weight":"2",'
+            u'"evaluation_criteria":[{"evaluation_criterionId":"4","evaluation_criterion":"criterion 4"},'
+            u'{"evaluation_criterionId":"5","evaluation_criterion":"criterion 5"},'
+            u'{"evaluation_criterionId":"6","evaluation_criterion":"criterion 6"}]}']
+
+BOS = None
+
+def createBOS():
+    global BOS
+    weight = 1
+    sbos = ""
+    first = True
+    for o_idx in range(1,num_objectives):
+        oid = "objective " + str(o_idx)
+        weight += 1
+        if weight > 5:
+            weight = 1
+        eca = []
+        for e_idx in range(1, num_eval_criteria):
+            eid = o_idx * 100 + e_idx
+            ec = {"evaluation_criterionId": str(eid), "evaluation_criterion": "o " + str(o_idx) + " eval criterion " + str(e_idx)}
+            eca.append(ec)
+        bo = {"objectiveId": oid, "description": "this is " + oid, "weight" : weight, "evaluation_criteria": eca}
+        if first:
+            first = False
+        else:
+            sbos += ","
+        sbos += json.dumps(bo)
+    BOS  = sbos
 
 def post_vendors(projectId):
     url = URL + "/api/v1/submitted_vendor"
@@ -61,6 +89,7 @@ def post_users(projectId):
     return userIds
 
 def post_projects():
+    global BOS
     url = URL + "/api/v1/submitted_project"
     for p_idx in range (0,num_projects):
         form_params = {}
@@ -86,11 +115,12 @@ def getArrayOfDict(bos):
     # this is not good
     bot = bos[0]
     # this is even worse
-    bot = '[' + bot + ']'
+    bot = '[' + bos + ']'
     bol = json.loads(bot)
     return bol
 
 def post_entrys():
+    global BOS
     iurl = URL + "/api/v1/submitted_entry"
     bol = getArrayOfDict(BOS)
     ecs = []
@@ -184,8 +214,12 @@ def delete_vendors():
     response = requests.delete(url,
                                headers={"Authorization": "Basic %s" % b64Val})
 
-if __name__ == "__main__":
+def main():
+    createBOS()
     post_projects()
     post_entrys()
     #delete_projects()
     #delete_users()
+
+if __name__ == "__main__":
+    main()
