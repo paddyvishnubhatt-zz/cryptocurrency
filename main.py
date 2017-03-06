@@ -112,12 +112,13 @@ def submitted_project():
 def show_summary(projectId):
     if utils.checkIfAdminUser() == False:
         return "Unauthorized", 404
+    #start = time.clock()
     project = utils.get_project_from_db(projectId)
     entrys = utils.get_entrys_from_given_project_db(projectId)
     userId = request.authorization.username
     criteria_to_users_map = utils.get_criteria_to_users_from_db(projectId)
-    print criteria_to_users_map
     bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
+    #print "4) " + str(time.clock() - start)
     if top_vendor is None:
         return render_template(
             'summary.html',

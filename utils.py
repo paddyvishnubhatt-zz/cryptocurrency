@@ -393,8 +393,7 @@ def delete_vendors_from_db():
             if key:
                 key.delete()
 
-def get_criteria_average_from_calc(project, evaluation_criterion):
-    entrys = get_entrys_from_given_project_db(project.projectId)
+def get_criteria_average_from_calc(entrys, evaluation_criterion):
     total = len(entrys)
     if total > 0:
         current = 0.0
@@ -408,8 +407,7 @@ def get_criteria_average_from_calc(project, evaluation_criterion):
         average = 0
     return average
 
-def get_vendor_score_from_calc(project, evaluation_criterion, vendorId):
-    entrys = get_entrys_from_given_project_db(project.projectId)
+def get_vendor_score_from_calc(entrys, evaluation_criterion, vendorId):
     score = 0
     ec = evaluation_criterion.evaluation_criterion.replace(" ", "^")
     key = vendorId + "^" + ec
@@ -459,6 +457,7 @@ def get_business_objectives_from_db(projectId, withCalc):
     vendor_sums = {}
     for vendorId in project.vendorIds:
         vendor_sums[vendorId] = 0.0
+    entrys = get_entrys_from_given_project_db(projectId)
     for objectiveId in project.objectiveIds:
         objective = get_objective_from_db(projectId, objectiveId)
         if objective:
@@ -468,13 +467,14 @@ def get_business_objectives_from_db(projectId, withCalc):
                 evaluation_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, evaluation_criterionId)
                 if evaluation_criterion:
                     if withCalc:
+                        start = time.clock()
                         calculations = {}
-                        criteria_average= get_criteria_average_from_calc(project, evaluation_criterion)
+                        criteria_average= get_criteria_average_from_calc(entrys, evaluation_criterion)
                         criteria_weight = float(objective.weight * criteria_average)
                         calculations["criteria_percentage"] = criteria_average
                         calculations["criteria_weight"] = criteria_weight
                         for vendorId in project.vendorIds:
-                            vendor_score = get_vendor_score_from_calc(project, evaluation_criterion, vendorId)
+                            vendor_score = get_vendor_score_from_calc(entrys, evaluation_criterion, vendorId)
                             key = vendorId + "_vendor_score"
                             calculations[key] = vendor_score
                             vendor_weighted_score = float(vendor_score * criteria_weight)
