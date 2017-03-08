@@ -5,12 +5,13 @@ import json
 from datetime import timedelta
 import datetime
 
-URL = "http://localhost:8080"
-num_projects = 4
-num_users = 4
-num_vendors = 4
-num_objectives = 5
-num_eval_criteria = 10
+#URL = "http://localhost:8080"
+URL = "http://daranalysis-200000.appspot.com"
+num_projects = 10
+num_users = 10
+num_vendors = 10
+num_objectives = 10
+num_eval_criteria = 20
 num_entrys = num_users
 
 bos=[u'{"objectiveId":"objective1","description":"this is objective1","weight":"1",'

@@ -283,7 +283,7 @@
                         <a href="{{ href }}" class="btn btn-default"> {{ ec.evaluation_criterion }}</a>
                     </td>
                     <td>
-                        {{ '%0.2f'| format(ec.calculations["criteria_percentage"]|float)  }}
+                        {{ '%0.2f'| format(ec.calculations["criteria_average"]|float)  }}
                     </td>
                     <td style="border-right:1px solid;">
                         {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}

@@ -67,7 +67,7 @@ def show_project(projectId):
         project = utils.get_project_from_db(projectId)
         userlist = project.userIds
         vendorlist = project.vendorIds
-        bos_db, vendorId, vs = utils.get_business_objectives_from_db(projectId, False)
+        bos_db, vendorId, vs, cs = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'project.html',
             current_user=request.authorization.username,
@@ -92,6 +92,13 @@ def submitted_project():
     if request.method == 'GET':
         return redirect(url_for('landing_page'))
     projectId = request.form.get('projectId')
+    tprj = utils.get_project_from_db(projectId)
+    if tprj:
+        return render_template(
+            'entry_error.html',
+            h1Message = "   Error: Project ID Already Exists",
+            message = "  Project " + projectId + " already exists.Go Back and retry w/ another ID"
+        )
     userIds = set(request.form.getlist('userIds[]'))
     vendorIds = set(request.form.getlist('vendorIds[]'))
     bos = request.form.getlist("bos[]")
@@ -112,13 +119,10 @@ def submitted_project():
 def show_summary(projectId):
     if utils.checkIfAdminUser() == False:
         return "Unauthorized", 404
-    #start = time.clock()
-    project = utils.get_project_from_db(projectId)
-    entrys = utils.get_entrys_from_given_project_db(projectId)
     userId = request.authorization.username
-    criteria_to_users_map = utils.get_criteria_to_users_from_db(projectId)
-    bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
-    #print "4) " + str(time.clock() - start)
+    start = time.clock()
+    bos_db, top_vendor, vs, criteria_to_users_map = utils.get_business_objectives_from_db(projectId, True)
+    print str(time.clock() - start)
     if top_vendor is None:
         return render_template(
             'summary.html',
@@ -129,6 +133,7 @@ def show_summary(projectId):
             criteria_to_users_map = criteria_to_users_map,
             userId = userId)
     else:
+        project = utils.get_project_from_db(projectId)
         return render_template(
             'summary.html',
             current_user=request.authorization.username,
@@ -145,7 +150,7 @@ def show_entry(projectId, userId):
     project = utils.get_project_from_db(projectId)
     entry = utils.get_entry_from_db(projectId, userId)
     if entry:
-        bos_db, top_vendor, vs = utils.get_business_objectives_from_db(projectId, True)
+        bos_db, top_vendor, vs, cs = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'entry.html',
             current_user=request.authorization.username,
@@ -154,7 +159,7 @@ def show_entry(projectId, userId):
             bos_db = bos_db,
             entry=entry)
     else:
-        bos_db,vendorId, vs = utils.get_business_objectives_from_db(projectId, False)
+        bos_db,vendorId, vs, cs = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'entry.html',
             current_user=request.authorization.username,

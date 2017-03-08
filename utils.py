@@ -12,6 +12,7 @@ import json
 import time
 import datetime
 from flask import request, Response, url_for, redirect
+import math
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
@@ -431,33 +432,56 @@ def get_weight_from_weights_from_db(criterion, weights):
 
     return 0
 
-
-def get_criteria_to_users_from_db(projectId):
+def get_all_data_from_calc(project):
+    entrys = get_entrys_from_given_project_db(project.projectId)
+    criteria_average_dict = {}
+    vendor_scores_dict =  {}
     criteria_to_users_map = {}
-    project = get_project_from_db(projectId)
-    for userId in project.userIds:
-        entrys = get_entrys_from_given_user_db(projectId, userId)
+    total = len(entrys)
+    if total > 0:
         for entry in entrys:
-            ecos = entry.evaluation_criteria_output
-            for iecos in ecos:
-                iiecos = iecos.split("_")
-                for ueco in iiecos:
-                    eco = str(ueco)
-                    leco = eco.replace("^", " ")
-                    weight = get_weight_from_weights_from_db(leco, entry.weights)
-                    if eco not in criteria_to_users_map:
-                        criteria_to_users_map[eco] = []
-                    criteria_to_users_map[eco].append({"userId": str(userId), "weight": weight})
-    return json.loads(json.dumps(criteria_to_users_map))
+            for weight_splits in entry.weights:
+                req_weight = weight_splits.split(":")
+                if req_weight[0] in criteria_average_dict:
+                    criteria_average_dict[req_weight[0]] += float(req_weight[1])
+                else:
+                    criteria_average_dict[req_weight[0]] = float(req_weight[1])
+                rkey = req_weight[0].replace(" ", "^")
+                if rkey not in criteria_to_users_map:
+                    criteria_to_users_map[rkey] = []
+                criteria_to_users_map[rkey].append({"userId": str(entry.user.identity), "weight": req_weight[1]})
+
+            if entry.vendor_output:
+                vsplits = json.loads(entry.vendor_output)
+                for key in vsplits:
+                    score = int(vsplits[key])
+                    if key in vendor_scores_dict:
+                        vendor_scores_dict[key] += int(score)
+                    else:
+                        vendor_scores_dict[key] = int(score)
+
+        for key in criteria_average_dict:
+            criteria_average_dict[key] = float(criteria_average_dict[key]) / float(total)
+
+        for key in vendor_scores_dict:
+            vendor_scores_dict[key] = float(vendor_scores_dict[key]) / float(total)
+
+    return criteria_average_dict, vendor_scores_dict, criteria_to_users_map
 
 def get_business_objectives_from_db(projectId, withCalc):
     bos_db = []
     topVendor = None
     project = get_project_from_db(projectId)
+    start = time.clock()
+    criteria_to_users_map = None
+    if withCalc:
+        start = time.clock()
+        criteria_average_dict, vendor_scores_dict, criteria_to_users_map = get_all_data_from_calc(project)
+    print str(time.clock() - start)
+    start = time.clock()
     vendor_sums = {}
     for vendorId in project.vendorIds:
         vendor_sums[vendorId] = 0.0
-    entrys = get_entrys_from_given_project_db(projectId)
     for objectiveId in project.objectiveIds:
         objective = get_objective_from_db(projectId, objectiveId)
         if objective:
@@ -467,30 +491,36 @@ def get_business_objectives_from_db(projectId, withCalc):
                 evaluation_criterion = get_evaluation_criteria_from_db(projectId, objectiveId, evaluation_criterionId)
                 if evaluation_criterion:
                     if withCalc:
-                        start = time.clock()
                         calculations = {}
-                        criteria_average= get_criteria_average_from_calc(entrys, evaluation_criterion)
-                        criteria_weight = float(objective.weight * criteria_average)
-                        calculations["criteria_percentage"] = criteria_average
-                        calculations["criteria_weight"] = criteria_weight
+                        if evaluation_criterion.evaluation_criterion in criteria_average_dict:
+                            criteria_average = criteria_average_dict[evaluation_criterion.evaluation_criterion]
+                            criteria_weight = float(objective.weight * criteria_average)
+                            calculations["criteria_average"] = criteria_average
+                            calculations["criteria_weight"] = criteria_weight
+                        else:
+                            criteria_weight = 0
+                            calculations["criteria_average"] = 0
+                            calculations["criteria_weight"] = 0
                         for vendorId in project.vendorIds:
-                            vendor_score = get_vendor_score_from_calc(entrys, evaluation_criterion, vendorId)
                             key = vendorId + "_vendor_score"
+                            vendor_score = float(vendor_scores_dict[vendorId+"^"+evaluation_criterion.evaluation_criterion.replace(" ", "^")])
                             calculations[key] = vendor_score
-                            vendor_weighted_score = float(vendor_score * criteria_weight)
                             key = vendorId + "_vendor_weighted_score"
+                            vendor_weighted_score = float(vendor_score * criteria_weight)
                             calculations[key] = vendor_weighted_score
                             vendor_sums[vendorId] += vendor_weighted_score
                         evaluation_criterion.calculations = calculations
                     evaluation_criteria.append(evaluation_criterion)
             objective.evaluation_criteria = evaluation_criteria
             bos_db.append(objective)
+
     maxVal = 0
     for vendorId in project.vendorIds:
         if maxVal < vendor_sums[vendorId]:
             topVendor = vendorId
             maxVal = vendor_sums[vendorId]
-    return bos_db, topVendor, vendor_sums
+    print str(time.clock() - start)
+    return bos_db, topVendor, vendor_sums, criteria_to_users_map
 
 def check_auth(identity, password):
     """This function is called to check if a username /

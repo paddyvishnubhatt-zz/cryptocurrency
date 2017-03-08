@@ -650,8 +650,17 @@
                             {% set urlx = "/api/v1/show_user/__CREATE__/__CREATE__" %}
                         {% endif %}
                         <br><a href={{ urlx | urlencode }}> Click on link button to add new user</a>
+                        {% set usize = users | length %}
+                        {% set vsize = vendors | length %}
+                        {% set size = usize %}
+                        {% if vsize > usize %}
+                            {% set size  = vsize %}
+                        {% endif %}
+                        {% if size > 7 %}
+                            {% set size = 7 %}
+                        {% endif %}
                         <select class="form-control" name="userIds[]" id="userIds[]" multiple
-                                size={{ users |length }} style="height: 100%;">
+                                size={{ size }} style="height: 100%;">
 
                         {% for user in users %}
                             {% if project is defined %}
@@ -677,7 +686,7 @@
                         {% endif %}
                         <br><a href={{ urlx | urlencode }}> Click on link button to add new vendor</a>
                         <select class="form-control" name="vendorIds[]" id="vendorIds[]" multiple
-                                size={{ vendors |length }} style='height: 100%;'>
+                                size={{ size }} style='height: 100%;'>
 
                         {% for vendor in vendor_objects %}
                             {% if project is defined %}
