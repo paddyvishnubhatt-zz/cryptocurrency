@@ -11,12 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
     <script type="text/javascript" src="/static/jquery.hotkeys-0.7.9.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.colVis.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css">
 
     <script src="/static/tableHeadFixer.js"></script>
     <nav class="navbar navbar-inverse navbar-static-top" >
@@ -42,22 +38,261 @@
     var table = null;
     var vendors = [];
     var filters = [];
+    var business_objectives = [];
+    var jvendor_sums = [];
+    var criteria_user_map = {};
+
+    function initializeModel() {
+        if (business_objectives.length == 0) {
+            {% for bo in bos_db %}
+                var obj1 = {};
+                obj1.objectiveId = "{{ bo.objectiveId | safe}}";
+                obj1.description = "{{ bo.description | safe}}";
+                obj1.weight = "{{ bo.weight | safe}}";
+                obj1.evaluation_criteria = [];
+                {% for ec in bo.evaluation_criteria %}
+                    var obj2 = {};
+                    obj2.evaluation_criterionId = "{{ ec.evaluation_criterionId | safe }}";
+                    obj2.evaluation_criterion = "{{ ec.evaluation_criterion | safe }}";
+                    obj2.calculations = "{{ ec.calculations | safe}}";
+                    obj1.evaluation_criteria.push(obj2);
+                {% endfor %}
+                var jobj = JSON.stringify(obj1);
+                // console.log(jobj);
+                business_objectives.push(jobj);
+            {% endfor %}
+        }
+        //console.log(" * 1 " + business_objectives.length);
+        //for (var vv = 0; vv < business_objectives.length; vv++) {
+            //console.log("\t" + vv + ": " + business_objectives[vv]);
+        //}
+    }
+
+    function initView() {
+        reloadView(false);
+    }
+
+    function reloadView() {
+        reloadview(true);
+    }
+
+    function reloadView(refreshOnly) {
+        if (!refreshOnly) {
+            var summary_table_header = document.getElementById("fixTableHeader");
+            var hRow = summary_table_header.insertRow(0);
+            var cHeader = hRow.insertCell(0);
+            cHeader.colSpan = 7;
+            cHeader.style.backgroundColor = "#fff";
+            cHeader.innerHTML = "Objectives";
+            cHeader.style.textAlign = 'center';
+            cHeader = hRow.insertCell(1);
+            cHeader.colSpan = vendors.length * 2;
+            cHeader.innerHTML = "Vendors";
+            cHeader.style.textAlign = 'center';
+
+            hRow = summary_table_header.insertRow(1);
+            cHeader = hRow.insertCell(0);
+            cHeader.style.backgroundColor = "#fff";
+            cHeader.innerHTML = "ID";
+            cHeader.style.textAlign = 'center';
+            cHeader = hRow.insertCell(1);
+            cHeader.style.backgroundColor = "#fff";
+            cHeader.innerHTML = "Description";
+            cHeader.style.textAlign = 'center';
+            cHeader = hRow.insertCell(2);
+            cHeader.style.backgroundColor = "#fff";
+            cHeader.innerHTML = "Weight";
+            cHeader.style.textAlign = 'center';
+            cHeader = hRow.insertCell(3);
+            cHeader.style.backgroundColor = "#fff";
+            cHeader.innerHTML = "Criterion ID";
+            cHeader.style.textAlign = 'center';
+            cHeader = hRow.insertCell(4);
+            cHeader.style.backgroundColor = "#fff";
+            cHeader.innerHTML = "Criterion";
+            cHeader.style.textAlign = 'center';
+            cHeader = hRow.insertCell(5);
+            cHeader.style.backgroundColor = "#fff";
+            cHeader.innerHTML = "Criteria Avg";
+            cHeader.style.textAlign = 'center';
+            cHeader = hRow.insertCell(6);
+            cHeader.style.backgroundColor = "#fff";
+            cHeader.innerHTML = "Criteria Weight";
+            cHeader.style.textAlign = 'center';
+            cHeader.style.borderRight = "1px solid";
+            var vv = 0;
+            for (var cc = 7; cc < 7 + vendors.length * 2; cc += 2) {
+                cHeader = hRow.insertCell(cc);
+                cHeader.innerHTML = vendors[vv] + " Score";
+                cHeader.style.borderLeft = "1px solid";
+                cHeader.style.textAlign = 'center';
+
+                //console.log(cHeader.innerHTML);
+
+                cHeader = hRow.insertCell(cc + 1);
+                cHeader.innerHTML = vendors[vv] + " Weighted Score";
+                cHeader.style.textAlign = 'center';
+                //console.log(cHeader.innerHTML);
+                vv++;
+            }
+        }
+        var summary_table_body = document.getElementById("fixTableBody");
+        var rr = 0;
+        for (var bb = 0; bb < business_objectives.length; bb++) {
+            var mbo = JSON.parse(business_objectives[bb]);
+            //console.log(mbo.objectiveId + ", " + mbo.description + ", " +  mbo.weight);
+            var boRow = null;
+            if (!refreshOnly) {
+                boRow = summary_table_body.insertRow(rr);
+                var boCell = boRow.insertCell(0);
+                boCell = boRow.insertCell(1);
+                boCell = boRow.insertCell(2);
+            }
+            rr++;
+            boRow = summary_table_body.children[rr - 1];
+            boRow.cells[0].innerHTML = mbo.objectiveId;
+            boRow.cells[1].innerHTML = mbo.description;
+            boRow.cells[1].style.textAlign = 'left';
+
+            var exid = 'ex1_' + mbo.objectiveId.split(' ').join('_');
+
+            if (!refreshOnly) {
+                var sliderElement = document.createElement('input');
+                sliderElement.type = "text";
+                sliderElement.id = exid;
+                sliderElement.setAttribute("data-slider-min", "1");
+                sliderElement.setAttribute("data-slider-max", "5");
+                sliderElement.setAttribute("data-slider-step", "1");
+                sliderElement.setAttribute("data-slider-value", mbo.weight);
+                boRow.cells[2].appendChild(sliderElement);
+                boRow.cells[2].style.width = "auto";
+                boRow.cells[2].style.textAlign = 'center';
+
+                $(eval(exid)).slider().on('change', function(event) {
+                    var a = event.value.newValue;
+                    var b = event.value.oldValue;
+
+                    var changed = !($.inArray(a[0], b) !== -1 &&
+                                    $.inArray(a[1], b) !== -1 &&
+                                    $.inArray(b[0], a) !== -1 &&
+                                    $.inArray(b[1], a) !== -1 &&
+                                    a.length === b.length);
+
+                    if(changed ) {
+                        reloadView(true);
+                    }
+                });
+            }
+
+            var weightCell = boRow.cells[2];
+
+            for (var ee = 0; ee < mbo.evaluation_criteria.length; ee++) {
+                var ec = mbo.evaluation_criteria[ee];
+                var calcstr = ec.calculations.replace(/'/g, '"');
+                var jca = JSON.parse(calcstr);
+                //console.log("\t" + ec.evaluation_criterionId + ", " + ec.evaluation_criterion + ", " + jca.criteria_average + ", " + jca.criteria_average * mbo.weight);
+                if (ee > 0) {
+                    if (!refreshOnly) {
+                        boRow = summary_table_body.insertRow(rr);
+                        for (var jj = 0; jj < 3; jj++) {
+                            boRow.insertCell(jj);
+                        }
+                    }
+                    rr++;
+                }
+                boRow = summary_table_body.children[rr - 1];
+                if (!refreshOnly) {
+                    boRow.insertCell(3);
+                    boRow.insertCell(4);
+                    boRow.insertCell(5);
+                    boRow.insertCell(6);
+                }
+                boRow.cells[3].innerHTML = ec.evaluation_criterionId;
+                boRow.cells[3].style.textAlign = 'center';
+
+                var eckey = ec.evaluation_criterion.split(" ").join("^");
+                var content = criteria_user_map[eckey];
+                var hrefs = "";
+                if (content != null) {
+                    var tstr = "<table class=table table-condensed><tr><th>Users</th><th>Weights</th></tr>";
+                    for (var hl = 0; hl < content.length; hl++) {
+                        tstr += "<tr><td>" + content[hl]['userId'] + "</td><td>" + parseFloat(content[hl]['weight']).toFixed(2) + "</td></tr>";
+                    }
+                    tstr += "</table>";
+                    hrefs += "javascript:popup('Users & Weights - " + ec.evaluation_criterion + "', '" + tstr + "');";
+                } else {
+                    hrefs += "javascript:popup('Users & Weights - " + ec.evaluation_criterion + "', No user(s) entered data for '" + ec.evaluation_criterion + "');";
+                }
+
+                boRow.cells[4].innerHTML = '<a href="' +  hrefs + '" class="btn btn-default">' +  ec.evaluation_criterion + '</a>';
+
+                boRow.cells[5].innerHTML = jca.criteria_average.toFixed(2);
+                var weight = parseFloat(weightCell.outerText.trim());
+                boRow.cells[6].innerHTML = parseFloat(jca.criteria_average * weight).toFixed(2);
+                boRow.cells[6].style.borderRight = "1px solid";
+
+                var vv = 0;
+                for (var cc = 7; cc < 7 + vendors.length * 2; cc += 2) {
+                    // console.log(cc + ": " + vendors[vv]);
+                    if (!refreshOnly) {
+                        boRow.insertCell(cc);
+                    }
+                    boRow.cells[cc].innerHTML = jca[vendors[vv] + "_vendor_score"].toFixed(2);
+                    boRow.cells[cc].style.borderLeft = "1px solid";
+                    boRow.cells[cc].style.textAlign = 'center';
+
+                    //console.log("\t" + boRow.cells[cc].innerHTML);
+                    if (!refreshOnly) {
+                        boRow.insertCell(cc + 1);
+                    }
+                    //console.log(cc + 1 + ": " + vendors[vv]);
+                    boRow.cells[cc + 1].innerHTML = parseFloat(jca[vendors[vv] + "_vendor_score"] * jca.criteria_average * weight).toFixed(2);
+                    //console.log("\t" + boRow.cells[cc + 1].innerHTML);
+                    boRow.cells[cc + 1].style.textAlign = 'center';
+                    vv++;
+                }
+            }
+        }
+        if (!refreshOnly) {
+            boRow = summary_table_body.insertRow(rr);
+        }
+        rr++;
+        boRow = summary_table_body.children[rr - 1];
+
+        for (var ii = 0; ii < 7; ii++) {
+            boRow.insertCell(ii);
+        }
+        boRow.cells[0].innerHTML = "Total";
+        var vv = 0;
+        for (var cc = 7; cc < 7 + vendors.length * 2; cc += 2) {
+            if (!refreshOnly) {
+                boRow.insertCell(cc);
+                boRow.insertCell(cc + 1);
+            }
+            boRow.cells[cc + 1].innerHTML = jvendor_sums[vv];
+            boRow.cells[cc + 1].style.textAlign = 'center';
+            vv++;
+        }
+        /*
+        var summary_table_foot = document.getElementById("fixTableFoot");
+        var fRow = summary_table_foot.insertRow(0);
+        var fcell = fRow.insertCell(0);
+        fcell.innerHTML = "(*): Top vendor";
+        fcell.style.backgroundColor = "#fff";
+        fcell.style.textAlign = 'left';
+        */
+    }
 
     $(document).ready(function(){
+        initializeModel();
         initVendorModel();
-        table = $('#fixTable').DataTable({
-            fixedHeader:    true,
-            scrollY:        "600px",
-            scrollX:        true,
-            scrollCollapse: true,
-            paging:         false,
-            sorting:        false,
-            searching:      false,
-            ordering:       false,
-            bInfo:          false,
-            fixedColumns:   {
-                leftColumns: 7
-            }
+        initView();
+        $("#fixTable").tableHeadFixer({
+            head : true,
+            foot : true,
+            left : 7,
+            right : 0,
+            'z-index' : 999
         });
 
         $(document).bind('keydown', 'ctrl+z', undo);
@@ -118,9 +353,21 @@
         vendors = [];
         filters = [];
         {% set vendorIds = project.vendorIds %}
+        var vv = 0;
         {% for vendor in vendorIds %}
             vendors.push("{{ vendor | safe}}");
             filters.push("{{ vendor | safe}}");
+            var key = "{{ vendor }}";
+            var value = "{{ vendor_sums[vendor] }}";
+            jvendor_sums[vv++] = value;
+        {% endfor %}
+
+        {% for jkey, jvalue in criteria_to_users_map.iteritems() %}
+            var jjkey = "{{ jkey | safe }}";
+            var jjvalue = "{{ jvalue | safe}}";
+            jjvalue = jjvalue.replace(/'/g, '"');
+            //console.log(jjkey + ": " + jjvalue);
+            criteria_user_map[jjkey] = JSON.parse(jjvalue);
         {% endfor %}
     }
 
@@ -201,9 +448,14 @@
     {{ percentage }}
     &nbsp;
     %
-
+    &nbsp;
 </div>
 <div id="out" style="float:right; padding-right: 100px">
+    {% set hrefvs = 'javascript:showVendors()' %}
+    <a href="{{ hrefvs }}" style="text-align: center;" class="btn btn-default">Vendor Scores</a>
+    &nbsp;
+    &nbsp;
+    &nbsp;
     {% set urlx = "/api/v1/show_entrys_given_project/" + project.projectId | urlencode %}
     <a href={{ urlx }}>
         <label>Entrys
@@ -214,118 +466,12 @@
 <div id="parent" style="height: 90%; width: 90%">
     {% set vendorIds = project.vendorIds %}
     {% set cs = vendorIds | length * 2 %}
-    <table id="fixTable" class="table table-condensed" style="max-width: inherit">
-        <thead>
-        <tr>
-            <th colspan="7" style="text-align: center; background-color: #fff;" >Objectives</th>
-            {% set hrefvs = 'javascript:showVendors()' %}
-            <th colspan="{{ cs }}" style="text-align: center; background-color: #fff;">
-                <a href="{{ hrefvs }}" class="btn btn-default">Vendor Scores</a>
-            </th>
-        </tr>
-        <tr>
-            <th style="background-color: #fff;">ID</th>
-            <th style="background-color: #fff;">Description</th>
-            <th style="background-color: #fff;">Weight</th>
-            <th style="background-color: #fff;">Criteria ID</th>
-            <th style="background-color: #fff;">Criterion</th>
-            <th style="background-color: #fff;">Criteria</th>
-            <th style="background-color: #fff; border-right:1px solid;">Criteria Weight</th>
-
-            {% for vendor in vendorIds %}
-                <th id="{{ vendor + "_score" }}" style="border-left:1px solid;">
-                    {{ vendor }} Score
-                </th>
-                <th id="{{ vendor + "_weighted" }}" >
-                    {{ vendor }} Weighted Score
-                </th>
-            {% endfor %}
-        </tr>
+    <table id="fixTable" class="table table-condensed" style="max-width: inherit;">
+        <thead id="fixTableHeader">
         </thead>
-        <tbody>
-        {% if bos_db is defined %}
-            {% for bo in bos_db %}
-                <tr>
-                    <td>
-                        {{ bo.objectiveId }}
-                    </td>
-                    <td>
-                        {{ bo.description }}
-                    </td>
-                    <td>
-                        {{ bo.weight }}
-                    </td>
-                    {% set count = [0] %}
-                    {% for ec in bo.evaluation_criteria %}
-                        {% if count > [0] %}
-                            <tr>
-                            {% for ii in range(3) %}
-                                <td></td>
-                            {% endfor %}
-                        {% endif %}
-                    <td>
-                        {{ ec.evaluation_criterionId }}
-                    </td>
-                    <td>
-                        {% set ldata = criteria_to_users_map.get(ec.evaluation_criterion | replace(" ", "^"))  %}
-                        {% if ldata %}
-                            {% set udata = ["<table class='table table-condensed' ><tr><th>Users</th><th>Weights</th></tr>"] %}
-                            {% for idata in ldata %}
-                                {% set tstr = '<tr><td>%15s</td><td>%3.2f</td>'| format(idata.get("userId"), idata.get("weight") | float) + "</tr>"%}
-                                {% if udata.append(udata.pop() + tstr ) %}{% endif %}
-                            {% endfor %}
-                            {% if udata.append("</table>") %}{% endif %}
-                            {% set  href = 'javascript:popup("Users & Weights - ' + ec.evaluation_criterion + '", "' + udata[0]  + '")' %}
-                        {% else %}
-                            {% set href = 'javascript:popup("Users & Weights - ' + ec.evaluation_criterion + '", "No user(s) entered data for ' + ec.evaluation_criterion + '")'  %}
-                        {% endif %}
-
-                        <a href="{{ href }}" class="btn btn-default"> {{ ec.evaluation_criterion }}</a>
-                    </td>
-                    <td>
-                        {{ '%0.2f'| format(ec.calculations["criteria_average"]|float)  }}
-                    </td>
-                    <td style="border-right:1px solid;">
-                        {{ '%0.2f'| format(ec.calculations["criteria_weight"]|float) }}
-                    </td>
-                        {% for vendor in vendorIds %}
-                            <td style="border-left:1px solid;">
-                                {% set key = vendor + "_vendor_score" %}
-                                {{ '%0.2f'| format(ec.calculations[key]|float) }}
-                            </td>
-                            <td>
-                                {% set key = vendor + "_vendor_weighted_score" %}
-                                {{ '%0.2f'| format(ec.calculations[key]|float) }}
-                            </td>
-                        {% endfor %}
-                    </tr>
-                    {% if count.append(count.pop() + 1) %}{% endif %}
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-            <tr>
-                <td>Total</td>
-                {% for ii in range(6) %}
-                     <td></td>
-                {% endfor %}
-                {% for vendor in vendorIds %}
-                     <td></td>
-                     <td>
-                         {{ '%0.2f'| format(vendor_sums[vendor]) | float }}
-                        {% if top_vendor is defined %}
-                            {% if vendor == top_vendor %}
-                                (*)
-                            {% endif %}
-                        {% endif %}
-                    </td>
-                {% endfor %}
-            </tr>
-        {% endif %}
+        <tbody id="fixTableBody">
         </tbody>
-        <tfoot>
-            <tr style="background-color: #fff;">
-                <td colspan="{{ 7+cs }}" >(*): Top vendor</td>
-            </tr>
+        <tfoot id="fixTableFoot" style="max-width: 100%;">
         </tfoot>
     </table>
 </div>

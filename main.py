@@ -123,6 +123,7 @@ def show_summary(projectId):
     start = time.clock()
     bos_db, top_vendor, vs, criteria_to_users_map = utils.get_business_objectives_from_db(projectId, True)
     print str(time.clock() - start)
+    project = utils.get_project_from_db(projectId)
     if top_vendor is None:
         return render_template(
             'summary.html',
@@ -133,7 +134,6 @@ def show_summary(projectId):
             criteria_to_users_map = criteria_to_users_map,
             userId = userId)
     else:
-        project = utils.get_project_from_db(projectId)
         return render_template(
             'summary.html',
             current_user=request.authorization.username,

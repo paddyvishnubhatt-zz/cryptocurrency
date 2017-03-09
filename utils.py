@@ -394,44 +394,6 @@ def delete_vendors_from_db():
             if key:
                 key.delete()
 
-def get_criteria_average_from_calc(entrys, evaluation_criterion):
-    total = len(entrys)
-    if total > 0:
-        current = 0.0
-        for entry in entrys:
-            for weight_splits in entry.weights:
-                req_weight = weight_splits.split(":")
-                if req_weight[0] == evaluation_criterion.evaluation_criterion:
-                    current += float(req_weight[1])
-        average = float (current / float(total))
-    else:
-        average = 0
-    return average
-
-def get_vendor_score_from_calc(entrys, evaluation_criterion, vendorId):
-    score = 0
-    ec = evaluation_criterion.evaluation_criterion.replace(" ", "^")
-    key = vendorId + "^" + ec
-    lene = len(entrys)
-    for entry in entrys:
-        if entry.vendor_output:
-            vsplits = json.loads(entry.vendor_output)
-            if key in vsplits:
-                score += int(vsplits[key])
-    if lene == 0:
-        average_score = 0
-    else:
-        average_score = float(score/lene)
-    return average_score
-
-def get_weight_from_weights_from_db(criterion, weights):
-    for weight_splits in weights:
-        req_weight = weight_splits.split(":")
-        if req_weight[0] == criterion:
-            return float(req_weight[1])
-
-    return 0
-
 def get_all_data_from_calc(project):
     entrys = get_entrys_from_given_project_db(project.projectId)
     criteria_average_dict = {}
@@ -449,16 +411,17 @@ def get_all_data_from_calc(project):
                 rkey = req_weight[0].replace(" ", "^")
                 if rkey not in criteria_to_users_map:
                     criteria_to_users_map[rkey] = []
-                criteria_to_users_map[rkey].append({"userId": str(entry.user.identity), "weight": req_weight[1]})
+                criteria_to_users_map[rkey].append({"userId": str(entry.user.identity), "weight": str(req_weight[1])})
 
             if entry.vendor_output:
                 vsplits = json.loads(entry.vendor_output)
                 for key in vsplits:
                     score = int(vsplits[key])
+                    nkey = str(key)
                     if key in vendor_scores_dict:
-                        vendor_scores_dict[key] += int(score)
+                        vendor_scores_dict[nkey] += int(score)
                     else:
-                        vendor_scores_dict[key] = int(score)
+                        vendor_scores_dict[nkey] = int(score)
 
         for key in criteria_average_dict:
             criteria_average_dict[key] = float(criteria_average_dict[key]) / float(total)
@@ -496,19 +459,16 @@ def get_business_objectives_from_db(projectId, withCalc):
                             criteria_average = criteria_average_dict[evaluation_criterion.evaluation_criterion]
                             criteria_weight = float(objective.weight * criteria_average)
                             calculations["criteria_average"] = criteria_average
-                            calculations["criteria_weight"] = criteria_weight
                         else:
                             criteria_weight = 0
                             calculations["criteria_average"] = 0
                             calculations["criteria_weight"] = 0
                         for vendorId in project.vendorIds:
-                            key = vendorId + "_vendor_score"
-                            vendor_score = float(vendor_scores_dict[vendorId+"^"+evaluation_criterion.evaluation_criterion.replace(" ", "^")])
+                            key = str(vendorId) + "_vendor_score"
+                            vendor_score = float(vendor_scores_dict[str(vendorId)+"^"+evaluation_criterion.evaluation_criterion.replace(" ", "^")])
                             calculations[key] = vendor_score
-                            key = vendorId + "_vendor_weighted_score"
                             vendor_weighted_score = float(vendor_score * criteria_weight)
-                            calculations[key] = vendor_weighted_score
-                            vendor_sums[vendorId] += vendor_weighted_score
+                            vendor_sums[str(vendorId)] += vendor_weighted_score
                         evaluation_criterion.calculations = calculations
                     evaluation_criteria.append(evaluation_criterion)
             objective.evaluation_criteria = evaluation_criteria
