@@ -121,28 +121,16 @@ def show_summary(projectId):
         return "Unauthorized", 404
     userId = request.authorization.username
     start = time.clock()
-    bos_db, top_vendor, vs, criteria_to_users_map = utils.get_business_objectives_from_db(projectId, True)
+    bos_db, criteria_to_users_map = utils.get_business_objectives_from_db(projectId, True)
     print str(time.clock() - start)
     project = utils.get_project_from_db(projectId)
-    if top_vendor is None:
-        return render_template(
-            'summary.html',
-            current_user=request.authorization.username,
-            project = project,
-            bos_db = bos_db,
-            vendor_sums = vs,
-            criteria_to_users_map = criteria_to_users_map,
-            userId = userId)
-    else:
-        return render_template(
-            'summary.html',
-            current_user=request.authorization.username,
-            top_vendor = top_vendor,
-            project=project,
-            bos_db=bos_db,
-            vendor_sums = vs,
-            criteria_to_users_map = criteria_to_users_map,
-            userId=userId)
+    return render_template(
+        'summary.html',
+        current_user=request.authorization.username,
+        project = project,
+        bos_db = bos_db,
+        criteria_to_users_map = criteria_to_users_map,
+        userId = userId)
 
 @app.route('/api/v1/show_entry/<projectId>/<userId>')
 @requires_auth

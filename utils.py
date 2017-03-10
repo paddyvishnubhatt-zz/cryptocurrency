@@ -442,9 +442,6 @@ def get_business_objectives_from_db(projectId, withCalc):
         criteria_average_dict, vendor_scores_dict, criteria_to_users_map = get_all_data_from_calc(project)
     print str(time.clock() - start)
     start = time.clock()
-    vendor_sums = {}
-    for vendorId in project.vendorIds:
-        vendor_sums[vendorId] = 0.0
     for objectiveId in project.objectiveIds:
         objective = get_objective_from_db(projectId, objectiveId)
         if objective:
@@ -467,20 +464,13 @@ def get_business_objectives_from_db(projectId, withCalc):
                             key = str(vendorId) + "_vendor_score"
                             vendor_score = float(vendor_scores_dict[str(vendorId)+"^"+evaluation_criterion.evaluation_criterion.replace(" ", "^")])
                             calculations[key] = vendor_score
-                            vendor_weighted_score = float(vendor_score * criteria_weight)
-                            vendor_sums[str(vendorId)] += vendor_weighted_score
                         evaluation_criterion.calculations = calculations
                     evaluation_criteria.append(evaluation_criterion)
             objective.evaluation_criteria = evaluation_criteria
             bos_db.append(objective)
 
-    maxVal = 0
-    for vendorId in project.vendorIds:
-        if maxVal < vendor_sums[vendorId]:
-            topVendor = vendorId
-            maxVal = vendor_sums[vendorId]
     print str(time.clock() - start)
-    return bos_db, topVendor, vendor_sums, criteria_to_users_map
+    return bos_db, criteria_to_users_map
 
 def check_auth(identity, password):
     """This function is called to check if a username /

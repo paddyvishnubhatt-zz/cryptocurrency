@@ -13,7 +13,7 @@
     <script type="text/javascript" src="/static/jquery.hotkeys-0.7.9.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css">
-
+    <script type="text/javascript" src="http://netdna.webdesignerdepot.com/uploads7/easily-create-stunning-animated-charts-with-chart-js/Chart.min.js"></script>
     <script src="/static/tableHeadFixer.js"></script>
     <nav class="navbar navbar-inverse navbar-static-top" >
         <div class="container-fluid">
@@ -41,6 +41,44 @@
     var business_objectives = [];
     var jvendor_sums = [];
     var criteria_user_map = {};
+    var chart = null;
+
+    function showGraph() {
+        var closeBtn = document.getElementById('close');
+
+        // Get the dialogs.
+        var dialog = document.getElementById('dialog');
+        var graph = document.getElementById('graph').getContext('2d');
+        var labels = [];
+        for (var vv = 0; vv < vendors.length; vv++) {
+            labels.push(vendors[vv]);
+        }
+        console.log(jvendor_sums);
+        var data = [];
+        for (var dd = 0; dd < jvendor_sums.length; dd++) {
+            data.push(jvendor_sums[dd]);
+        }
+        var barData = {
+            labels : labels,
+            datasets : [
+                {
+                    fillColor : "rgba(73,188,170,0.4)",
+                    strokeColor : "rgba(72,174,209,0.4)",
+                    data : data
+                }
+
+            ]
+        };
+        if (chart == null) {
+            chart = new Chart(graph).Bar(barData);
+            closeBtn.addEventListener('click', function(e) {
+                this.parentNode.close();
+            });
+        }
+
+        dialog.show();
+
+    }
 
     function initializeModel() {
         if (business_objectives.length == 0) {
@@ -259,19 +297,41 @@
         rr++;
         boRow = summary_table_body.children[rr - 1];
 
-        for (var ii = 0; ii < 7; ii++) {
-            boRow.insertCell(ii);
+        if (!refreshOnly) {
+            for (var ii = 0; ii < 7; ii++) {
+                boRow.insertCell(ii);
+            }
+            boRow.cells[0].innerHTML = "Total";
         }
-        boRow.cells[0].innerHTML = "Total";
         var vv = 0;
+        var summary_table_body_col_length = summary_table_body.children.length;
+        var maxVal = 0;
+        var maxCell = null;
         for (var cc = 7; cc < 7 + vendors.length * 2; cc += 2) {
             if (!refreshOnly) {
                 boRow.insertCell(cc);
                 boRow.insertCell(cc + 1);
             }
-            boRow.cells[cc + 1].innerHTML = jvendor_sums[vv];
+            var fsum = 0.0;
+            for (var cr = 0; cr < summary_table_body_col_length; cr++) {
+                var fitem = summary_table_body.children[cr].cells[cc + 1].innerHTML;
+                if (fitem != "") {
+                    // console.log(fitem);
+                    fsum += parseFloat(fitem);
+                }
+            }
+            if (fsum > maxVal) {
+                maxVal = fsum;
+                maxCell = boRow.cells[cc+1];
+            }
+            console.log(fsum);
+            boRow.cells[cc + 1].innerHTML = fsum.toFixed(2);
+            jvendor_sums[vv] = fsum.toFixed(2);
             boRow.cells[cc + 1].style.textAlign = 'center';
             vv++;
+        }
+        if (maxCell != null) {
+            maxCell.innerHTML += "(*)";
         }
         /*
         var summary_table_foot = document.getElementById("fixTableFoot");
@@ -357,9 +417,6 @@
         {% for vendor in vendorIds %}
             vendors.push("{{ vendor | safe}}");
             filters.push("{{ vendor | safe}}");
-            var key = "{{ vendor }}";
-            var value = "{{ vendor_sums[vendor] }}";
-            jvendor_sums[vv++] = value;
         {% endfor %}
 
         {% for jkey, jvalue in criteria_to_users_map.iteritems() %}
@@ -429,6 +486,8 @@
     }
 
 </script>
+
+
 <div id="in" style="float:left; padding-left: 10px">
     Project: {{ project.projectId }}
     &nbsp;
@@ -451,8 +510,14 @@
     &nbsp;
 </div>
 <div id="out" style="float:right; padding-right: 100px">
+
     {% set hrefvs = 'javascript:showVendors()' %}
     <a href="{{ hrefvs }}" style="text-align: center;" class="btn btn-default">Vendor Scores</a>
+    &nbsp;
+    &nbsp;
+    &nbsp;
+    {% set hrefg = 'javascript:showGraph()' %}
+    <a href="{{ hrefg }}" style="text-align: center;" class="btn btn-default">Graph</a>
     &nbsp;
     &nbsp;
     &nbsp;
@@ -475,6 +540,12 @@
         </tfoot>
     </table>
 </div>
+    <dialog id="dialog">
+        <p>Graph</p>
+        <canvas id='graph' width='400' height='300'></canvas>
+        <button id="close">Okay</button>
+    </dialog>
+
 </body>
 </html>
 
