@@ -13,7 +13,7 @@
     <script type="text/javascript" src="/static/jquery.hotkeys-0.7.9.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css">
-    <script type="text/javascript" src="http://netdna.webdesignerdepot.com/uploads7/easily-create-stunning-animated-charts-with-chart-js/Chart.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js"></script>
     <script src="/static/tableHeadFixer.js"></script>
     <nav class="navbar navbar-inverse navbar-static-top" >
         <div class="container-fluid">
@@ -45,41 +45,57 @@
 
     function showGraph() {
         var closeBtn = document.getElementById('close');
-
+        drawChart();
         // Get the dialogs.
         var dialog = document.getElementById('dialog');
-        var graph = document.getElementById('graph').getContext('2d');
-        var labels = [];
-        for (var vv = 0; vv < vendors.length; vv++) {
-            labels.push(vendors[vv]);
-        }
-        console.log(jvendor_sums);
-        var data = [];
-        for (var dd = 0; dd < jvendor_sums.length; dd++) {
-            data.push(jvendor_sums[dd]);
-        }
-        var barData = {
-            labels : labels,
-            datasets : [
-                {
-                    fillColor : "rgba(73,188,170,0.4)",
-                    strokeColor : "rgba(72,174,209,0.4)",
-                    data : data
-                }
-
-            ]
-        };
-        if (chart == null) {
-            chart = new Chart(graph).Bar(barData);
-            closeBtn.addEventListener('click', function(e) {
-                this.parentNode.close();
-            });
-        }
-
+        closeBtn.addEventListener('click', function(e) {
+            dialog.style.display = 'none';
+            //this.parentNode.close();
+        });
+        dialog.style.display = 'inline';
         dialog.show();
 
     }
 
+    function drawChart() {
+        var labels = [];
+        for (var vv = 0; vv < vendors.length; vv++) {
+            labels.push(vendors[vv]);
+        }
+        var ctx = document.getElementById("graph");
+        if (chart != null) {
+            chart.data.datasets.data = jvendor_sums;
+            chart.destroy();
+        } else {
+            chart = new Chart(ctx, {
+                type: 'bar',
+                responsive: true,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Vendor Scores',
+                        data: jvendor_sums,
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)',
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255,99,132,1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ]
+                    }]
+                }
+            });
+        }
+    }
     function initializeModel() {
         if (business_objectives.length == 0) {
             {% for bo in bos_db %}
@@ -211,13 +227,19 @@
                     var b = event.value.oldValue;
 
                     var changed = !($.inArray(a[0], b) !== -1 &&
-                                    $.inArray(a[1], b) !== -1 &&
-                                    $.inArray(b[0], a) !== -1 &&
-                                    $.inArray(b[1], a) !== -1 &&
-                                    a.length === b.length);
+                    $.inArray(a[1], b) !== -1 &&
+                    $.inArray(b[0], a) !== -1 &&
+                    $.inArray(b[1], a) !== -1 &&
+                    a.length === b.length);
 
-                    if(changed ) {
+                    if (changed) {
                         reloadView(true);
+                        if (chart != null) {
+                            console.log("updateing");
+                            chart.destroy();
+                            chart = null;
+                            drawChart();
+                        }
                     }
                 });
             }
@@ -307,16 +329,17 @@
         var summary_table_body_col_length = summary_table_body.children.length;
         var maxVal = 0;
         var maxCell = null;
+        jvendor_sums = [];
         for (var cc = 7; cc < 7 + vendors.length * 2; cc += 2) {
             if (!refreshOnly) {
                 boRow.insertCell(cc);
                 boRow.insertCell(cc + 1);
             }
             var fsum = 0.0;
-            for (var cr = 0; cr < summary_table_body_col_length; cr++) {
+            for (var cr = 0; cr < summary_table_body_col_length - 1; cr++) {
                 var fitem = summary_table_body.children[cr].cells[cc + 1].innerHTML;
                 if (fitem != "") {
-                    // console.log(fitem);
+                    fitem = parseFloat(fitem);
                     fsum += parseFloat(fitem);
                 }
             }
@@ -324,7 +347,7 @@
                 maxVal = fsum;
                 maxCell = boRow.cells[cc+1];
             }
-            console.log(fsum);
+            // console.log(fsum);
             boRow.cells[cc + 1].innerHTML = fsum.toFixed(2);
             jvendor_sums[vv] = fsum.toFixed(2);
             boRow.cells[cc + 1].style.textAlign = 'center';
@@ -540,11 +563,11 @@
         </tfoot>
     </table>
 </div>
-    <dialog id="dialog">
-        <p>Graph</p>
-        <canvas id='graph' width='400' height='300'></canvas>
-        <button id="close">Okay</button>
-    </dialog>
+<dialog id="dialog">
+    <p>Graph</p>
+    <canvas id='graph' width='400' height='300'></canvas>
+    <button id="close">Okay</button>
+</dialog>
 
 </body>
 </html>
