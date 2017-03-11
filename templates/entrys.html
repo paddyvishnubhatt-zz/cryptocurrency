@@ -12,26 +12,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
   </head>
-  <nav class="navbar navbar-inverse navbar-static-top" >
-      <div class="container-fluid">
+  <nav class="navbar navbar-inverse navbar-static-top" role="navigation" >
+    <div class="container">
         <div class="navbar-header">
-          <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"/></a>
-          <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">DAR</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right">
+        <div id="bs-example-navbar-collapse-1"class="collapse navbar-collapse pull-right">
+            <ul class="nav navbar-nav">
                 <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
-            </ul>
-            {% if isUser %}
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="javascript:logout()"><span class="glyphicon glyphicon-log-out"></span>Re-Login-As</a></li>
-                </ul>
-            {% endif %}
-            <ul class="nav navbar-nav navbar-right">
+                <li><a href="javascript:logout()"><span class="glyphicon glyphicon-log-out"></span>Re-Login-As</a></li>
                 <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
             </ul>
         </div>
-      </div>
+    </div>
   </nav>
   <body>
     <div class="container">
