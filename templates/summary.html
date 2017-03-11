@@ -34,6 +34,11 @@
     </nav>
 </head>
 <body>
+<style>
+    .slider {
+        width: 100% !important;
+    }
+</style>
 <script>
     var blast = [];
     var table = null;
@@ -133,40 +138,42 @@
             cHeader.colSpan = 7;
             cHeader.style.backgroundColor = "#fff";
             cHeader.innerHTML = "Objectives";
+            //cHeader.outerHTML = "<th>Objectives</th>";
             cHeader.style.textAlign = 'center';
             cHeader = hRow.insertCell(1);
             cHeader.colSpan = vendors.length * 2;
             cHeader.innerHTML = "Vendors";
+            //cHeader.outerHTML = "<th>Vendors</th>";
             cHeader.style.textAlign = 'center';
 
             hRow = summary_table_header.insertRow(1);
             cHeader = hRow.insertCell(0);
             cHeader.style.backgroundColor = "#fff";
-            cHeader.innerHTML = "ID";
+            cHeader.outerHTML = "<th>ID</th>";
             cHeader.style.textAlign = 'center';
             cHeader = hRow.insertCell(1);
             cHeader.style.backgroundColor = "#fff";
-            cHeader.innerHTML = "Description";
+            cHeader.outerHTML = "<th>Description</th>";
             cHeader.style.textAlign = 'center';
             cHeader = hRow.insertCell(2);
             cHeader.style.backgroundColor = "#fff";
-            cHeader.innerHTML = "Weight";
+            cHeader.outerHTML = "<th>Weight</th>";
             cHeader.style.textAlign = 'center';
             cHeader = hRow.insertCell(3);
             cHeader.style.backgroundColor = "#fff";
-            cHeader.innerHTML = "Criterion ID";
+            cHeader.outerHTML = "<th>Criterion ID</th>";
             cHeader.style.textAlign = 'center';
             cHeader = hRow.insertCell(4);
             cHeader.style.backgroundColor = "#fff";
-            cHeader.innerHTML = "Criterion";
+            cHeader.outerHTML = "<th>Criterion</th>";
             cHeader.style.textAlign = 'center';
             cHeader = hRow.insertCell(5);
             cHeader.style.backgroundColor = "#fff";
-            cHeader.innerHTML = "Criteria Avg";
+            cHeader.outerHTML = "<th>Criteria Avg</th>";
             cHeader.style.textAlign = 'center';
             cHeader = hRow.insertCell(6);
             cHeader.style.backgroundColor = "#fff";
-            cHeader.innerHTML = "Criteria Weight";
+            cHeader.outerHTML = "<th>Criteria Weight</th>";
             cHeader.style.textAlign = 'center';
             cHeader.style.borderRight = "1px solid";
             var vv = 0;
@@ -175,13 +182,15 @@
                 cHeader.innerHTML = vendors[vv] + " Score";
                 cHeader.style.borderLeft = "1px solid";
                 cHeader.style.textAlign = 'center';
+                //cHeader.outerHTML = "<th>" + vendors[vv] + " Score</th>";
 
-                //console.log(cHeader.innerHTML);
+                //console.log(cHeader.outerHTML);
 
                 cHeader = hRow.insertCell(cc + 1);
+                //cHeader.outerHTML = "<th>" + vendors[vv] + " Weighted Score</th>";
                 cHeader.innerHTML = vendors[vv] + " Weighted Score";
                 cHeader.style.textAlign = 'center';
-                //console.log(cHeader.innerHTML);
+                //console.log(cHeader.outerHTML);
                 vv++;
             }
         }
