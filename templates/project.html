@@ -586,11 +586,27 @@
 </script>
 <div id="container">
     <div id="main">
+        <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div id="bs-example-navbar-collapse-2"class="collapse navbar-collapse pull-right">
+                <ul class="nav navbar-nav">
+                    {% set urlx = "/api/v1/show_summary/" + project.projectId | urlencode %}
+                    <li></li><a href="{{ urlx }}" class="btn btn-default pull-right" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-stats"></span> &nbsp; Summary</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
         <form method="post" action="{{ url_for('submitted_project') }}" onsubmit="return validateForm()">
             <div id="content">
-                {% set urlx = "/api/v1/show_summary/" + project.projectId | urlencode %}
-                <a href="{{ urlx }}" class="btn btn-default" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-stats"></span> &nbsp; Summary</a>
-
                 <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
                     <li class="active"><a href="#tab_settings" data-toggle="tab">Settings</a></li>
                     <li><a href="#tab_users" data-toggle="tab">Users</a></li>

@@ -415,7 +415,6 @@
     }
 
     function onBlast(th) {
-        console.log(th);
         if (th.innerText == "Vendor Scores") {
             return;
         }
@@ -494,9 +493,9 @@
     }
 
     function hideColumns() {
-        console.log(filters);
+        //console.log(filters);
         var diff = $(vendors).not(filters).get();
-        console.log(diff);
+        //console.log(diff);
         var len = 7 + vendors.length * 2;
         for (var hh = 7; hh < len; hh++) {
             var idx = table.column( hh ).index()    ;
