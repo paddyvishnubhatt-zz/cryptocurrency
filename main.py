@@ -136,9 +136,9 @@ def show_summary(projectId):
 @requires_auth
 def show_entry(projectId, userId):
     project = utils.get_project_from_db(projectId)
+    bos_db, cs = utils.get_business_objectives_from_db(projectId, False)
     entry = utils.get_entry_from_db(projectId, userId)
     if entry:
-        bos_db, cs = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'entry.html',
             current_user=request.authorization.username,
@@ -147,7 +147,6 @@ def show_entry(projectId, userId):
             bos_db = bos_db,
             entry=entry)
     else:
-        bos_db, cs = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'entry.html',
             current_user=request.authorization.username,
@@ -192,7 +191,6 @@ def show_entrys_given_user(userId):
         'entrys.html',
         current_date=datetime.datetime.now(),
         current_user=request.authorization.username,
-        isUser = True,
         userId = userId,
         entrys= entrys)
 
