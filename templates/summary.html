@@ -182,12 +182,12 @@
                 cHeader.innerHTML = vendors[vv] + " Score";
                 cHeader.style.borderLeft = "1px solid";
                 cHeader.style.textAlign = 'center';
-                //cHeader.outerHTML = "<th>" + vendors[vv] + " Score</th>";
+                cHeader.outerHTML = "<th>" + vendors[vv] + " Score</th>";
 
                 //console.log(cHeader.outerHTML);
 
                 cHeader = hRow.insertCell(cc + 1);
-                //cHeader.outerHTML = "<th>" + vendors[vv] + " Weighted Score</th>";
+                cHeader.outerHTML = "<th>" + vendors[vv] + " Weighted Score</th>";
                 cHeader.innerHTML = vendors[vv] + " Weighted Score";
                 cHeader.style.textAlign = 'center';
                 //console.log(cHeader.outerHTML);
@@ -389,10 +389,13 @@
             }
         });
 
-        $("th").on('click', function(e) {
-            onBlast(e.currentTarget);
-            table.draw();
-        });
+        var titles = document.getElementsByTagName("th");
+        for ( var ii = 0; ii < titles.length; ii++ ) {
+            titles[ii].addEventListener("click", function() {
+                onBlast( this);
+            }, false);
+        }
+
     });
 
     function undo() {
@@ -408,11 +411,11 @@
                 blast.pop();
             }
             console.log("**** 2 " + blast);
-            table.draw();
         }
     }
 
     function onBlast(th) {
+        console.log(th);
         if (th.innerText == "Vendor Scores") {
             return;
         }
@@ -420,6 +423,8 @@
         if (th.innerHTML.indexOf("Score") < 0) {
             return;
         }
+
+
         var idx =  th.cellIndex + 1;
         var idx1 = idx + 1;
         if (th.innerHTML.indexOf("Weighted") >= 0) {
