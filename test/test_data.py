@@ -7,7 +7,7 @@ import datetime
 
 #URL = "http://localhost:8080"
 URL = "http://daranalysis-200000.appspot.com"
-num_projects = 10
+num_projects = 3
 num_users = 10
 num_vendors = 10
 num_objectives = 10

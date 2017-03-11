@@ -14,6 +14,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css">
+
     <script src="/static/tableHeadFixer.js"></script>
     <nav class="navbar navbar-inverse navbar-static-top" >
         <div class="container-fluid">
@@ -57,7 +58,7 @@
             left: rect.left - (rect.right - rect.left) * 2,
             height:400,
             width:500,
-            background: 'rgba(10, 10, 10, 0.2)'
+            background: 'rgba(211,211,211, 1.0)'
         }).show();
         drawChart();
         var closeBtn = document.getElementById('close');
@@ -279,7 +280,7 @@
                 boRow.cells[4].innerHTML = '<a href="' +  hrefs + '" class="btn btn-default">' +  ec.evaluation_criterion + '</a>';
 
                 boRow.cells[5].innerHTML = jca.criteria_average.toFixed(2);
-                var weight = parseFloat(weightCell.outerText.trim());
+                var weight = parseFloat(weightCell.innerText.trim());
                 boRow.cells[6].innerHTML = parseFloat(jca.criteria_average * weight).toFixed(2);
                 boRow.cells[6].style.borderRight = "1px solid";
 
