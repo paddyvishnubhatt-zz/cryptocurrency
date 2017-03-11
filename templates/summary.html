@@ -11,9 +11,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
     <script type="text/javascript" src="/static/jquery.hotkeys-0.7.9.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js"></script>
     <script src="/static/tableHeadFixer.js"></script>
     <nav class="navbar navbar-inverse navbar-static-top" >
         <div class="container-fluid">
@@ -43,18 +43,30 @@
     var criteria_user_map = {};
     var chart = null;
 
-    function showGraph() {
-        var closeBtn = document.getElementById('close');
+    function showGraph(btn) {
+        if (chart != null) {
+            dialog.style.display = 'none';
+            chart = null;
+            return;
+        }
+        var rect = btn.getBoundingClientRect();
+        console.log(rect.top, rect.right, rect.bottom, rect.left);
+        $('#dialog').css({
+            position: 'absolute',
+            top: rect.bottom,
+            left: rect.left - (rect.right - rect.left) * 2,
+            height:400,
+            width:500,
+            background: 'rgba(10, 10, 10, 0.2)'
+        }).show();
         drawChart();
+        var closeBtn = document.getElementById('close');
         // Get the dialogs.
-        var dialog = document.getElementById('dialog');
         closeBtn.addEventListener('click', function(e) {
             dialog.style.display = 'none';
-            //this.parentNode.close();
+            chart = null;
+            // this.parentNode.close();
         });
-        dialog.style.display = 'inline';
-        dialog.show();
-
     }
 
     function drawChart() {
@@ -64,37 +76,19 @@
         }
         var ctx = document.getElementById("graph");
         if (chart != null) {
-            chart.data.datasets.data = jvendor_sums;
             chart.destroy();
-        } else {
-            chart = new Chart(ctx, {
-                type: 'bar',
-                responsive: true,
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Vendor Scores',
-                        data: jvendor_sums,
-                        backgroundColor: [
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)',
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255,99,132,1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ]
-                    }]
-                }
-            });
         }
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Vendor Scores',
+                    data: jvendor_sums,
+                    backgroundColor: 'rgba(0, 0, 255, 1.0)'
+                }]
+            }
+        });
     }
     function initializeModel() {
         if (business_objectives.length == 0) {
@@ -236,8 +230,6 @@
                         reloadView(true);
                         if (chart != null) {
                             console.log("updateing");
-                            chart.destroy();
-                            chart = null;
                             drawChart();
                         }
                     }
@@ -539,8 +531,7 @@
     &nbsp;
     &nbsp;
     &nbsp;
-    {% set hrefg = 'javascript:showGraph()' %}
-    <a href="{{ hrefg }}" style="text-align: center;" class="btn btn-default">Graph</a>
+    <a href="#" style="text-align: center;" class="btn btn-default" onClick="javascript:showGraph(this)">Graph</a>
     &nbsp;
     &nbsp;
     &nbsp;
@@ -563,11 +554,10 @@
         </tfoot>
     </table>
 </div>
-<dialog id="dialog">
-    <p>Graph</p>
+<div class="modal" id="dialog" style="display: none; margin: 0 auto" width="400">
     <canvas id='graph' width='400' height='300'></canvas>
-    <button id="close">Okay</button>
-</dialog>
+    <button id="close">[X]</button>
+</div>
 
 </body>
 </html>
