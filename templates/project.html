@@ -597,10 +597,12 @@
                 </button>
             </div>
             <div id="bs-example-navbar-collapse-2"class="collapse navbar-collapse pull-right">
-                <ul class="nav navbar-nav">
-                    {% set urlx = "/api/v1/show_summary/" + project.projectId | urlencode %}
-                    <li></li><a href="{{ urlx }}" class="btn btn-default pull-right" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-stats"></span> &nbsp;Summary&nbsp;</a></li>
-                </ul>
+                {% if project is defined %}
+                    <ul class="nav navbar-nav">
+                        {% set urlx = "/api/v1/show_summary/" + project.projectId | urlencode %}
+                        <li></li><a href="{{ urlx }}" class="btn btn-default pull-right" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-stats"></span> &nbsp;Summary&nbsp;</a></li>
+                    </ul>
+                {% endif %}
             </div>
         </div>
     </nav>
