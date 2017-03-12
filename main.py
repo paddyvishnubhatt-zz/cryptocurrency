@@ -92,13 +92,14 @@ def submitted_project():
     if request.method == 'GET':
         return redirect(url_for('landing_page'))
     projectId = request.form.get('projectId')
-    tprj = utils.get_project_from_db(projectId)
-    if tprj:
-        return render_template(
-            'entry_error.html',
-            h1Message = "   Error: Project ID Already Exists",
-            message = "  Project " + projectId + " already exists.Go Back and retry w/ another ID"
-        )
+    # todo
+    # tprj = utils.get_project_from_db(projectId)
+    #if tprj:
+    #    return render_template(
+    #        'entry_error.html',
+    #        h1Message = "   Error: Project ID Already Exists",
+    #        message = "  Project " + projectId + " already exists.Go Back and retry w/ another ID"
+    #    )
     userIds = set(request.form.getlist('userIds[]'))
     vendorIds = set(request.form.getlist('vendorIds[]'))
     bos = request.form.getlist("bos[]")
