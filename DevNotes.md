@@ -21,8 +21,20 @@
 
 - Cordova iOS:
 -------------
- - 
-
+ - Build the app
+  - App ID
+  - Certs
+  - Mobile provisioning certs
+ - cordova build --release ios
+ - XCode
+  - Test by running from XCode w/ one of the devices
+  - Archive
+  - Upload ipa to iTunes/App store
+  - Test Flight
+   - Add internal tester(s)
+   - Add App (select version)
+   - Have tester install test-flight app and then the app and start testing
+  
 - Cordova Android:
 -----------------
 
