@@ -1,8 +1,8 @@
 # Dev Notes
 
 
-- Android:
----------
+- Android Sim:
+-------------
  - Create an image using Android AVD manager (Use UI, Tools to Create AVD/image)
  - This will list existing Images
   - ~/Library/Android/sdk/tools/emulator -list-avds
@@ -12,8 +12,8 @@
  - To launch 
   - Point browser to http://10.0.2.2:8080
 
-- iOS:
------
+- iOS Sim:
+---------
  - Download (on mac) latest Dev kit
  - Using spotlight (command + space), look for simulator
  - To launch 
