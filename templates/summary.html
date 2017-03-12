@@ -47,20 +47,34 @@
     var jvendor_sums = [];
     var criteria_user_map = {};
     var chart = null;
+    var graphX = 0;
+    var graphY = 0;
 
     function showGraph(btn) {
-        console.log(btn);
         if (chart != null) {
             dialog.style.display = 'none';
             chart = null;
             return;
         }
         var rect = btn.getBoundingClientRect();
-        console.log(rect.top, rect.right, rect.bottom, rect.left);
+        //console.log(rect.top, rect.right, rect.bottom, rect.left);
+        var left = graphX;
+        var top = graphY;
+        if (left == 0) {
+            left = rect.left - (rect.right - rect.left) * 2;
+        }
+        if (top == 0) {
+            top = rect.bottom;
+        }
+        var wwidth = $(window).width();
+        console.log(graphX + ", " + left + ", " + screen.width + ", " + wwidth);
+        if (left + 500 > wwidth) {
+            left = 20;
+        }
         $('#dialog').css({
             position: 'absolute',
-            top: rect.bottom,
-            left: rect.left - (rect.right - rect.left) * 2,
+            top: top,
+            left: left,
             height:400,
             width:500,
             background: 'rgba(211,211,211, 1.0)'
@@ -176,6 +190,9 @@
             cHeader.outerHTML = "<th>Criteria Weight</th>";
             cHeader.style.textAlign = 'center';
             cHeader.style.borderRight = "1px solid";
+            var rect = hRow.getBoundingClientRect();
+            graphY = rect.top + 5;
+
             var vv = 0;
             for (var cc = 7; cc < 7 + vendors.length * 2; cc += 2) {
                 cHeader = hRow.insertCell(cc);
@@ -353,6 +370,10 @@
             boRow.cells[cc + 1].innerHTML = fsum.toFixed(2);
             jvendor_sums[vv] = fsum.toFixed(2);
             boRow.cells[cc + 1].style.textAlign = 'center';
+            if (vv == 0) {
+                var rect = boRow.cells[cc].getBoundingClientRect();
+                graphX = rect.left + 5;
+            }
             vv++;
         }
         if (maxCell != null) {
@@ -525,16 +546,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Project: {{ project.projectId }}</a>
                 {% set project_status, percentage = get_project_status(project.projectId) %}
                 {% if project_status == "Late" %}
-                    <a class="navbar-brand" href="#"></a><span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span></a>
+                    <a class="navbar-brand" href="#"> Project: {{ project.projectId }}&nbsp;&nbsp;&nbsp;{{ percentage }}&nbsp;%<span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span></a>
                 {% elif project_status == "Incomplete" %}
-                    <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-exclamation-sign" style="color:orange"></span></a>
+                    <a class="navbar-brand" href="#"> Project: {{ project.projectId }}&nbsp;&nbsp;&nbsp;{{ percentage }}&nbsp;%<span class="glyphicon glyphicon-exclamation-sign" style="color:orange"></span></a>
                 {% else %}
-                    <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-ok-sign" style="color:green"></span></a>
+                    <a class="navbar-brand" href="#"> Project: {{ project.projectId }}&nbsp;&nbsp;&nbsp;{{ percentage }}&nbsp;%<span class="glyphicon glyphicon-ok-sign" style="color:green"></span></a>
                 {% endif %}
-                <a class="navbar-brand" href="#">{{ percentage }}&nbsp;%</a>
             </div>
             <div id="bs-example-navbar-collapse-2"class="collapse navbar-collapse pull-right">
                 <ul class="nav navbar-nav">

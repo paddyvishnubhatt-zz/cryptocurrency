@@ -599,7 +599,7 @@
             <div id="bs-example-navbar-collapse-2"class="collapse navbar-collapse pull-right">
                 <ul class="nav navbar-nav">
                     {% set urlx = "/api/v1/show_summary/" + project.projectId | urlencode %}
-                    <li></li><a href="{{ urlx }}" class="btn btn-default pull-right" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-stats"></span> &nbsp; Summary</a></li>
+                    <li></li><a href="{{ urlx }}" class="btn btn-default pull-right" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-stats"></span> &nbsp;Summary&nbsp;</a></li>
                 </ul>
             </div>
         </div>
@@ -689,7 +689,7 @@
                                     {% else %}
                                         {% set urlx = "/api/v1/show_user/__CREATE__/__CREATE__" %}
                                     {% endif %}
-                                    <br><a href={{ urlx | urlencode }}> Click on link button to add new user</a>
+                                    <br><a class="btn btn-default" href={{ urlx | urlencode }}> Add new user</a>
                                     {% set usize = users | length %}
                                     {% set vsize = vendors | length %}
                                     {% set size = usize %}
@@ -731,7 +731,7 @@
                                     {% else %}
                                         {% set urlx = "/api/v1/show_vendor/__CREATE__/__CREATE__" %}
                                     {% endif %}
-                                    <br><a href={{ urlx | urlencode }}> Click on link button to add new vendor</a>
+                                    <br><a class="btn btn-default" href={{ urlx | urlencode }}> Add new vendor</a>
                                     <select class="form-control" name="vendorIds[]" id="vendorIds[]" multiple
                                             size={{ size }} style='height: 100%;'>
 
