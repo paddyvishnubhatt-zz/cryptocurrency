@@ -138,6 +138,11 @@ def show_summary(projectId):
 def show_entry(projectId, userId):
     project = utils.get_project_from_db(projectId)
     bos_db, cs = utils.get_business_objectives_from_db(projectId, False)
+    eclength = 0
+    for bo in bos_db:
+        ilen = len(bo.evaluation_criteriaIds)
+        if eclength < ilen:
+            eclength = ilen;
     entry = utils.get_entry_from_db(projectId, userId)
     if entry:
         return render_template(
@@ -146,12 +151,14 @@ def show_entry(projectId, userId):
             userId = userId,
             project=project,
             bos_db = bos_db,
+            eclength = eclength,
             entry=entry)
     else:
         return render_template(
             'entry.html',
             current_user=request.authorization.username,
             userId = userId,
+            eclength = eclength,
             project=project)
 
 @app.route('/api/v1/show_entrys_given_project/<projectId>')

@@ -423,10 +423,11 @@
           <form method="post" action="{{ url_for('submitted_entry', projectId=project.projectId ) }}">
             <table id="theTable" class="table table-striped">
                 {% for bo in bos_db %}
-                    {% if bo.evaluation_criteria | length > 0 %}
+                    {% set emptycellnumbers = eclength - bo.evaluation_criteria | length %}
+                    {% if eclength > 0 %}
                         <tbody id={{ bo.objectiveId | replace(" ", "^") }}>
                             <tr>
-                                {% set cs1 = 1 + bo.evaluation_criteria|length %}
+                                {% set cs1 = 1 + eclength %}
                                 {% set cs2 = project.vendorIds | length %}
                                 <th colspan="{{ cs1 }}" style="text-align: center">
                                     Forced Pair ({{ bo.objectiveId }})
@@ -441,9 +442,12 @@
                                     {% set item = ec.evaluation_criterion %}
                                     <th style="text-align: center"> <label id="reqname_{{ item }}" name="reqname_{{ item }}">{{ item }} </label>
                                 {% endfor %}
-                                    {% for vendor in project.vendorIds %}
-                                        <th>{{ vendor }}</th>
-                                    {% endfor %}
+                                {% for ii in range(emptycellnumbers) %}
+                                    <td></td>
+                                {% endfor %}
+                                {% for vendor in project.vendorIds %}
+                                    <th style="text-align: center"> {{ vendor }}</th>
+                                {% endfor %}
                             </TR>
                             {% for ec in bo.evaluation_criteria %}
                                 {% set item = ec.evaluation_criterion %}
@@ -468,9 +472,12 @@
                                             </td>
                                         {%  endif %}
                                     {% endfor %}
+                                    {% for ii in range(emptycellnumbers) %}
+                                        <td></td>
+                                    {% endfor %}
                                         {% for vendor in project.vendorIds %}
                                             {% set cbname = vendor + "^" + item | replace(" ", "^")%}
-                                            <td>
+                                            <td style="text-align: center">
                                                 {% if entry.vendor_output is defined and entry.vendor_output is not none %}
                                                     {% set cvo = str_to_obj(entry.vendor_output) %}
                                                     {% set keypart = item | replace(" ", "^") %}
