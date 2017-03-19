@@ -379,8 +379,10 @@
                 weights[reqName] = weight_col;
             }
 
-            eval_crit_col_cells[max_weight_col_name].style.backgroundColor = "#ffdab9";
-            eval_crit_row_cells[max_weight_col_name].style.backgroundColor = "#ffdab9";
+            if (max_weight_col_name) {
+                eval_crit_col_cells[max_weight_col_name].style.backgroundColor = "#ffdab9";
+                eval_crit_row_cells[max_weight_col_name].style.backgroundColor = "#ffdab9";
+            }
         }
    </script>
   <nav class="navbar navbar-inverse navbar-static-top" >
