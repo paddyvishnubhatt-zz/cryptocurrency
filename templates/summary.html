@@ -40,7 +40,6 @@
 </style>
 <script>
     var blast = [];
-    var table = null;
     var vendors = [];
     var filters = [];
     var business_objectives = [];
@@ -518,21 +517,26 @@
         var diff = $(vendors).not(filters).get();
         //console.log(diff);
         var len = 7 + vendors.length * 2;
-        for (var hh = 7; hh < len; hh++) {
-            var idx = table.column( hh ).index()    ;
-            var title = table.columns( idx ).header();
-            var hid  = title[0].id;
-            var itext = hid.substring(0, hid.indexOf("_"));
-            console.log("\t" + idx +  ", " + itext);
+
+        var titles = document.getElementsByTagName("th");
+        for ( var hh = 8; hh <= len; hh++ ) {
+            var th = $('th:nth-child(' + hh +  '), td:nth-child(' + hh +  ')');
+            var itext = th[0].innerHTML.trim();
+            var lastIndex = itext.lastIndexOf(" ");
+            itext = itext.substring(0, lastIndex);
+            if (hh % 2 != 0) {
+                lastIndex = itext.lastIndexOf(" ");
+                itext = itext.substring(0, lastIndex);
+            }
+            console.log("\t" + hh +  ", " + itext + ", " + th[0].innerHTML);
             if ($.inArray(itext, diff) >= 0) {
                 console.log("\tremoving " + hh + ", " +     itext);
-                table.column(hh).visible(false);
+                $('th:nth-child(' + hh +  '), td:nth-child(' + hh +  ')').hide();
             } else {
                 console.log("\tshowing " + hh + ", " +     itext);
-                table.column(hh).visible(true);
+                $('th:nth-child(' + hh +  '), td:nth-child(' + hh +  ')').show();
             }
         }
-        table.draw();
     }
 
 </script>
