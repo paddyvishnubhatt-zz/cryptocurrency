@@ -420,14 +420,23 @@
         </table>
       </div>
       <div id="main">
+          {% set mlength = [0]%}
+            {% for bo in bos_db %}
+                {% set ilen = bo.evaluation_criteria | length %}
+                {% if mlength[0] < ilen %}
+                    {% set _ = mlength.pop() %}
+                    {% set _ = mlength.append(ilen)%}
+                {% endif %}
+            {% endfor %}
+          {% set maxlength = mlength[0] %}
           <form method="post" action="{{ url_for('submitted_entry', projectId=project.projectId ) }}">
             <table id="theTable" class="table table-striped">
                 {% for bo in bos_db %}
-                    {% set emptycellnumbers = eclength - bo.evaluation_criteria | length %}
-                    {% if eclength > 0 %}
+                    {% set emptycellnumbers = maxlength - bo.evaluation_criteria | length %}
+                    {% if maxlength > 0 %}
                         <tbody id={{ bo.objectiveId | replace(" ", "^") }}>
                             <tr>
-                                {% set cs1 = 1 + eclength %}
+                                {% set cs1 = 1 + maxlength %}
                                 {% set cs2 = project.vendorIds | length %}
                                 <th colspan="{{ cs1 }}" style="text-align: center">
                                     Forced Pair ({{ bo.objectiveId }})
