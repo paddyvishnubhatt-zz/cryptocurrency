@@ -215,7 +215,7 @@
 
         function validate(cb_changed) {
             var sc =  cb_changed.parentNode.parentNode.parentNode.rows[0].cells[0].innerHTML;
-            var section_changed = sc.trim().substring(13, sc.trim().indexOf(")")).split(' ').join('^');
+            var section_changed = sc.trim().substring(1, sc.trim().indexOf(")")).split(' ').join('^');
 
             var cb_splits = cb_changed.name.split("_");
             var cb_swapped =  cb_splits[1] + "_" + cb_splits[0];
