@@ -181,6 +181,15 @@
 
     function addObjective(newValue) {
         var obj1 = {};
+        var ebo = business_objectives;
+        if (ebo.filter(function (e) {
+                var je = JSON.parse(e);
+                return je.objectiveId == newValue.objectiveId
+            }).length > 0) {
+            popup("Objective already exists", "Objective entered: " + newValue.objectiveId +
+                "\nalready exists (please use objective id)");
+            return;
+        }
         obj1.objectiveId = newValue.objectiveId;
         obj1.description = newValue.description;
         obj1.weight = newValue.weight;
