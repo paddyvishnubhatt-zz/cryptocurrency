@@ -424,7 +424,8 @@
         if (!mbo) {
             return;
         }
-        var boid = mbo.objectiveId.split(' ').join('_');
+        var iboid = mbo.objectiveId.split('.').join('\\.');
+        var boid = iboid.split(' ').join('_');
         $('#edit_objective_' + boid).editable({
             title: 'Enter objective details',
             mode: 'popup',
@@ -480,7 +481,8 @@
     }
 
     function initializeInternalEvaluationCriteria(ecid, ec) {
-        // console.log(ecid + ", " + ec.evaluation_criterionId + ", " + ec.evaluation_criterion);
+        ecid = ecid.split('.').join('\\.');
+        // var boid = iboid.split(' ').join('_');
         $('#edit_evaluation_criteria_id_____' + ecid).editable({
             title: 'Enter Evaluation Criteria details',
             mode: 'popup',
