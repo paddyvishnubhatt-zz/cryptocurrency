@@ -93,7 +93,6 @@
 
         function sort(cells) {
             var idx = 1;
-            console.log(evaluation_criteria_output);
             for (var ii = 0; ii < evaluation_criteria_output.length; ii++) {
                 for (var jj = 0; jj < cells.length; jj++) {
                     var cell = cells[jj];
@@ -309,7 +308,6 @@
         function updateSubTotalsAndWeights(section_changed) {
             //TODO - fix for existing objects
             var table = document.getElementById(section_changed.trim());
-            console.log(section_changed);
             if (table == null) {
                 return;
             }

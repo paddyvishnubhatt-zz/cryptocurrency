@@ -242,7 +242,9 @@
                 boRow.cells[2].style.width = "auto";
                 boRow.cells[2].style.textAlign = 'center';
 
-                $(eval(exid)).slider().on('change', function(event) {
+                exid = exid.split('.').join('\\.');
+
+                $('#'+exid).slider().on('change', function(event) {
                     var a = event.value.newValue;
                     var b = event.value.oldValue;
 
@@ -355,7 +357,12 @@
             }
             var fsum = 0.0;
             for (var cr = 0; cr < summary_table_body_col_length - 1; cr++) {
-                var fitem = summary_table_body.children[cr].cells[cc + 1].innerHTML;
+                var frow = summary_table_body.children[cr];
+                var fitem1 = frow.cells[cc + 1];
+                if (fitem1 == null) {
+                    continue;
+                }
+                var fitem = fitem1.innerHTML;
                 if (fitem != "") {
                     fitem = parseFloat(fitem);
                     fsum += parseFloat(fitem);
