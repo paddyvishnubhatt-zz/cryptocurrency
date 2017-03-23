@@ -21,7 +21,12 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">DAR</a>
+            {% if isAdminUser is defined %}
+                <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home"/></a>
+                <a class="navbar-brand" href="javascript:window.history.back()">Back</a>
+            {% else %}
+                <a class="navbar-brand" href="#">DAR</a>
+            {% endif %}
         </div>
         <div id="bs-example-navbar-collapse-1"class="collapse navbar-collapse pull-right">
             <ul class="nav navbar-nav">

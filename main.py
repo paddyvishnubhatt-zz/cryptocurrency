@@ -150,7 +150,8 @@ def show_entry(projectId, userId):
 @app.route('/api/v1/show_entrys_given_project/<projectId>')
 @requires_auth
 def show_entrys_given_project(projectId):
-    if utils.checkIfAdminUser() == False:
+    isAdminUser = utils.checkIfAdminUser()
+    if isAdminUser == False:
         return "Unauthorized", 404
     users = utils.get_users_from_db(projectId)
     entrys = []
@@ -167,6 +168,7 @@ def show_entrys_given_project(projectId):
         current_user=request.authorization.username,
         projectId = projectId,
         userId = userId,
+        isAdminUser = isAdminUser,
         entrys= entrys)
 
 @app.route('/api/v1/show_entrys_given_user/<userId>')
