@@ -137,7 +137,7 @@ def show_summary(projectId):
 @requires_auth
 def show_entry(projectId, userId):
     project = utils.get_project_from_db(projectId)
-    bos_db, cs = utils.get_business_objectives_from_db(projectId, False)
+    bos_db, cs = utils.get_business_objectives_from_db(projectId, True)
     entry = utils.get_entry_from_db(projectId, userId)
     return render_template(
         'entry.html',

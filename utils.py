@@ -454,7 +454,6 @@ def get_business_objectives_from_db(projectId, withCalc):
                         calculations = {}
                         if evaluation_criterion.evaluation_criterion in criteria_average_dict:
                             criteria_average = criteria_average_dict[evaluation_criterion.evaluation_criterion]
-                            criteria_weight = float(objective.weight * criteria_average)
                             calculations["criteria_average"] = criteria_average
                         else:
                             calculations["criteria_average"] = 0
