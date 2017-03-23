@@ -225,7 +225,8 @@ def get_project_status(projectId):
     if total > 0:
         current = 0
         for entry in entrys:
-            if len(entry.evaluation_criteria_output) == 0:
+            if entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) == 0 or \
+                            entry.vendor_output and len(entry.vendor_output) == 0:
                 project = get_project_from_db(projectId)
                 cur_date = datetime.datetime.now()
                 print str(project.due_date) + ", " + str(cur_date)

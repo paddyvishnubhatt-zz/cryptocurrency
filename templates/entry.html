@@ -36,12 +36,16 @@
 
         function onSelect(sel) {
             var selects = document.getElementsByTagName("select");
-            vendor_output = {};
+            var tvendor_output = {};
             for (ii = 0; ii  < selects.length; ii++) {
                 var sname = selects[ii].name;
-                vendor_output[sname] = selects[ii].value;
+                tvendor_output[sname] = selects[ii].value;
             }
-            document.getElementById("vendor_output").value = JSON.stringify(vendor_output);
+            if (tvendor_output != vendor_output) {
+                vendor_output = tvendor_output;
+                document.getElementById("submit").disabled = false;
+                document.getElementById("vendor_output").value = JSON.stringify(vendor_output);
+            }
         }
 
         function getNumReqs() {
@@ -491,7 +495,12 @@
                                                     {% set cvo = str_to_obj(entry.vendor_output) %}
                                                     {% set keypart = item | replace(" ", "^") %}
                                                     {% set key = vendor + "^" + keypart %}
-                                                    {% set sel = cvo[key] | int %}
+                                                    {% set selkey = cvo[key] %}
+                                                    {% if selkey is defined %}
+                                                        {% set sel = selkey | int %}
+                                                    {% else %}
+                                                        {% set sel = 0 %}
+                                                    {% endif %}
                                                     <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%;'>
                                                         {% if sel == 2 %}
                                                             <option value="2" selected>Yes</option>

@@ -157,9 +157,7 @@ def show_entrys_given_project(projectId):
     for user in users:
         entry = utils.get_entry_from_db(projectId, user.identity)
         if entry is None:
-            entry = utils.get_entry_from_db(projectId, user.identity)
-            if entry is None:
-                entry = utils.update_entry(projectId, user.identity, None, None, None,None)
+            entry = utils.update_entry(projectId, user.identity, None, None, None,None)
         entrys.append(entry)
 
     userId = request.authorization.username
