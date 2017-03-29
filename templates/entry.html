@@ -378,7 +378,7 @@
                     max_weight_col_name = reqName;
                 }
                 weightCell.innerHTML  = weight_col;
-                weights[reqName] = weight_col;
+                weights[reqName] = isNaN(weight_col) ? 0.0 : weight_col;
             }
 
             if (max_weight_col_name) {

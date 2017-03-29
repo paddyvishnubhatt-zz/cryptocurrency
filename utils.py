@@ -405,10 +405,14 @@ def get_all_data_from_calc(project):
         for entry in entrys:
             for weight_splits in entry.weights:
                 req_weight = weight_splits.split(":")
+                try:
+                    f_weight = float(req_weight[1])
+                except ValueError:
+                    f_weight = 0.0
                 if req_weight[0] in criteria_average_dict:
-                    criteria_average_dict[req_weight[0]] += float(req_weight[1])
+                    criteria_average_dict[req_weight[0]] += f_weight
                 else:
-                    criteria_average_dict[req_weight[0]] = float(req_weight[1])
+                    criteria_average_dict[req_weight[0]] = f_weight
                 rkey = req_weight[0].replace(" ", "^")
                 if rkey not in criteria_to_users_map:
                     criteria_to_users_map[rkey] = []
