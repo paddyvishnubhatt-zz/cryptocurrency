@@ -593,6 +593,72 @@
             $this.tab('show');
         });
     });
+
+    function sendMessage(email, content) {
+        console.log("Sending message to " + email + ", " + content);
+        var tolist = [email];
+        var data = {content: content, tolist : tolist};
+        $.ajax({
+          type: "POST",
+          url: "/api/v1/send_email",
+          data: data
+        });
+    }
+
+    function sendEmails(content) {
+        if (manage_users.length > 0) {
+            console.log("Sending emails to w/ " + content + " to " + manage_users);
+            var data = {content: content, tolist : manage_users};
+            $.ajax({
+              type: "POST",
+              url: "/api/v1/send_email",
+              data: data
+            });
+        }
+    }
+
+    function onCBClick(cb) {
+        console.log(cb);
+        if (cb.checked) {
+            if ($.inArray(cb.name, manage_users) < 0) {
+                manage_users.push(cb.name);
+            }
+        } else {
+            if ($.inArray(cb.name, manage_users) >= 0) {
+                var idx = manage_users.indexOf(cb.name);
+                manage_users.splice(idx, 1);
+            }
+        }
+    }
+
+    function onDM(span) {
+        console.log(span);
+        var message = "<textarea class='form-control' rows='2' id='dm_message'>" +
+            "You have to work on your Entrys! </textarea>";
+        popupConfirm("The following message will be sent to " + span.id,   message ,function(){sendMessage(span.id, dm_message.value);})
+    }
+
+    function manage() {
+        manage_users = [];
+        var message = "<textarea class='form-control' rows='2' id='email_message'>" +
+            "You have to work on your Entrys!</textarea><br><br>" +
+            "<label style='font-weight:normal'>Select Users to Manage</label><br>" +
+            "<table class='table table-condensed' ><thead><tr><th>Select</th><th>Users</th><th>Email</th><th>DM</th></tr></thead><tbody>";
+        {% for user in users %}
+            var tuser = "{{ user.identity | safe}}";
+            var temail = "{{ user.email | safe}}";
+            var juserlist = "{{ userlist | safe }}";
+            if (juserlist.indexOf(tuser) >= 0) {
+                var smsg = "<input id=" + tuser + " type='checkbox' name=" + temail + " onclick=onCBClick(this);></input>";
+                var msg = "<tr><td>" + smsg + "</td><td>" + tuser + "</td><td>" + "{{ user.email }}" + "</td><td><span id=" + temail + " class='glyphicon glyphicon-user' onclick=onDM(this);></span></tr>";
+                message += msg;
+            }
+        {% endfor %}
+        message += "</tbody></table>";
+        popupConfirm("The following email will be sent to all the users selected",   message ,function(){sendEmails(email_message.value);})
+    }
+
+    var manage_users = [];
 </script>
 <div id="container">
     <div id="main">
@@ -609,8 +675,12 @@
             <div id="bs-example-navbar-collapse-2"class="collapse navbar-collapse pull-right">
                 {% if project is defined %}
                     <ul class="nav navbar-nav">
+                        {% set urlx = "javascript:manage()"%}
+                        <li><a href="{{ urlx }}" class="btn btn-default pull-right" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-stats"></span> &nbsp;Manage&nbsp;</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav">
                         {% set urlx = "/api/v1/show_summary/" + project.projectId | urlencode %}
-                        <li></li><a href="{{ urlx }}" class="btn btn-default pull-right" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-stats"></span> &nbsp;Summary&nbsp;</a></li>
+                        <li><a href="{{ urlx }}" class="btn btn-default pull-right" style="float: right;padding-right: 1px"><span class="glyphicon glyphicon-dashboard"></span> &nbsp;Summary&nbsp;</a></li>
                     </ul>
                 {% endif %}
             </div>

@@ -12,6 +12,8 @@ import json
 import time
 import datetime
 from flask import request, Response, url_for, redirect
+from google.appengine.api import app_identity
+from google.appengine.api import mail
 import math
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
@@ -478,6 +480,15 @@ def get_business_objectives_from_db(projectId, withCalc):
 
     print str(time.clock() - start)
     return bos_db, criteria_to_users_map
+
+def send_email(tolist, content):
+    sender_address = "jaisairam0170@gmail.com"
+    for toaddr in tolist:
+        print toaddr + ": " + content
+        mail.send_mail(sender=sender_address,
+                       to=toaddr,
+                       subject="Your DAR entry needs to completed",
+                       body = content)
 
 def check_auth(identity, password):
     """This function is called to check if a username /

@@ -337,6 +337,13 @@ def submitted_vendor():
     vendor = utils.update_vendor(vendorId, email, projectIds)
     return show_vendors()
 
+@app.route('/api/v1/send_email', methods=['POST'])
+def send_email():
+    content =  request.form.get('content')
+    tolist = request.form.getlist('tolist[]')
+    utils.send_email(tolist, content)
+    return "OK", 200
+
 @app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])
 @requires_auth
 def delete_project(projectId):
