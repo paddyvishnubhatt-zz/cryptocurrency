@@ -632,9 +632,9 @@
     }
 
     function onDM(span) {
-        console.log(span);
+        console.log(span.id + ", " + span.parentNode.id);
         var message = "<textarea class='form-control' rows='2' id='dm_message'>" +
-            "You have to work on your Entrys! </textarea>";
+            "Hello " + span.parentNode.id + ", You have to work on your DAR Entrys on project: {{ project.projectId }} </textarea>";
         popupConfirm("The following message will be sent to " + span.id,   message ,function(){sendMessage(span.id, dm_message.value);})
     }
 
@@ -650,7 +650,7 @@
             var juserlist = "{{ userlist | safe }}";
             if (juserlist.indexOf(tuser) >= 0) {
                 var smsg = "<input id=" + tuser + " type='checkbox' name=" + temail + " onclick=onCBClick(this);></input>";
-                var msg = "<tr><td>" + smsg + "</td><td>" + tuser + "</td><td>" + "{{ user.email }}" + "</td><td><span id=" + temail + " class='glyphicon glyphicon-user' onclick=onDM(this);></span></tr>";
+                var msg = "<tr><td>" + smsg + "</td><td>" + tuser + "</td><td>" + "{{ user.email }}" + "</td><td id=" + tuser + "><span id=" + temail + " class='glyphicon glyphicon-user' onclick=onDM(this);></span></tr>";
                 message += msg;
             }
         {% endfor %}
