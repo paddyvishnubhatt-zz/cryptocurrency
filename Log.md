@@ -222,3 +222,9 @@ Steps Deploy to appengine
 4. Deploy app using:
  - gcloud app deploy app.yaml index.yaml --project daranalysis-160000
 5. gcloud app browser --project ...
+
+04/01/2017
+-----------
+Added Cron jobs to start nagging Admins
+Note additional cron.yaml to be deployed for this:
+gcloud app deploy app.yaml index.yaml cron.yaml --project daranalysis-160000
