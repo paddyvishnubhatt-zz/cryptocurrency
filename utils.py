@@ -490,6 +490,26 @@ def send_email(tolist, content):
                        subject="Your DAR entry needs to completed",
                        body = content)
 
+def run_manage():
+    project_query = Project.query()
+    projects = project_query.fetch(100)
+    for project in projects:
+        status, percentage = get_project_status(project.projectId)
+        if status != "OK" and percentage != 100:
+            users = get_users_from_db(project.projectId)
+            for user in users:
+                if user.type != "User":
+                    send_reminder_email(user, project.projectId)
+                    break
+
+def send_reminder_email(user, projectId):
+    print "Sending email to " + user.email
+    sender_address = "jaisairam0170@gmail.com"
+    mail.send_mail(sender=sender_address,
+                   to=user.email,
+                   subject="Your DAR needs to completed",
+                   body="As an admin your DAR " + projectId + " needs to be attended to, please remind users using Manage button")
+
 def check_auth(identity, password):
     """This function is called to check if a username /
         password combination is valid.

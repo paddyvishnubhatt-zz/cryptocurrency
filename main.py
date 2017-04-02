@@ -344,6 +344,11 @@ def send_email():
     utils.send_email(tolist, content)
     return "OK", 200
 
+@app.route('/api/v1/manage', methods=['GET', 'POST'])
+def manage():
+    utils.run_manage()
+    return "OK", 200
+
 @app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])
 @requires_auth
 def delete_project(projectId):

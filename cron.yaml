@@ -1,0 +1,4 @@
+cron:
+- description: manage task
+  url: /api/v1/manage
+  schedule: every 1440 minutes
