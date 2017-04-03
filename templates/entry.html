@@ -489,12 +489,12 @@
                                         <td></td>
                                     {% endfor %}
                                         {% for vendor in project.vendorIds %}
-                                            {% set cbname = vendor + "^" + item | replace(" ", "^")%}
+                                            {% set cbname = vendor | replace(" ", "^") + "^" + item | replace(" ", "^")%}
                                             <td style="text-align: center">
                                                 {% if entry.vendor_output is defined and entry.vendor_output is not none %}
                                                     {% set cvo = str_to_obj(entry.vendor_output) %}
                                                     {% set keypart = item | replace(" ", "^") %}
-                                                    {% set key = vendor + "^" + keypart %}
+                                                    {% set key = vendor | replace(" ", "^") + "^" + keypart %}
                                                     {% set selkey = cvo[key] %}
                                                     {% if selkey is defined %}
                                                         {% set sel = selkey | int %}
