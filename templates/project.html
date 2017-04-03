@@ -633,8 +633,13 @@
 
     function onDM(span) {
         console.log(span.id + ", " + span.parentNode.id);
-        var message = "<textarea class='form-control' rows='2' id='dm_message'>" +
-            "Hello " + span.parentNode.id + ", You have to work on your DAR Entrys on project: {{ project.projectId }} </textarea>";
+        {% if project is defined %}
+            var message = "<textarea class='form-control' rows='2' id='dm_message'>" +
+                "Hello " + span.parentNode.id + ", You have to work on your DAR Entrys on project: {{ project.projectId }} </textarea>";
+            {% else %}
+            var message = "<textarea class='form-control' rows='2' id='dm_message'>" +
+                "Hello " + span.parentNode.id + ", You have to work on your DAR Entrys </textarea>";
+        {% endif %}
         popupConfirm("The following message will be sent to " + span.id,   message ,function(){sendMessage(span.id, dm_message.value);})
     }
 
