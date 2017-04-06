@@ -467,7 +467,7 @@ def get_business_objectives_from_db(projectId, withCalc):
                             calculations["criteria_weight"] = 0
                         for vendorId in project.vendorIds:
                             key = str(vendorId) + "_vendor_score"
-                            skey = str(vendorId)+"^"+evaluation_criterion.evaluation_criterion.replace(" ", "^")
+                            skey = str(vendorId).replace(" ", "^")+"^"+evaluation_criterion.evaluation_criterion.replace(" ", "^")
                             if skey in vendor_scores_dict:
                                 vendor_score = float(vendor_scores_dict[skey])
                             else:
