@@ -349,6 +349,7 @@
         var summary_table_body_col_length = summary_table_body.children.length;
         var maxVal = 0;
         var maxCell = null;
+        var maxCol = 0;
         jvendor_sums = [];
         for (var cc = 7; cc < 7 + vendors.length * 2; cc += 2) {
             if (!refreshOnly) {
@@ -371,6 +372,7 @@
             if (fsum > maxVal) {
                 maxVal = fsum;
                 maxCell = boRow.cells[cc+1];
+                maxCol = cc;
             }
             // console.log(fsum);
             boRow.cells[cc + 1].innerHTML = fsum.toFixed(2);
@@ -384,7 +386,16 @@
         }
         if (maxCell != null) {
             maxCell.innerHTML += "(*)";
+            maxCell.style.font = "italic bold 14px arial,serif";
+            var fTable = document.getElementById("fixTable");
+            var nrows = fTable.rows.length;
+            for (var ii = 1; ii < nrows; ii++) {
+                if (ii < nrows - 1)
+                    fTable.rows[ii].cells[maxCol].style.backgroundColor = "#ffdab9";
+                fTable.rows[ii].cells[maxCol+1].style.backgroundColor = "#ffdab9";
+            }
         }
+
         /*
         var summary_table_foot = document.getElementById("fixTableFoot");
         var fRow = summary_table_foot.insertRow(0);

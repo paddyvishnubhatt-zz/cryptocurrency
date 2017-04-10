@@ -226,14 +226,25 @@ def get_evaluation_criteria_from_db(projectId, objectiveId, evaluation_criterion
 
 def get_project_status(projectId):
     entrys = get_entrys_from_given_project_db(projectId)
+    project = get_project_from_db(projectId)
+    lenv = len(project.vendorIds)
+    lene = 0
+    for objectiveId in project.objectiveIds:
+        objective = get_objective_from_db(projectId, objectiveId)
+        if objective:
+            evaluation_criteriaIds = objective.evaluation_criteriaIds
+            if evaluation_criteriaIds:
+                lene += len(evaluation_criteriaIds)
     status = "OK"
     total = len(entrys)
     if total > 0:
         current = 0
         for entry in entrys:
             if entry.evaluation_criteria_output is None or (entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) == 0) or \
-                    entry.vendor_output is None or (entry.vendor_output and len(entry.vendor_output) == 0):
-                project = get_project_from_db(projectId)
+                    (entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) < lene) or \
+                    entry.vendor_output is None or \
+                    (entry.vendor_output and len(entry.vendor_output) == 0) or \
+                    (entry.vendor_output and len(entry.vendor_output) < lenv):
                 cur_date = datetime.datetime.now()
                 print str(project.due_date) + ", " + str(cur_date)
                 if project.due_date < cur_date:
