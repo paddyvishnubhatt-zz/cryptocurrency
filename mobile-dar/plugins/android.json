@@ -1,0 +1,30 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-firebase": {
+            "PACKAGE_NAME": "com.vishnubhatt.dar"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.vishnubhatt.dar"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.vishnubhatt.dar"
+        },
+        "cordova-plugin-console": {
+            "PACKAGE_NAME": "com.vishnubhatt.dar"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "com.vishnubhatt.dar"
+        },
+        "cordova-plugin-app-preferences": {
+            "PACKAGE_NAME": "com.vishnubhatt.dar"
+        }
+    },
+    "dependent_plugins": {}
+}

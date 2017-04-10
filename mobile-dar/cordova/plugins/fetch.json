@@ -1,0 +1,10 @@
+{
+    "com.msopentech.authdialog": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-auth-dialog"
+        },
+        "is_top_level": true,
+        "variables": {}
+    }
+}
