@@ -279,9 +279,9 @@ def submitted_user():
     email = request.form.get('email')
     type = request.form.get('type')
     password = request.form.get('password')
-    projectIds = request.form.getlist('projectIds')
+    projectIds = request.form.getlist('projectIds[]')
     projectId = request.form.get("projectId")
-    if projectId:
+    if projectId and projectId not in projectIds:
         projectIds.append(projectId)
     print "user: " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password) + ", "  + str(projectIds)
     user = utils.update_user(userId, email, type, password, projectIds)
@@ -337,7 +337,7 @@ def submitted_vendor():
         return redirect(url_for('landing_page'))
     vendorId = request.form.get('identity')
     email = request.form.get('email')
-    projectIds = request.form.getlist('projectIds')
+    projectIds = request.form.getlist('projectIds[]')
     projectId = request.form.get("projectId")
     if projectId:
         projectIds.append(projectId)

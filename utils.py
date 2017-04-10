@@ -101,6 +101,10 @@ def update_user(userId, email, type, password, projectIds):
                     if project:
                         project.userIds.append(userId)
                         project.put()
+                        entry = get_entry_from_db(projId, userId)
+                        if entry is None:
+                            update_entry(projId, userId, None, None, None, None)
+
     user.put()
     time.sleep(1)
     return user
@@ -227,8 +231,8 @@ def get_project_status(projectId):
     if total > 0:
         current = 0
         for entry in entrys:
-            if entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) == 0 or \
-                            entry.vendor_output and len(entry.vendor_output) == 0:
+            if entry.evaluation_criteria_output is None or (entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) == 0) or \
+                    entry.vendor_output is None or (entry.vendor_output and len(entry.vendor_output) == 0):
                 project = get_project_from_db(projectId)
                 cur_date = datetime.datetime.now()
                 print str(project.due_date) + ", " + str(cur_date)
@@ -239,7 +243,7 @@ def get_project_status(projectId):
                         status = "Incomplete"
             else:
                 current += 1
-        percentage = float (current /total) * 100
+        percentage = float (current * 100 / total)
     else:
         percentage = 0
         status = "Incomplete"
