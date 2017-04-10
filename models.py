@@ -15,6 +15,7 @@ class User(ndb.Model):
     isFirstLogin = ndb.BooleanProperty(default=True)
     password = ndb.StringProperty()
     projectIds = ndb.StringProperty(repeated=True)
+    token = ndb.StringProperty()
 
 # [START Requirement]
 class EvaluationCriteria(ndb.Model):

@@ -11,7 +11,7 @@ from functools import wraps
 import json
 import time
 import datetime
-from flask import request, Response, url_for, redirect
+from flask import request, session, Response, url_for, redirect
 from google.appengine.api import app_identity
 from google.appengine.api import mail
 import math
@@ -481,7 +481,7 @@ def get_business_objectives_from_db(projectId, withCalc):
     print str(time.clock() - start)
     return bos_db, criteria_to_users_map
 
-def send_email(tolist, content):
+def send_reminders(tolist, content):
     sender_address = "jaisairam0170@gmail.com"
     for toaddr in tolist:
         print toaddr + ": " + content
@@ -499,16 +499,24 @@ def run_manage():
             users = get_users_from_db(project.projectId)
             for user in users:
                 if user.type != "User":
-                    send_reminder_email(user, project.projectId)
+                    send_project_reminder(user, project.projectId)
                     break
 
-def send_reminder_email(user, projectId):
+def send_project_reminder(user, projectId):
     print "Sending email to " + user.email
     sender_address = "jaisairam0170@gmail.com"
     mail.send_mail(sender=sender_address,
                    to=user.email,
                    subject="Your DAR needs to completed",
                    body="As an admin your DAR " + projectId + " needs to be attended to, please remind users using Manage button")
+
+def update_token(userId, token):
+    print "In update_token: " + userId + ", " + token
+    user = get_user_from_db(userId)
+    if False: #user.token != token:
+        user.token = token
+        user.put()
+
 
 def check_auth(identity, password):
     """This function is called to check if a username /
@@ -517,8 +525,10 @@ def check_auth(identity, password):
     user = get_user_from_db(identity)
     if user:
         if user.password == password:
+            session['username'] = identity
             return True
         else:
+            session['username'] = None
             return False
     else:
         if identity == 'superuser' and password == 'password':

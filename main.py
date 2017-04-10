@@ -1,15 +1,23 @@
 import logging
 import utils
 import utils
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, session, render_template, request, url_for, redirect
 import datetime
 from utils import requires_auth
 import json
 import urllib
 from markupsafe import Markup
 import time
+from flask import send_from_directory
+import os
 
 app = Flask(__name__)
+app.secret_key = "super_secret_key"
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/api/v1/about_page')
 @requires_auth
@@ -341,12 +349,26 @@ def submitted_vendor():
 def send_email():
     content =  request.form.get('content')
     tolist = request.form.getlist('tolist[]')
-    utils.send_email(tolist, content)
+    utils.send_reminders(tolist, content)
     return "OK", 200
 
-@app.route('/api/v1/manage', methods=['GET', 'POST'])
+@app.route('/api/v1/manage', methods=['POST'])
 def manage():
-    utils.run_manage()
+    utils.update_token()
+    return "OK", 200
+
+@app.route('/api/v1/update_token', methods=['POST'])
+def update_token():
+    if request.authorization is None or 'username' not in session:
+        print request.authorization
+        return "OK", 200
+    if request.authorization:
+        username = request.authorization.username
+    if 'username' in session:
+        print session
+        username = session['username']
+    token = request.form.get('token')
+    utils.update_token(request.authorization.username, token)
     return "OK", 200
 
 @app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])
