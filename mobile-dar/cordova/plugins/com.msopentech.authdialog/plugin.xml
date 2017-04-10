@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) Microsoft Open Technologies, Inc.  All Rights Reserved. 
+ Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+-->
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" 
+    id="com.msopentech.authdialog" version="0.1.6">
+
+    <name>Authentication Dialog</name>
+    <description>Adds support for authentication dialogs into Apache Cordova (Phonegap build support added)</description>
+
+    <license>Apache 2.0</license>
+    <keywords>microsoft, authentication, windows, ntlm</keywords>
+    <repo>https://github.com/msopentech/cordova-plugin-auth-dialog</repo>
+    <issue>https://github.com/msopentech/cordova-plugin-auth-dialog/issues</issue>
+
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="AuthDialog"> 
+                <param name="android-package" value="com.msopentech.authDialog.AuthRequestHandler"/>
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <source-file src="src/android/AuthRequestHandler.java" target-dir="src/com/msopentech/authDialog" />
+        <source-file src="src/android/AuthenticationDialog.java" target-dir="src/com/msopentech/authDialog" />
+
+        <resource-file src="src/android/res/layout/http_authentication.xml" target="res/layout/http_authentication.xml" />
+        <resource-file src="src/android/res/values/authdialog-strings.xml" target="res/values/authdialog-strings.xml" />
+    </platform>
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="AuthDialog">
+                <param name="ios-package" value="AuthenticationDialog"/>
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/AuthenticationDialog.h" />
+        <source-file src="src/ios/AuthenticationDialog.m" />
+
+        <js-module name="AuthDialog" src="src/ios/authDialog.js">
+            <clobbers target="window.authDialog" />
+        </js-module>
+    </platform>
+
+    <platform name="wp8">
+
+        <js-module name="AuthDialog" src="www/authDialog.js">
+            <runs />
+        </js-module>
+
+        <config-file target="Properties/WMAppManifest.xml" parent="/Deployment/App/Capabilities">
+            <Capability Name="ID_CAP_NETWORKING"/>
+        </config-file>
+
+        <config-file target="config.xml" parent="/*">
+            <feature name="AuthDialog">
+                <param name="wp-package" value="MSOpenTech.AuthDialog.AuthRequestHandler"/>
+                <param name="onload" value="true" /> 
+            </feature>
+        </config-file>
+
+        <source-file src="src/wp/AuthRequestHandler.cs" />
+        <source-file src="src/wp/HttpAuthRequestHandler.cs" />
+        <source-file src="src/wp/AuthenticationDialog.xaml" />
+        <source-file src="src/wp/AuthenticationDialog.xaml.cs" />
+    </platform>
+
+    <platform name="windows">
+        <js-module name="AuthDialog" src="www/authDialog.js">
+            <runs />
+        </js-module>
+
+        <config-file target="package.windows.appxmanifest" parent="/Package/Capabilities">
+            <Capability Name="privateNetworkClientServer" />
+        </config-file>
+
+        <config-file target="package.windows80.appxmanifest" parent="/Package/Capabilities">
+            <Capability Name="privateNetworkClientServer" />
+        </config-file>
+    </platform>
+
+</plugin>

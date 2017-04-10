@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "239781516643",
+    "firebase_url": "https://daranalysis-160000.firebaseio.com",
+    "project_id": "daranalysis-160000",
+    "storage_bucket": "daranalysis-160000.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:239781516643:android:682d0f65548235d5",
+        "android_client_info": {
+          "package_name": "com.vishnubhatt.dar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "239781516643-ee7ij1i94muc6pm5qr7ruhsi6dj30n5o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vishnubhatt.dar",
+            "certificate_hash": "efd61f3a8677de648e567cb9d8ec5c8169715ab0"
+          }
+        },
+        {
+          "client_id": "239781516643-5540amijaaohqp19kcpuet5dhgunjdn7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOWkaJzZzhAjovg_hHjT4NuQyUlNjxpyg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "239781516643-5540amijaaohqp19kcpuet5dhgunjdn7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

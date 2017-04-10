@@ -1,0 +1,27 @@
+[
+    {
+        "type":"group",
+        "title":"Common",
+        "items":[{
+			"title":"Environment",
+			"type":"textfield",
+			"key":"environment_preference",
+			"default": "10.1.0.160:8080"
+		}, {
+			"title":"Protocol",
+			"type":"textfield",
+			"key":"proto_preference",
+			"default": "http"
+		}, {
+			"title":"User name",
+			"type":"textfield",
+			"key":"username_preference",
+			"default": "tu"
+		}, {
+			"title":"Password",
+			"type":"textfield",
+			"key":"password_preference",
+			"default": "tu"
+		}]
+    }
+]
