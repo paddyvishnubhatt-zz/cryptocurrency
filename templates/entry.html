@@ -35,6 +35,8 @@
         }
 
         function onSelect(sel) {
+            sel.style.color = "black";
+            sel.style.backgroundColor = "#FFFFE0";
             var selects = document.getElementsByTagName("select");
             var tvendor_output = {};
             for (ii = 0; ii  < selects.length; ii++) {
@@ -498,10 +500,11 @@
                                                     {% set selkey = cvo[key] %}
                                                     {% if selkey is defined %}
                                                         {% set sel = selkey | int %}
+                                                        <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%; background-color: #FFFFE0'>
                                                     {% else %}
                                                         {% set sel = 0 %}
+                                                        <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%; color: red'>
                                                     {% endif %}
-                                                    <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%;'>
                                                         {% if sel == 2 %}
                                                             <option value="2" selected>Yes</option>
                                                             <option value="1">Maybe</option>
@@ -513,11 +516,11 @@
                                                         {% elif sel == 0 %}
                                                             <option value="2">Yes</option>
                                                             <option value="1">Maybe</option>
-                                                            <option value="0" selected>No</option>
+                                                            <option value="0" selected  >No</option>
                                                         {% endif %}
                                                     </select>
                                                 {% else %}
-                                                    <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%;'>
+                                                    <select onChange="onSelect(this)" name={{ cbname }} style='height: 100%; background-color: red'>
                                                         <option value="2">Yes</option>
                                                         <option value="1">Maybe</option>
                                                         <option value="0">No</option>

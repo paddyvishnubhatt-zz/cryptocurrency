@@ -417,6 +417,9 @@ def server_error(e):
 @app.context_processor
 def utility_functions():
 
+    def get_entry_status(projectId, userId):
+        return utils.get_entry_status(projectId, userId)
+
     def get_project_status(projectId):
         return utils.get_project_status(projectId)
 
@@ -439,6 +442,6 @@ def utility_functions():
         return Markup(s)
 
     app.jinja_env.globals['urlencode'] = urlencode_filter
-    return dict(urlencode=urlencode_filter, get_project_status=get_project_status, mdebug=print_in_console, str_to_obj=str_to_obj, get_current_date=get_current_date)
+    return dict(get_entry_status=get_entry_status, urlencode=urlencode_filter, get_project_status=get_project_status, mdebug=print_in_console, str_to_obj=str_to_obj, get_current_date=get_current_date)
 
 # [END app]

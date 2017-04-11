@@ -64,12 +64,11 @@
                 </td>
                 <td>
                     <a href={{ urlstr }}>
-                        {% if entry.evaluation_criteria_output | length == 0 or entry.vendor_output is none %}
-                            {% if entry.project.due_date < current_date %}
-                                <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
-                            {% else %}
-                                <span class="glyphicon glyphicon-exclamation-sign"></span>
-                            {% endif %}
+                        {% set entry_status = get_entry_status(entry.project.projectId, entry.user.identity) %}
+                        {% if entry_status == "Late" %}
+                            <span class="glyphicon glyphicon-exclamation-sign" style="color:red"></span>
+                        {% elif entry_status == "Incomplete" %}
+                            <span class="glyphicon glyphicon-exclamation-sign" style="color:orange"></span>
                         {% else %}
                             <span class="glyphicon glyphicon-ok-sign" style="color:green"></span>
                         {% endif %}
