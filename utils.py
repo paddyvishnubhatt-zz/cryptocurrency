@@ -12,9 +12,13 @@ import json
 import time
 import datetime
 from flask import request, session, Response, url_for, redirect
-from google.appengine.api import app_identity
 from google.appengine.api import mail
 import math
+import requests
+
+firebase_server_key = "AIzaSyDxwE1m7WjI6400WD9GadNJqoZfJvBmjGs"
+fcm_server = "https://fcm.googleapis.com/fcm/send"
+fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'key' : firebase_server_key}
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
@@ -256,7 +260,6 @@ def get_entry_status(projectId, userId):
 
 def get_project_status(projectId):
     entrys = get_entrys_from_given_project_db(projectId)
-    project = get_project_from_db(projectId)
     status = "OK"
     total = len(entrys)
     if total > 0:
@@ -507,14 +510,36 @@ def get_business_objectives_from_db(projectId, withCalc):
     print str(time.clock() - start)
     return bos_db, criteria_to_users_map
 
+def send_notification(toaddr, title, content):
+    headers = fcm_headers
+    url = fcm_server
+    data = {'priority': 'high', 'to': toaddr, \
+            'notification' : {'badge': '1', 'sound' : 'default', 'title' : title, 'body' : content}}
+    try:
+        resp = requests.post(url, data=json.dumps(data), headers=headers)
+    except requests.exceptions.Timeout as e1:
+        # Maybe set up for a retry, or continue in a retry loop
+        print e1
+    except requests.exceptions.TooManyRedirects as e2:
+        # Tell the user their URL was bad and try a different one
+        print e2
+    except requests.exceptions.RequestException as e3:
+        # catastrophic error. bail.
+        print e3
+    print resp
+
 def send_reminders(tolist, content):
     sender_address = "jaisairam0170@gmail.com"
     for toaddr in tolist:
-        print toaddr + ": " + content
+        user = get_user_from_db(toaddr)
+        print user.email + ": " + content
+        title = "DAR Entry Reminder: Your DAR entry needs to completed"
         mail.send_mail(sender=sender_address,
-                       to=toaddr,
-                       subject="Your DAR entry needs to completed",
+                       to=user.email,
+                       subject=title,
                        body = content)
+        if user.token:
+            send_notification(user.token, title, content)
 
 def run_manage():
     project_query = Project.query()
@@ -531,18 +556,21 @@ def run_manage():
 def send_project_reminder(user, projectId):
     print "Sending email to " + user.email
     sender_address = "jaisairam0170@gmail.com"
+    title = "DAR Project Reminder: Your DAR needs to completed"
+    content = "As an admin your DAR " + projectId + " needs to be attended to, please remind users using Manage button"
     mail.send_mail(sender=sender_address,
                    to=user.email,
-                   subject="Your DAR needs to completed",
-                   body="As an admin your DAR " + projectId + " needs to be attended to, please remind users using Manage button")
+                   subject=title,
+                   body=content)
+    if user.token:
+        send_notification(user.token, title, content)
 
 def update_token(userId, token):
     print "In update_token: " + userId + ", " + token
     user = get_user_from_db(userId)
-    if False: #user.token != token:
+    if user.token != token:
         user.token = token
         user.put()
-
 
 def check_auth(identity, password):
     """This function is called to check if a username /

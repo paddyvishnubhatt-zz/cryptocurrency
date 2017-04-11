@@ -594,9 +594,9 @@
         });
     });
 
-    function sendMessage(email, content) {
-        console.log("Sending message to " + email + ", " + content);
-        var tolist = [email];
+    function sendMessage(userId, content) {
+        console.log("Sending message to " + userId + ", " + content);
+        var tolist = [userId];
         var data = {content: content, tolist : tolist};
         $.ajax({
           type: "POST",
@@ -654,8 +654,8 @@
             var temail = "{{ user.email | safe}}";
             var juserlist = "{{ userlist | safe }}";
             if (juserlist.indexOf(tuser) >= 0) {
-                var smsg = "<input id=" + tuser + " type='checkbox' name=" + temail + " onclick=onCBClick(this);></input>";
-                var msg = "<tr><td>" + smsg + "</td><td>" + tuser + "</td><td>" + "{{ user.email }}" + "</td><td id=" + tuser + "><span id=" + temail + " class='glyphicon glyphicon-user' onclick=onDM(this);></span></tr>";
+                var smsg = "<input id=" + tuser + " type='checkbox' name=" + tuser + " onclick=onCBClick(this);></input>";
+                var msg = "<tr><td>" + smsg + "</td><td>" + tuser + "</td><td>" + temail + "</td><td id=" + tuser + "><span id=" + tuser + " class='glyphicon glyphicon-user' onclick=onDM(this);></span></tr>";
                 message += msg;
             }
         {% endfor %}

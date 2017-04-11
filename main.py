@@ -1,6 +1,5 @@
 import logging
 import utils
-import utils
 from flask import Flask, session, render_template, request, url_for, redirect
 import datetime
 from utils import requires_auth
@@ -354,7 +353,7 @@ def send_email():
 
 @app.route('/api/v1/manage', methods=['POST'])
 def manage():
-    utils.update_token()
+    utils.run_manage()
     return "OK", 200
 
 @app.route('/api/v1/update_token', methods=['POST'])
