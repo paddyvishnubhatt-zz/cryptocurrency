@@ -14,11 +14,11 @@ import datetime
 from flask import request, session, Response, url_for, redirect
 from google.appengine.api import mail
 import math
-import requests
+import urllib2
 
-firebase_server_key = "AIzaSyDxwE1m7WjI6400WD9GadNJqoZfJvBmjGs"
+firebase_server_key = "key=AIzaSyDxwE1m7WjI6400WD9GadNJqoZfJvBmjGs"
 fcm_server = "https://fcm.googleapis.com/fcm/send"
-fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'key' : firebase_server_key}
+fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'Authorization' : firebase_server_key}
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
@@ -511,22 +511,22 @@ def get_business_objectives_from_db(projectId, withCalc):
     return bos_db, criteria_to_users_map
 
 def send_notification(toaddr, title, content):
+    print 'send_notification ' + toaddr + ", " + title + ", " + content
     headers = fcm_headers
     url = fcm_server
+
     data = {'priority': 'high', 'to': toaddr, \
             'notification' : {'badge': '1', 'sound' : 'default', 'title' : title, 'body' : content}}
+
     try:
-        resp = requests.post(url, data=json.dumps(data), headers=headers)
-    except requests.exceptions.Timeout as e1:
-        # Maybe set up for a retry, or continue in a retry loop
-        print e1
-    except requests.exceptions.TooManyRedirects as e2:
-        # Tell the user their URL was bad and try a different one
-        print e2
-    except requests.exceptions.RequestException as e3:
-        # catastrophic error. bail.
-        print e3
-    print resp
+        opener = urllib2.build_opener()
+        req = urllib2.Request(url, data=json.dumps(data), headers=headers)
+        resp = opener.open(req)
+        print "OK - Notification sent"
+    except urllib2.HTTPError as e:
+        error_message = e.read()
+        print error_message
+
 
 def send_reminders(tolist, content):
     sender_address = "jaisairam0170@gmail.com"
