@@ -14,6 +14,34 @@ var environment;
 
 var token_sent = false;
 
+function launchApp(url) {
+	console.log(" ****** launchApp");
+	ref = window.open(url, '_blank', 'location=no,toolbar=no');
+	ref.addEventListener( "loadstop", function() {
+		if (!token_sent) {
+			updateToken();
+			token_sent = true;
+		}
+	});
+	// e.g TokenRefresh, onNotificationOpen etc
+	window.FirebasePlugin.onTokenRefresh(function(token){
+		//Do something with the token server-side if it exists
+		if (current_token != token) {
+			current_token = token;
+			updateToken();
+		}
+	});
+	
+	// get any notification variables for use in your app
+   	window.FirebasePlugin.onNotificationOpen(function(notification){
+    	//Check if notification exists then do something with the payload vars
+    	var str = JSON.stringify(notification);
+    	console.log("***** Javascript.onNotificationopen **** : " + str);
+    });
+
+   	document.addEventListener("resume", onResume, false); 
+}
+
 function onResume() {
 	// get any notification variables for use in your app
 	window.FirebasePlugin.onNotificationOpen(function(notification){
@@ -49,10 +77,6 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
-		var hammertime = new Hammer(myElement);
-		hammertime.on('swipe', function(ev) {
-			plugins.appPreferences.show();
-		});
         var str 		= device.platform;
 		console.log(" *** " + str);
 		plugins.appPreferences.fetch('username_preference').then(function(result) {
@@ -69,36 +93,27 @@ var app = {
 		}, fail);
 		setTimeout(function() {
 			console.log(" *** " + username + ", " + password + ", " + proto + ", " + environment);
-			var url = proto + "://" + environment;
-			if (str == "iOS") {
-				url = proto + "://" + username + ":" + password + "@" + environment; 
-			}
-			console.log(url);
-			ref = window.open(url, '_blank', 'location=no,toolbar=no');
-			ref.addEventListener( "loadstop", function() {
-				if (!token_sent) {
-					updateToken();
-					token_sent = true;
-				}
-			});
-			// e.g TokenRefresh, onNotificationOpen etc
-			window.FirebasePlugin.onTokenRefresh(function(token){
-				//Do something with the token server-side if it exists
-				if (current_token != token) {
-					current_token = token;
-					updateToken();
-				}
+			var url = proto + "://" + username + ":" + password + "@" + environment; 
+			console.log(" ********* " + url);
+			$.ajax({
+				type: "GET",
+				url: url,
+				success: function(response, textStatus, xhr) {
+					console.log(" ****** " + xhr.status);
+					if (xhr.status == 404) {
+						plugins.appPreferences.show();
+					} else {
+						url = proto + "://" + username + ":" + password + "@" + environment; 
+						launchApp(url);
+					}
+				},
+				error: function(xhr, textStatus) {
+					console.log(xhr.status + ", " + textStatus);
+					plugins.appPreferences.show();
+				},
+				timeout:3000
 			});
 		}, 2000);
-
-	    // get any notification variables for use in your app
-   		window.FirebasePlugin.onNotificationOpen(function(notification){
-    		//Check if notification exists then do something with the payload vars
-    		var str = JSON.stringify(notification);
-    		console.log("***** Javascript.onNotificationopen **** : " + str);
-    	});
-
-    	document.addEventListener("resume", onResume, false); 
     },
 
     // Update DOM on a Received Event
