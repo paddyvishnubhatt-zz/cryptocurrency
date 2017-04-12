@@ -49,10 +49,12 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
+		var hammertime = new Hammer(myElement);
+		hammertime.on('swipe', function(ev) {
+			plugins.appPreferences.show();
+		});
         var str 		= device.platform;
 		console.log(" *** " + str);
-		var url = proto + "://" + environment;
-		
 		plugins.appPreferences.fetch('username_preference').then(function(result) {
 			username = result;
 		}, fail);
@@ -67,6 +69,7 @@ var app = {
 		}, fail);
 		setTimeout(function() {
 			console.log(" *** " + username + ", " + password + ", " + proto + ", " + environment);
+			var url = proto + "://" + environment;
 			if (str == "iOS") {
 				url = proto + "://" + username + ":" + password + "@" + environment; 
 			}

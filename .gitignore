@@ -3,3 +3,4 @@
 lib/*.pyc
 .idea/workspace.xml
 .idea
+mobile-dar/platforms/android/.gradle

@@ -49,6 +49,10 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
+		var hammertime = new Hammer(myElement);
+		hammertime.on('swipe', function(ev) {
+			plugins.appPreferences.show();
+		});
         var str 		= device.platform;
 		console.log(" *** " + str);
 		plugins.appPreferences.fetch('username_preference').then(function(result) {

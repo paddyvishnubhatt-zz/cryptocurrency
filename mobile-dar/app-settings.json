@@ -6,12 +6,12 @@
 			"title":"Environment",
 			"type":"textfield",
 			"key":"environment_preference",
-			"default": "10.1.0.160:8080"
+			"default": "daranalysis-200000.appspot.com"
 		}, {
 			"title":"Protocol",
 			"type":"textfield",
 			"key":"proto_preference",
-			"default": "http"
+			"default": "https"
 		}, {
 			"title":"User name",
 			"type":"textfield",

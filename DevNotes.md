@@ -46,7 +46,7 @@
  - Sign
   - jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore dar.ks platforms/android/build/outputs/apk/android-release-unsigned.apk dar 
  - Zipalign
-  - ~Library/Android//sdk/build-tools/23.0.3/zipalign -v 4 platforms/android/build/outputs/apk/android-release-unsigned.apk platforms/android/build/outputs/apk/Dar.apk
+  - ~/Library/Android//sdk/build-tools/23.0.3/zipalign -v 4 platforms/android/build/outputs/apk/android-release-unsigned.apk platforms/android/build/outputs/apk/Dar.apk
  - Publish
   - Publish using google/play-store console
   
