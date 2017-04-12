@@ -528,12 +528,11 @@ def send_notification(toaddr, title, content):
         print error_message
 
 
-def send_reminders(tolist, content):
+def send_reminders(tolist, title, content):
     sender_address = "jaisairam0170@gmail.com"
     for toaddr in tolist:
         user = get_user_from_db(toaddr)
         print user.email + ": " + content
-        title = "DAR Entry Reminder: Your DAR entry needs to completed"
         mail.send_mail(sender=sender_address,
                        to=user.email,
                        subject=title,
@@ -541,17 +540,32 @@ def send_reminders(tolist, content):
         if user.token:
             send_notification(user.token, title, content)
 
+def send_entry_completion(projectId, userId):
+    user = get_admin_user(projectId)
+    if user:
+        tolist = [user.identity]
+        title = "DAR Entry Saved"
+        content = "Hello " + user.identity + ", " + userId + " has just saved DAR entry"
+        send_reminders(tolist, title, content)
+
+def get_admin_user(projectId):
+    users = get_users_from_db(project.projectId)
+    for user in users:
+        if user.type != "User":
+            return user
+
+    return None
+
 def run_manage():
     project_query = Project.query()
     projects = project_query.fetch(100)
     for project in projects:
         status, percentage = get_project_status(project.projectId)
         if status != "OK" and percentage != 100:
-            users = get_users_from_db(project.projectId)
-            for user in users:
-                if user.type != "User":
-                    send_project_reminder(user, project.projectId)
-                    break
+            user = get_admin_user(project.projectId)
+            if user:
+                send_project_reminder(user, project.projectId)
+                break
 
 def send_project_reminder(user, projectId):
     print "Sending email to " + user.email

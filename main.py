@@ -220,6 +220,7 @@ def submitted_entry(projectId):
     if user.type == 'Admin':
         return redirect(url_for('show_entrys_given_project', projectId=projectId))
     elif user.type == 'User':
+        utils.send_entry_completion(projectId, userId)
         return redirect(url_for('show_entrys_given_user', userId=userId))
     else:
         return "Invalid URL", 404
@@ -348,7 +349,8 @@ def submitted_vendor():
 def send_email():
     content =  request.form.get('content')
     tolist = request.form.getlist('tolist[]')
-    utils.send_reminders(tolist, content)
+    title = "DAR Entry Reminder: Your DAR entry needs to completed"
+    utils.send_reminders(tolist, title, content)
     return "OK", 200
 
 @app.route('/api/v1/manage', methods=['POST'])
