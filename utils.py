@@ -549,7 +549,7 @@ def send_entry_completion(projectId, userId):
         send_reminders(tolist, title, content)
 
 def get_admin_user(projectId):
-    users = get_users_from_db(project.projectId)
+    users = get_users_from_db(projectId)
     for user in users:
         if user.type != "User":
             return user
@@ -559,13 +559,18 @@ def get_admin_user(projectId):
 def run_manage():
     project_query = Project.query()
     projects = project_query.fetch(100)
+    if projects:
+        print "Managing " + str(len(projects))
     for project in projects:
+        print project.projectId
         status, percentage = get_project_status(project.projectId)
-        if status != "OK" and percentage != 100:
+        print "\t" + str(status) + ", " + str(percentage)
+        if status != "OK" or percentage < 100:
             user = get_admin_user(project.projectId)
+            print "\tAdmin to " + project.projectId + " is " + user.identity
             if user:
                 send_project_reminder(user, project.projectId)
-                break
+
 
 def send_project_reminder(user, projectId):
     print "Sending email to " + user.email
@@ -576,7 +581,9 @@ def send_project_reminder(user, projectId):
                    to=user.email,
                    subject=title,
                    body=content)
-    if user.token:
+    print "Done sending email " + str(user.token)
+    if hasattr(user, 'token') and user.token:
+        print "Sending notification : " + user.token
         send_notification(user.token, title, content)
 
 def update_token(userId, token):

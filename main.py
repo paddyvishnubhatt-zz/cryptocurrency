@@ -353,7 +353,7 @@ def send_email():
     utils.send_reminders(tolist, title, content)
     return "OK", 200
 
-@app.route('/api/v1/manage', methods=['POST'])
+@app.route('/api/v1/manage', methods=['GET', 'POST'])
 def manage():
     utils.run_manage()
     return "OK", 200
