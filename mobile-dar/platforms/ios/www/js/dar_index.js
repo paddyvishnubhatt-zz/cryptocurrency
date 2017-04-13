@@ -102,7 +102,7 @@ var app = {
 				environment ="daranalysis-200000.appspot.com";
 			}
 			console.log(" *** " + username + ", " + password + ", " + proto + ", " + environment);
-			var url = proto + "://" + username + ":" + password + "@" + environment; 
+			var url = proto + "://" + username + ":" + password + "@" + environment + "/api/v1/landing_page"; 
 			console.log(" ********* " + url);
 			$.ajax({
 				type: "GET",
@@ -112,7 +112,7 @@ var app = {
 					if (xhr.status == 404) {
 						plugins.appPreferences.show();
 					} else {
-						url = proto + "://" + username + ":" + password + "@" + environment; 
+						url = proto + "://" + username + ":" + password + "@" + environment + "/api/v1/landing_page"; 
 						launchApp(url);
 					}
 				},
