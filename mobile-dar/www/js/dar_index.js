@@ -1,7 +1,4 @@
 
-//var environment="10.0.2.2:8080";
-//var proto="https";
-//var environment ="daranalysis-200000.appspot.com";
 
 function ok (value) {}
 function fail (error) {}
@@ -9,7 +6,8 @@ function fail (error) {}
 var current_token;
 var username;
 var password;
-var proto;
+var proto = "https";
+var environment_name;
 var environment;
 
 var token_sent = false;
@@ -85,13 +83,24 @@ var app = {
 		plugins.appPreferences.fetch('password_preference').then(function(result) {
 			password = result;
 		}, fail);
-		plugins.appPreferences.fetch('proto_preference').then(function(result) {
-			proto = result;
-		}, fail);
 		plugins.appPreferences.fetch('environment_preference').then(function(result) {
-			environment = result;
+			environment_name = result;
 		}, fail);
 		setTimeout(function() {
+			if (environment_name == "purple") {
+				proto = "http";
+				environment = "localhost:8080";
+			} else if (environment_name == "blue") {
+				environment = "daranalysis-200000.appspot.com";
+			} else if (environment_name == "red") {
+				environment ="daranalysis-160000.appspot.com";
+			} else if (environment_name == "yellow") {
+				environment ="daranalysis-200000.appspot.com";
+			} else if (environment_name == "amber") {
+				environment ="daranalysis-200000.appspot.com";
+			} else if (environment_name == "green") {
+				environment ="daranalysis-200000.appspot.com";
+			}
 			console.log(" *** " + username + ", " + password + ", " + proto + ", " + environment);
 			var url = proto + "://" + username + ":" + password + "@" + environment; 
 			console.log(" ********* " + url);

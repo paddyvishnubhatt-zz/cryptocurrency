@@ -4,14 +4,33 @@
         "title":"Common",
         "items":[{
 			"title":"Environment",
-			"type":"textfield",
+			"type":"radio",
 			"key":"environment_preference",
-			"default": "daranalysis-200000.appspot.com"
-		}, {
-			"title":"Protocol",
-			"type":"textfield",
-			"key":"proto_preference",
-			"default": "https"
+			"default": "blue",
+			"items":[{
+				"value":"blue",
+				"title":"Blue"
+			}, 
+			{
+				"value":"red",
+				"title":"Red"
+			}, 
+			{
+				"value":"amber",
+				"title":"Amber"
+			}, 
+			{
+				"value":"yellow",
+				"title":"Yellow"
+			}, 
+			{
+				"value":"green",
+				"title":"Green"
+			}, 
+			{
+				"value":"purple",
+				"title":"Purple"
+			}]
 		}, {
 			"title":"User name",
 			"type":"textfield",

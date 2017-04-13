@@ -1,2 +1,2 @@
 <?xml version='1.0' encoding='utf-8'?>
-<resources />
+<resources><string-array name="apppreferences_environment_preference"><item>Blue</item><item>Red</item><item>Amber</item><item>Yellow</item><item>Green</item><item>Purple</item></string-array><string-array name="apppreferences_environment_preferenceValues"><item>blue</item><item>red</item><item>amber</item><item>yellow</item><item>green</item><item>purple</item></string-array></resources>
