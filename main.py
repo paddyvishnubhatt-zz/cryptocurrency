@@ -13,6 +13,12 @@ import os
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
 
+
+@app.route('/check_auth')
+@requires_auth
+def check_auth():
+    return "OK"
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
