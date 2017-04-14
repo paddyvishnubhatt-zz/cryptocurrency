@@ -166,10 +166,33 @@
         document.getElementById("bos[]").value = business_objectives;
     }
 
+    function checkIfProjectExists(projectId) {
+        var pExists = false;
+        $.ajax({
+            type: "GET",
+            url: "/api/v1/check_for_project/"+projectId,
+            success: function(response, textStatus, xhr) {
+                pExists = response;
+            },
+            error : function(response, textStatus, xhr) {
+            },
+            async : false
+        });
+        return pExists;
+    }
+
     function validateForm() {
-        var array = ["projectId", "userIds[]", "vendorIds[]", "bos[]", "due_date", "department", "group", "description", "password"];
+        var projectId = document.getElementById("projectId").value;
+        if (projectId == "") {
+            return false;
+        }
+        if (checkIfProjectExists(projectId) && window.location.pathname.indexOf("___CREATE___") >= 0) {
+            popup("Project " + projectId + " already exists", "Please chose another ID for your project and retry");
+            return false;
+        }
+        var array = ["userIds[]", "vendorIds[]", "bos[]", "due_date", "department", "group", "description", "password"];
         for (var xx = 0; xx < array.length; xx++) {
-            var did = document.getElementById(array[xx]);
+            var did = document.getElementById(array[xx]).value;
             // console.log(array[xx] + ", " + did);
             if (did == null) {
                 popup("Invalid or Incomplete data", "Please ensure all fields are entered appropriately");
@@ -410,7 +433,6 @@
             // console.log(e);
             // document.getElementById("due_date").value = newValue.format("YYYY-MM-DD");
         });
-
     }
 
     function initializeEditObjectives() {

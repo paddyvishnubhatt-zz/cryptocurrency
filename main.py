@@ -22,22 +22,36 @@ def favicon():
 def root():
     return render_template('root.html')
 
-
 @app.route('/request_for_admin')
 def request_for_admin():
     return render_template('admin_request.html')
+
+@app.route('/api/v1/check_for_user/<userId>')
+def check_for_user(userId):
+    user = utils.get_user_from_db(userId)
+    if user:
+        return json.dumps(True)
+    else:
+        return json.dumps(False)
+
+@app.route('/api/v1/about_page')
+def about_page():
+    return render_template('about.html')
+
+@app.route('/api/v1/check_for_project/<projectId>')
+@requires_auth
+def check_for_project(projectId):
+    project = utils.get_project_from_db(projectId)
+    if project:
+        return json.dumps(True)
+    else:
+        return json.dumps(False)
 
 @app.route('/check_auth')
 @requires_auth
 def check_auth():
     return "OK", 200
 
-@app.route('/api/v1/about_page')
-@requires_auth
-def about_page():
-    return render_template(
-        'about.html',
-        current_user=request.authorization.username)
 
 @app.route('/api/v1/admin_page')
 @requires_auth
@@ -107,15 +121,17 @@ def submitted_project():
     if request.method == 'GET':
         return redirect(url_for('landing_page'))
     projectId = request.form.get('projectId')
-    # todo
-    # tprj = utils.get_project_from_db(projectId)
-    #if tprj:
-    #    return render_template(
-    #        'entry_error.html',
-    #        h1Message = "   Error: Project ID Already Exists",
-    #        message = "  Project " + projectId + " already exists.Go Back and retry w/ another ID"
-    #    )
+
+    tprj = utils.get_project_from_db(projectId)
     userIds = set(request.form.getlist('userIds[]'))
+
+    if tprj:
+        diffList = [item for item in tprj.userIds if item not in userIds]
+        for dentry in diffList:
+            entry = utils.get_entry_from_db(projectId, dentry)
+            if entry:
+                utils.delete_entry_from_db(entry)
+
     vendorIds = set(request.form.getlist('vendorIds[]'))
     bos = request.form.getlist("bos[]")
     due_date = request.form.get('due_date')
@@ -317,9 +333,12 @@ def submitted_user():
     print "user: " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password) + ", "  + str(projectIds)
     user = utils.update_user(userId, email, type, password, projectIds)
     if newProject:
-        utils.send_message(user, "Welcome to DAR " + projectId,
+        try:
+            utils.send_message(user, "Welcome to DAR " + projectId,
                            "Hello " + user.identity + "\nYou have been chosen as a subject matter expert to help w/ DAR " + \
                            projectId + ", please login and complete your entry, Thank you.")
+        except RuntimeError:
+            pass
     current_user = utils.get_user_from_db(request.authorization.username)
     if current_user.type == "Superuser":
         return redirect(url_for('show_users'))

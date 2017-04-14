@@ -338,17 +338,25 @@ def delete_project_from_db(projectId):
     if key:
         key.delete()
 
+def delete_entry_from_db(entry):
+    key = entry.key
+    if key:
+        key.delete()
+
 def delete_users_from_db():
     users = get_users_from_db(None)
     if users:
         for user in users:
-            key = user.key
-            if key:
-                key.delete()
+            delete_user_from_db(user.identity)
 
 def delete_user_from_db(userId):
     user = get_user_from_db(userId)
     if user:
+        projectIds = user.projectIds
+        for projectId in projectIds:
+            entrys = get_entry_from_db(projectId, userId)
+            for entry in entrys:
+                delete_entry_from_db(entry)
         key = user.key
         if key:
             key.delete()

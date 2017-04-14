@@ -31,17 +31,44 @@
             $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
         });
     });
+
+    function checkIfUserExists(username) {
+        var uExists = false;
+        $.ajax({
+            type: "GET",
+            url: "/api/v1/check_for_user/"+username,
+            success: function(response, textStatus, xhr) {
+                uExists = response;
+            },
+            error : function(response, textStatus, xhr) {
+            },
+            async : false
+        });
+        return uExists;
+    }
+
+    function validateForm() {
+        var username = document.getElementById("username").value;
+        if (username == "") {
+            return false;
+        }
+        if (checkIfUserExists(username)) {
+            popup("User with name " + username + " already exists", "Please chose another ID for user and retry");
+            return false;
+        }
+        return true;
+    }
     </script>
     <div id="container">
       <div id="main">
-          <form method="post" action="{{ url_for('submitted_admin_user') }}">
+          <form method="post" action="{{ url_for('submitted_admin_user') }}"  onsubmit="return validateForm()>
             <table class="table table-striped">
                 <TR>
                     <td align="left">
                         User name (name)
                     </td>
                     <td>
-                        <input class="form-control" type="text" name="username">
+                        <input class="form-control" type="text" id="username" name="username">
                     </td>
                 </TR>
                 <TR>
