@@ -6,10 +6,6 @@
     "config_munge": {
         "files": {}
     },
-    "installed_plugins": {
-        "com.msopentech.authdialog": {
-            "PACKAGE_NAME": "com.vishnubhatt.dar"
-        }
-    },
+    "installed_plugins": {},
     "dependent_plugins": {}
 }

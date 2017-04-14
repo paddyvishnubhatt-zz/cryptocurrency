@@ -31,16 +31,6 @@
 				"value":"purple",
 				"title":"Purple"
 			}]
-		}, {
-			"title":"User name",
-			"type":"textfield",
-			"key":"username_preference",
-			"default": "tu"
-		}, {
-			"title":"Password",
-			"type":"textfield",
-			"key":"password_preference",
-			"default": "tu"
 		}]
     }
 ]

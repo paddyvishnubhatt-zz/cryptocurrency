@@ -21,10 +21,6 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"AuthDialog\"><param name=\"android-package\" value=\"com.msopentech.authDialog.AuthRequestHandler\" /><param name=\"onload\" value=\"true\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"InAppBrowser\"><param name=\"android-package\" value=\"org.apache.cordova.inappbrowser.InAppBrowser\" /></feature>",
                             "count": 1
                         },
@@ -100,9 +96,6 @@
         "cordova-plugin-console": {
             "PACKAGE_NAME": "com.vishnubhatt.dar"
         },
-        "com.msopentech.authdialog": {
-            "PACKAGE_NAME": "com.vishnubhatt.dar"
-        },
         "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "com.vishnubhatt.dar"
         },
@@ -151,7 +144,6 @@
         "cordova-plugin-whitelist": "1.3.2",
         "cordova-plugin-device": "1.1.5",
         "cordova-plugin-console": "1.0.6",
-        "com.msopentech.authdialog": "0.1.6",
         "cordova-plugin-inappbrowser": "1.7.1-dev",
         "cordova-plugin-app-preferences": "0.99.3"
     }

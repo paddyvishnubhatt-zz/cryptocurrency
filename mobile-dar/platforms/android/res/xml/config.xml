@@ -11,10 +11,6 @@
     <feature name="Device">
         <param name="android-package" value="org.apache.cordova.device.Device" />
     </feature>
-    <feature name="AuthDialog">
-        <param name="android-package" value="com.msopentech.authDialog.AuthRequestHandler" />
-        <param name="onload" value="true" />
-    </feature>
     <feature name="InAppBrowser">
         <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser" />
     </feature>

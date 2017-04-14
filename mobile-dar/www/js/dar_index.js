@@ -4,30 +4,17 @@ function ok (value) {}
 function fail (error) {}
 
 var current_token;
-var username;
-var password;
 var proto = "https";
 var environment_name;
 var environment;
-
-var token_sent = false;
 
 function launchApp(url) {
 	console.log(" ****** launchApp");
 	ref = window.open(url, '_blank', 'location=no,toolbar=no');
 	ref.addEventListener( "loadstop", function() {
-		if (!token_sent) {
+		setTimeout(function() {
 			updateToken();
-			token_sent = true;
-		}
-	});
-	// e.g TokenRefresh, onNotificationOpen etc
-	window.FirebasePlugin.onTokenRefresh(function(token){
-		//Do something with the token server-side if it exists
-		if (current_token != token) {
-			current_token = token;
-			updateToken();
-		}
+		}, 1000);
 	});
 	
 	// get any notification variables for use in your app
@@ -77,19 +64,13 @@ var app = {
         this.receivedEvent('deviceready');
         var str 		= device.platform;
 		console.log(" *** " + str);
-		plugins.appPreferences.fetch('username_preference').then(function(result) {
-			username = result;
-		}, fail);
-		plugins.appPreferences.fetch('password_preference').then(function(result) {
-			password = result;
-		}, fail);
 		plugins.appPreferences.fetch('environment_preference').then(function(result) {
 			environment_name = result;
 		}, fail);
 		setTimeout(function() {
 			if (environment_name == "purple") {
 				proto = "http";
-				environment = "localhost:8080";
+				environment = "10.1.0.160:8080";
 			} else if (environment_name == "blue") {
 				environment = "daranalysis-200000.appspot.com";
 			} else if (environment_name == "red") {
@@ -101,27 +82,20 @@ var app = {
 			} else if (environment_name == "green") {
 				environment ="daranalysis-200000.appspot.com";
 			}
-			console.log(" *** " + username + ", " + password + ", " + proto + ", " + environment);
-			var url = proto + "://" + username + ":" + password + "@" + environment + "/api/v1/landing_page"; 
-			console.log(" ********* " + url);
-			$.ajax({
-				type: "GET",
-				url: url,
-				success: function(response, textStatus, xhr) {
-					console.log(" ****** " + xhr.status);
-					if (xhr.status == 404) {
-						plugins.appPreferences.show();
-					} else {
-						url = proto + "://" + username + ":" + password + "@" + environment + "/api/v1/landing_page"; 
-						launchApp(url);
+			console.log(" *** url = " + environment_name + " : "  + proto + "://" + environment);
+			var url = proto + "://" + environment + "/api/v1/landing_page";
+			current_token = localStorage.getItem('dar_token');
+			if (current_token == null) {
+				// e.g TokenRefresh, onNotificationOpen etc
+				window.FirebasePlugin.onTokenRefresh(function(token){
+					//Do something with the token server-side if it exists
+					launchApp(url);
+					if (current_token != token) {
+						current_token = token;
+						updateToken();
 					}
-				},
-				error: function(xhr, textStatus) {
-					console.log(xhr.status + ", " + textStatus);
-					plugins.appPreferences.show();
-				},
-				timeout:3000
-			});
+				});
+			}
 		}, 2000);
     },
 

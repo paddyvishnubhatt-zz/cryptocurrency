@@ -41,7 +41,6 @@ module.exports.metadata =
     "cordova-plugin-whitelist": "1.3.2",
     "cordova-plugin-device": "1.1.5",
     "cordova-plugin-console": "1.0.6",
-    "com.msopentech.authdialog": "0.1.6",
     "cordova-plugin-inappbrowser": "1.7.1-dev",
     "cordova-plugin-app-preferences": "0.99.3"
 };
