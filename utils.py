@@ -13,12 +13,20 @@ import time
 import datetime
 from flask import request, session, Response, url_for, redirect
 from google.appengine.api import mail
+from google.appengine.api import app_identity
 import math
 import urllib2
 
 firebase_server_key = "key=AIzaSyDxwE1m7WjI6400WD9GadNJqoZfJvBmjGs"
 fcm_server = "https://fcm.googleapis.com/fcm/send"
 fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'Authorization' : firebase_server_key}
+
+gae_environments = {'daranalysis-200000' : 'blue',
+                'daranalysis-160000' : 'red',
+                'daranalysis-200000' : 'amber',
+                'daranalysis-200000' : 'yellow',
+                'daranalysis-200000' : 'green',
+                'daranalysis-200000' : 'purple'}
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
@@ -105,12 +113,19 @@ def update_user(userId, email, type, password, projectIds):
                     if project:
                         project.userIds.append(userId)
                         project.put()
-                        entry = get_entry_from_db(projId, userId)
-                        if entry is None:
-                            update_entry(projId, userId, None, None, None, None)
 
     user.put()
     time.sleep(1)
+
+    #repeat to create empty entrys by default
+    if projectIds:
+        for projId in projectIds:
+            project = get_project_from_db(projId)
+            if project:
+                entry = get_entry_from_db(projId, userId)
+                if entry is None:
+                    update_entry(projId, userId, None, None, None, None)
+
     return user
 
 def getArrayOfDict(bos):
@@ -331,17 +346,25 @@ def delete_project_from_db(projectId):
     if key:
         key.delete()
 
+def delete_entry_from_db(entry):
+    key = entry.key
+    if key:
+        key.delete()
+
 def delete_users_from_db():
     users = get_users_from_db(None)
     if users:
         for user in users:
-            key = user.key
-            if key:
-                key.delete()
+            delete_user_from_db(user.identity)
 
 def delete_user_from_db(userId):
     user = get_user_from_db(userId)
     if user:
+        projectIds = user.projectIds
+        for projectId in projectIds:
+            entrys = get_entry_from_db(projectId, userId)
+            for entry in entrys:
+                delete_entry_from_db(entry)
         key = user.key
         if key:
             key.delete()
@@ -527,7 +550,6 @@ def send_notification(toaddr, title, content):
         error_message = e.read()
         print error_message
 
-
 def send_reminders(tolist, title, content):
     sender_address = "jaisairam0170@gmail.com"
     for toaddr in tolist:
@@ -557,26 +579,40 @@ def get_admin_user(projectId):
     return None
 
 def run_manage():
+    gae_app_id = app_identity.get_application_id()
+    gae_env = None
+    if gae_app_id in gae_environments:
+        gae_env = gae_environments[gae_app_id]
+        print "Running in " + gae_env + " : " + gae_app_id
+    else:
+        print 'Running in ' + gae_app_id
     project_query = Project.query()
     projects = project_query.fetch(100)
     if projects:
         print "Managing " + str(len(projects))
+    count = 0
     for project in projects:
         print project.projectId
+        count += 1
+        if count > 6:
+            time.sleep(5)
         status, percentage = get_project_status(project.projectId)
         print "\t" + str(status) + ", " + str(percentage)
         if status != "OK" or percentage < 100:
             user = get_admin_user(project.projectId)
             print "\tAdmin to " + project.projectId + " is " + user.identity
             if user:
-                send_project_reminder(user, project.projectId)
+                send_project_reminder(user, gae_env, project.projectId)
+                time.sleep(5)
 
 
-def send_project_reminder(user, projectId):
+def send_project_reminder(user, env,  projectId):
     print "Sending email to " + user.email
     sender_address = "jaisairam0170@gmail.com"
-    title = "DAR Project Reminder: Your DAR needs to completed"
-    content = "As an admin your DAR " + projectId + " needs to be attended to, please remind users using Manage button"
+    if env is None:
+        env = " X "
+    title = "DAR Project Reminder (" + env + ") : Your DAR needs to completed"
+    content = "As an admin your DAR " + projectId + " in " + env + " environment, it needs to be attended to, please remind users using Manage button"
     mail.send_mail(sender=sender_address,
                    to=user.email,
                    subject=title,
@@ -585,6 +621,15 @@ def send_project_reminder(user, projectId):
     if hasattr(user, 'token') and user.token:
         print "Sending notification : " + user.token
         send_notification(user.token, title, content)
+
+def send_message(user, title, message):
+    sender_address = "jaisairam0170@gmail.com"
+    mail.send_mail(sender=sender_address,
+                   to=user.email,
+                   subject=title,
+                   body=message)
+    if hasattr(user, 'token') and user.token:
+        send_notification(user.token, title, message)
 
 def update_token(userId, token):
     print "In update_token: " + userId + ", " + token
