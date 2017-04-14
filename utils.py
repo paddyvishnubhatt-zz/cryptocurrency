@@ -582,7 +582,7 @@ def run_manage():
     gae_app_id = app_identity.get_application_id()
     gae_env = None
     if gae_app_id in gae_environments:
-        gae_env = gae_environments(gae_app_id)
+        gae_env = gae_environments[gae_app_id]
         print "Running in " + gae_env + " : " + gae_app_id
     else:
         print 'Running in ' + gae_app_id
@@ -590,8 +590,12 @@ def run_manage():
     projects = project_query.fetch(100)
     if projects:
         print "Managing " + str(len(projects))
+    count = 0
     for project in projects:
         print project.projectId
+        count += 1
+        if count > 6:
+            time.sleep(5)
         status, percentage = get_project_status(project.projectId)
         print "\t" + str(status) + ", " + str(percentage)
         if status != "OK" or percentage < 100:
@@ -599,6 +603,8 @@ def run_manage():
             print "\tAdmin to " + project.projectId + " is " + user.identity
             if user:
                 send_project_reminder(user, gae_env, project.projectId)
+                time.sleep(5)
+
 
 def send_project_reminder(user, env,  projectId):
     print "Sending email to " + user.email
