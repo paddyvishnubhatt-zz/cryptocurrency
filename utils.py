@@ -594,7 +594,7 @@ def run_manage():
     for project in projects:
         print project.projectId
         count += 1
-        if count > 6:
+        if count > 5    :
             time.sleep(5)
         status, percentage = get_project_status(project.projectId)
         print "\t" + str(status) + ", " + str(percentage)
@@ -684,10 +684,3 @@ def requires_auth(f):
             return f(*args, **kwargs)
 
     return decorated
-
-def checkIfAdminUser():
-    user = get_user_from_db(request.authorization.username)
-    if user.type == "User":
-        return False
-    else:
-        return True

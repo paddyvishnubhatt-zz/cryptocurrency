@@ -1,17 +1,53 @@
 import logging
 import utils
-from flask import Flask, session, render_template, request, url_for, redirect
+from flask import Flask, Response, session, render_template, request, url_for, redirect, abort
 import datetime
-from utils import requires_auth
 import json
 import urllib
 from markupsafe import Markup
 import time
 from flask import send_from_directory
 import os
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+import utils
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+# callback to reload the user object
+@login_manager.user_loader
+def load_user(userid):
+    return utils.get_user_from_db(userid)
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = utils.get_user_from_db(username)
+        if user and user.password == password:
+            login_user(user)
+            return redirect(url_for('landing_page'))
+        else:
+            return abort(401)
+    else:
+        return render_template('login.html')
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return render_template('root.html')
+
+
+# handle login failed
+@app.errorhandler(401)
+def page_not_found(e):
+    return Response('<p>Login failed</p>')
 
 @app.route('/favicon.ico')
 def favicon():
@@ -39,7 +75,7 @@ def about_page():
     return render_template('about.html')
 
 @app.route('/api/v1/check_for_project/<projectId>')
-@requires_auth
+@login_required
 def check_for_project(projectId):
     project = utils.get_project_from_db(projectId)
     if project:
@@ -48,22 +84,23 @@ def check_for_project(projectId):
         return json.dumps(False)
 
 @app.route('/check_auth')
-@requires_auth
+@login_required
 def check_auth():
     return "OK", 200
 
 
 @app.route('/api/v1/admin_page')
-@requires_auth
+@login_required
 def admin_page():
     return render_template(
         'admin.html',
         current_user=request.authorization.username)
 
 @app.route('/api/v1/landing_page')
-@requires_auth
+@login_required
 def landing_page():
-    user = utils.get_user_from_db(request.authorization.username)
+    user = current_user
+    print user.identity + ", " + user.type
     if user.type == "Admin":
         return show_projects()
     elif user.type == "Superuser":
@@ -72,26 +109,27 @@ def landing_page():
         return show_entrys_given_user(user.identity)
 
 @app.route('/api/v1/show_projects')
-@requires_auth
+@login_required
 def show_projects():
-    current_user = request.authorization.username
-    if utils.checkIfAdminUser() == False:
+    cu = current_user.identity
+    if checkIfAdminUser() == False:
         return "Unauthorized", 404
-    projects = utils.get_projects_from_db(current_user)
+    projects = utils.get_projects_from_db(cu)
     if projects is None or len(projects) < 1:
         pass
     return render_template(
         'projects.html',
-        current_user = current_user,
+        current_user = cu,
         projects= projects)
 
 @app.route('/api/v1/show_project/<projectId>')
-@requires_auth
+@login_required
 def show_project(projectId):
-    if utils.checkIfAdminUser() == False:
+    if checkIfAdminUser() == False:
         return "Unauthorized", 404
     vendor_objs = utils.get_vendors_from_db(None)
     users = utils.get_users_from_db(None)
+    cu = current_user.identity
     if projectId is not None and projectId != "___CREATE___" :
         project = utils.get_project_from_db(projectId)
         userlist = project.userIds
@@ -99,7 +137,7 @@ def show_project(projectId):
         bos_db, cs = utils.get_business_objectives_from_db(projectId, False)
         return render_template(
             'project.html',
-            current_user=request.authorization.username,
+            current_user=cu,
             project=project,
             vendorlist = vendorlist,
             vendor_objects=vendor_objs,
@@ -109,14 +147,14 @@ def show_project(projectId):
     else:
         return render_template(
             'project.html',
-            current_user=request.authorization.username,
+            current_user=cu,
             vendor_objects=vendor_objs,
             users=users)
 
 @app.route('/api/v1/submitted_project', methods=['POST', 'GET'])
-@requires_auth
+@login_required
 def submitted_project():
-    if utils.checkIfAdminUser() == False:
+    if checkIfAdminUser() == False:
         return "Unauthorized", 404
     if request.method == 'GET':
         return redirect(url_for('landing_page'))
@@ -139,7 +177,7 @@ def submitted_project():
     group = request.form.get('group')
     description = request.form.get('description')
     defaultPassword = request.form.get('password')
-    userId = request.authorization.username
+    userId = current_user.identity
     if userId not in userIds:
         userIds.add(userId)
     utils.update_project(projectId, department, group, description, defaultPassword, userIds, vendorIds, due_date, bos)
@@ -147,41 +185,42 @@ def submitted_project():
     return redirect(url_for('landing_page'))
 
 @app.route('/api/v1/show_summary/<projectId>')
-@requires_auth
+@login_required
 def show_summary(projectId):
-    if utils.checkIfAdminUser() == False:
+    if checkIfAdminUser() == False:
         return "Unauthorized", 404
-    userId = request.authorization.username
+    userId = current_user.identity
     start = time.clock()
     bos_db, criteria_to_users_map = utils.get_business_objectives_from_db(projectId, True)
     print str(time.clock() - start)
     project = utils.get_project_from_db(projectId)
     return render_template(
         'summary.html',
-        current_user=request.authorization.username,
+        current_user=userId,
         project = project,
         bos_db = bos_db,
         criteria_to_users_map = criteria_to_users_map,
         userId = userId)
 
 @app.route('/api/v1/show_entry/<projectId>/<userId>')
-@requires_auth
+@login_required
 def show_entry(projectId, userId):
     project = utils.get_project_from_db(projectId)
     bos_db, cs = utils.get_business_objectives_from_db(projectId, True)
     entry = utils.get_entry_from_db(projectId, userId)
+    cu = current_user.identity
     return render_template(
         'entry.html',
-        current_user=request.authorization.username,
+        current_user=cu,
         userId = userId,
         project=project,
         bos_db = bos_db,
         entry=entry)
 
 @app.route('/api/v1/show_entrys_given_project/<projectId>')
-@requires_auth
+@login_required
 def show_entrys_given_project(projectId):
-    isAdminUser = utils.checkIfAdminUser()
+    isAdminUser = checkIfAdminUser()
     if isAdminUser == False:
         return "Unauthorized", 404
     users = utils.get_users_from_db(projectId)
@@ -192,18 +231,18 @@ def show_entrys_given_project(projectId):
             entry = utils.update_entry(projectId, user.identity, None, None, None,None)
         entrys.append(entry)
 
-    userId = request.authorization.username
+    userId = current_user.identity
     return render_template(
         'entrys.html',
         current_date=datetime.datetime.now(),
-        current_user=request.authorization.username,
+        current_user=userId,
         projectId = projectId,
         userId = userId,
         isAdminUser = isAdminUser,
         entrys= entrys)
 
 @app.route('/api/v1/show_entrys_given_user/<userId>')
-@requires_auth
+@login_required
 def show_entrys_given_user(userId):
     entrys = []
     projects = utils.get_projects_from_db(userId)
@@ -212,19 +251,20 @@ def show_entrys_given_user(userId):
         if entry is None:
             entry = utils.update_entry(project.projectId, userId, None, None, None, None)
         entrys.append(entry)
+    cu = current_user.identity
     return render_template(
         'entrys.html',
         current_date=datetime.datetime.now(),
-        current_user=request.authorization.username,
+        current_user=cu,
         userId = userId,
         entrys= entrys)
 
 @app.route('/api/v1/submitted_entry/<projectId>', methods=['POST', 'GET'])
-@requires_auth
+@login_required
 def submitted_entry(projectId):
     if request.method == 'GET':
         return redirect(url_for('landing_page'))
-    userId = request.authorization.username
+    userId = current_user.identity
     evaluation_criteria_output = request.form.get("evaluation_criteria_output")
     vendor_output = request.form.get("vendor_output")
     weights = request.form.get("weights")
@@ -250,12 +290,13 @@ def submitted_entry(projectId):
         return "Invalid URL", 404
 
 @app.route('/api/v1/show_users')
-@requires_auth
+@login_required
 def show_users():
     users = utils.get_users_from_db(None)
+    cu = current_user.identity
     return render_template(
         'users.html',
-        current_user=request.authorization.username,
+        current_user=cu,
         users= users)
 
 @app.route('/api/v1/submitted_admin_user', methods=['POST'])
@@ -280,15 +321,16 @@ def submitted_admin_user():
         return render_template('root.html')
 
 @app.route('/api/v1/show_user/<projectId>/<identity>')
-@requires_auth
+@login_required
 def show_user(projectId, identity):
     user = utils.get_user_from_db(identity)
     projects = utils.get_projects_from_db(None)
     if user is not None and identity != "___CREATE___" :
         # edit current/existing user
+        cu = current_user.identity
         return render_template(
             'user.html',
-            current_user = request.authorization.username,
+            current_user = cu,
             projects=projects,
             user=user)
     else:
@@ -297,20 +339,22 @@ def show_user(projectId, identity):
             if projectId == "None":
                 projectId = None
             project = utils.get_project_from_db(projectId)
+            cu = current_user.identity
             return render_template(
                 'user.html',
-                current_user=request.authorization.username,
+                current_user=cu,
                 defaultPassword=project.defaultPassword,
                 projectId=projectId)
         else:
             # create new user
+            cu = current_user.identity
             return render_template(
                 'user.html',
-                 current_user=request.authorization.username,
+                 current_user=cu,
                  projects=projects)
 
 @app.route('/api/v1/submitted_user', methods=['POST', 'GET'])
-@requires_auth
+@login_required
 def submitted_user():
     if request.method == 'GET':
         return redirect(url_for('landing_page'))
@@ -339,31 +383,32 @@ def submitted_user():
                            projectId + ", please login and complete your entry, Thank you.")
         except RuntimeError:
             pass
-    current_user = utils.get_user_from_db(request.authorization.username)
     if current_user.type == "Superuser":
         return redirect(url_for('show_users'))
     else:
         return redirect(url_for('show_project', projectId=projectId))
 
 @app.route('/api/v1/show_vendors')
-@requires_auth
+@login_required
 def show_vendors():
     vendors = utils.get_vendors_from_db(None)
+    cu = current_user.identity
     return render_template(
         'vendors.html',
-        current_user=request.authorization.username,
+        current_user=cu,
         vendors= vendors)
 
 @app.route('/api/v1/show_vendor/<projectId>/<identity>')
-@requires_auth
+@login_required
 def show_vendor(projectId, identity):
     vendor = utils.get_vendor_from_db(identity)
     projects = utils.get_projects_from_db(None)
     if vendor is not None and identity != "___CREATE___" :
         # edit current/existing vendor
+        cu = current_user.identity
         return render_template(
             'vendor.html',
-            current_user = request.authorization.username,
+            current_user = cu,
             projects=projects,
             vendor=vendor)
     else:
@@ -372,20 +417,22 @@ def show_vendor(projectId, identity):
             if projectId == "None":
                 projectId = None
             project = utils.get_project_from_db(projectId)
+            cu = current_user.identity
             return render_template(
                 'vendor.html',
-                current_user=request.authorization.username,
+                current_user=cu,
                 defaultPassword=project.defaultPassword,
                 projectId=projectId)
         else:
             # create new vendor
+            cu = current_user.identity
             return render_template(
                 'vendor.html',
-                 current_vendor=request.authorization.username,
+                 current_user=cu,
                  projects=projects)
 
 @app.route('/api/v1/submitted_vendor', methods=['POST', 'GET'])
-@requires_auth
+@login_required
 def submitted_vendor():
     if request.method == 'GET':
         return redirect(url_for('landing_page'))
@@ -414,53 +461,47 @@ def manage():
 
 @app.route('/api/v1/update_token', methods=['POST'])
 def update_token():
-    if request.authorization is None or 'username' not in session:
-        print request.authorization
-        return "OK", 200
-    if request.authorization:
-        username = request.authorization.username
-    if 'username' in session:
-        print session
-        username = session['username']
-    token = request.form.get('token')
-    utils.update_token(request.authorization.username, token)
+    if current_user and current_user.is_anonymous == False:
+        username = current_user.identity
+        token = request.form.get('token')
+        utils.update_token(username, token)
     return "OK", 200
 
 @app.route('/api/v1/delete_project/<projectId>', methods=['DELETE'])
-@requires_auth
+@login_required
 def delete_project(projectId):
     utils.delete_project_from_db(projectId)
     return "OK", 200
 
 @app.route('/api/v1/delete_user/<userId>', methods=['DELETE'])
-@requires_auth
+@login_required
 def delete_user(userId):
     utils.delete_user_from_db(userId)
     return "OK", 200
 
 @app.route('/api/v1/delete_users', methods=['DELETE'])
-@requires_auth
+@login_required
 def delete_users():
     utils.delete_users_from_db()
     return "OK", 200
 
 @app.route('/api/v1/delete_vendor/<vendorId>', methods=['DELETE'])
-@requires_auth
+@login_required
 def delete_vendor(vendorId):
     utils.delete_vendor_from_db(vendorId)
     return "OK", 200
 
 @app.route('/api/v1/delete_vendors', methods=['DELETE'])
-@requires_auth
+@login_required
 def delete_vendors():
     utils.delete_vendors_from_db()
     return "OK", 200
 
 @app.route('/api/v1/show_settings', methods=['GET'])
-@requires_auth
+@login_required
 def show_settings():
-    current_user = request.authorization.username
-    print "show_settings for " + current_user
+    cu = current_user.identity
+    print "show_settings for " + cu
     return "OK", 200
 
 @app.errorhandler(500)
@@ -468,6 +509,13 @@ def server_error(e):
     # Log the error and stacktrace.
     logging.exception('An error occurred during a request.')
     return 'An internal error occurred.', 500
+
+def checkIfAdminUser():
+    user = utils.get_user_from_db(current_user.identity)
+    if user.type == "User":
+        return False
+    else:
+        return True
 
 @app.context_processor
 def utility_functions():
