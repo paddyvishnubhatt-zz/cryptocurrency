@@ -13,12 +13,20 @@ import time
 import datetime
 from flask import request, session, Response, url_for, redirect
 from google.appengine.api import mail
+from google.appengine.api import app_identity
 import math
 import urllib2
 
 firebase_server_key = "key=AIzaSyDxwE1m7WjI6400WD9GadNJqoZfJvBmjGs"
 fcm_server = "https://fcm.googleapis.com/fcm/send"
 fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'Authorization' : firebase_server_key}
+
+gae_environments = {'daranalysis-200000' : 'blue',
+                'daranalysis-160000' : 'red',
+                'daranalysis-200000' : 'amber',
+                'daranalysis-200000' : 'yellow',
+                'daranalysis-200000' : 'green',
+                'daranalysis-200000' : 'purple'}
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
@@ -571,6 +579,13 @@ def get_admin_user(projectId):
     return None
 
 def run_manage():
+    gae_app_id = app_identity.get_application_id()
+    gae_env = None
+    if gae_app_id in gae_environments:
+        gae_env = gae_environments(gae_app_id)
+        print "Running in " + gae_env + " : " + gae_app_id
+    else:
+        print 'Running in ' + gae_app_id
     project_query = Project.query()
     projects = project_query.fetch(100)
     if projects:
@@ -583,13 +598,15 @@ def run_manage():
             user = get_admin_user(project.projectId)
             print "\tAdmin to " + project.projectId + " is " + user.identity
             if user:
-                send_project_reminder(user, project.projectId)
+                send_project_reminder(user, gae_env, project.projectId)
 
-def send_project_reminder(user, projectId):
+def send_project_reminder(user, env,  projectId):
     print "Sending email to " + user.email
     sender_address = "jaisairam0170@gmail.com"
-    title = "DAR Project Reminder: Your DAR needs to completed"
-    content = "As an admin your DAR " + projectId + " needs to be attended to, please remind users using Manage button"
+    if env is None:
+        env = " X "
+    title = "DAR Project Reminder (" + env + ") : Your DAR needs to completed"
+    content = "As an admin your DAR " + projectId + " in " + env + " environment, it needs to be attended to, please remind users using Manage button"
     mail.send_mail(sender=sender_address,
                    to=user.email,
                    subject=title,
