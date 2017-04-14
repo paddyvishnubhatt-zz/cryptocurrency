@@ -13,16 +13,24 @@ import os
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
 
-
-@app.route('/check_auth')
-@requires_auth
-def check_auth():
-    return "OK"
-
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/')
+def root():
+    return render_template('root.html')
+
+
+@app.route('/request_for_admin')
+def request_for_admin():
+    return render_template('admin_request.html')
+
+@app.route('/check_auth')
+@requires_auth
+def check_auth():
+    return "OK", 200
 
 @app.route('/api/v1/about_page')
 @requires_auth
@@ -38,9 +46,9 @@ def admin_page():
         'admin.html',
         current_user=request.authorization.username)
 
-@app.route('/')
+@app.route('/api/v1/landing_page')
 @requires_auth
-def root_page():
+def landing_page():
     user = utils.get_user_from_db(request.authorization.username)
     if user.type == "Admin":
         return show_projects()
@@ -48,12 +56,6 @@ def root_page():
         return admin_page()
     else:
         return show_entrys_given_user(user.identity)
-
-
-@app.route('/api/v1/landing_page')
-@requires_auth
-def landing_page():
-    return redirect(url_for('root_page'))
 
 @app.route('/api/v1/show_projects')
 @requires_auth
@@ -240,6 +242,27 @@ def show_users():
         current_user=request.authorization.username,
         users= users)
 
+@app.route('/api/v1/submitted_admin_user', methods=['POST'])
+def submitted_admin_user():
+    username = request.form.get('username')
+    user = utils.get_user_from_db(username)
+    if user:
+        return render_template(
+            "entry_error.html",
+            h1Message="User ID Error, Go back and re-enter",
+            title="User Add Error",
+            message=username + " already is an existing user, Please go back and use another identity and submit")
+    else:
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = utils.update_user(username, email, "Admin", password, None)
+        try:
+            utils.send_message(user, "DAR Admin User Created", "Admin user for " + username + \
+                               " created. Please go ahead and create DAR project and add/invite users to the project")
+        except RuntimeError as e:
+            print e
+        return render_template('root.html')
+
 @app.route('/api/v1/show_user/<projectId>/<identity>')
 @requires_auth
 def show_user(projectId, identity):
@@ -281,16 +304,22 @@ def submitted_user():
             "entry_error.html",
             h1Message="User ID Error, Go back and re-enter",
             title="User Add Error",
-            mesage=userId + " is a system user, Please go back and use another identity and submit")
+            message=userId + " is a system user, Please go back and use another identity and submit")
     email = request.form.get('email')
     type = request.form.get('type')
     password = request.form.get('password')
     projectIds = request.form.getlist('projectIds[]')
     projectId = request.form.get("projectId")
+    newProject = False
     if projectId and projectId not in projectIds:
         projectIds.append(projectId)
+        newProject = True
     print "user: " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password) + ", "  + str(projectIds)
     user = utils.update_user(userId, email, type, password, projectIds)
+    if newProject:
+        utils.send_message(user, "Welcome to DAR " + projectId,
+                           "Hello " + user.identity + "\nYou have been chosen as a subject matter expert to help w/ DAR " + \
+                           projectId + ", please login and complete your entry, Thank you.")
     current_user = utils.get_user_from_db(request.authorization.username)
     if current_user.type == "Superuser":
         return redirect(url_for('show_users'))

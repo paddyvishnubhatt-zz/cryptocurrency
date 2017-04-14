@@ -105,12 +105,19 @@ def update_user(userId, email, type, password, projectIds):
                     if project:
                         project.userIds.append(userId)
                         project.put()
-                        entry = get_entry_from_db(projId, userId)
-                        if entry is None:
-                            update_entry(projId, userId, None, None, None, None)
 
     user.put()
     time.sleep(1)
+
+    #repeat to create empty entrys by default
+    if projectIds:
+        for projId in projectIds:
+            project = get_project_from_db(projId)
+            if project:
+                entry = get_entry_from_db(projId, userId)
+                if entry is None:
+                    update_entry(projId, userId, None, None, None, None)
+
     return user
 
 def getArrayOfDict(bos):
@@ -527,7 +534,6 @@ def send_notification(toaddr, title, content):
         error_message = e.read()
         print error_message
 
-
 def send_reminders(tolist, title, content):
     sender_address = "jaisairam0170@gmail.com"
     for toaddr in tolist:
@@ -571,7 +577,6 @@ def run_manage():
             if user:
                 send_project_reminder(user, project.projectId)
 
-
 def send_project_reminder(user, projectId):
     print "Sending email to " + user.email
     sender_address = "jaisairam0170@gmail.com"
@@ -585,6 +590,15 @@ def send_project_reminder(user, projectId):
     if hasattr(user, 'token') and user.token:
         print "Sending notification : " + user.token
         send_notification(user.token, title, content)
+
+def send_message(user, title, message):
+    sender_address = "jaisairam0170@gmail.com"
+    mail.send_mail(sender=sender_address,
+                   to=user.email,
+                   subject=title,
+                   body=message)
+    if hasattr(user, 'token') and user.token:
+        send_notification(user.token, title, message)
 
 def update_token(userId, token):
     print "In update_token: " + userId + ", " + token
