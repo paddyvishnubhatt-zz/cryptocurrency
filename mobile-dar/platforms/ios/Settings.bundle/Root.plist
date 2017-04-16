@@ -18,7 +18,7 @@
         <key>Title</key>
         <string>Environment</string>
         <key>DefaultValue</key>
-        <string>red</string>
+        <string>blue</string>
         <key>Titles</key>
         <array>
           <string>Blue</string>

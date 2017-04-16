@@ -72,30 +72,30 @@ var app = {
 				proto = "http";
 				environment = "10.1.0.160:8080";
 			} else if (environment_name == "blue") {
-				environment = "daranalysis-200000.appspot.com";
+				environment = "blue.flawlessdecisions.com";
 			} else if (environment_name == "red") {
-				environment ="daranalysis-160000.appspot.com";
+				environment ="red.flawlessdecisions.com";
 			} else if (environment_name == "yellow") {
-				environment ="daranalysis-200000.appspot.com";
+				environment ="daranalysis-201000.appspot.com";
 			} else if (environment_name == "amber") {
-				environment ="daranalysis-200000.appspot.com";
+				environment ="daranalysis-202000.appspot.com";
 			} else if (environment_name == "green") {
-				environment ="daranalysis-200000.appspot.com";
+				environment ="daranalysis-203000.appspot.com";
 			}
 			console.log(" *** url = " + environment_name + " : "  + proto + "://" + environment);
 			var url = proto + "://" + environment + "/api/v1/landing_page";
 			current_token = localStorage.getItem('dar_token');
-			if (current_token == null) {
-				// e.g TokenRefresh, onNotificationOpen etc
-				window.FirebasePlugin.onTokenRefresh(function(token){
-					//Do something with the token server-side if it exists
-					launchApp(url);
-					if (current_token != token) {
-						current_token = token;
-						updateToken();
-					}
-				});
-			}
+			// e.g TokenRefresh, onNotificationOpen etc
+			window.FirebasePlugin.onTokenRefresh(function(token){
+				//Do something with the token server-side if it exists
+				launchApp(url);
+				current_token = localStorage.getItem('dar_token');
+				if (current_token != token) {
+					current_token = token;
+					localStorage.setItem('dar_token', current_token);
+					updateToken();
+				}
+			});
 		}, 2000);
     },
 

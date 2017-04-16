@@ -61,3 +61,10 @@
 5. gcloud app browser --project ...
 
   
+- DNS:
+-----
+1. Create a custom domain in GAE e.g. red, blue, etc
+2. When asked to verify w/ iPage, use CNAME
+3. Get the CNAME records from the GAE utility and plunk them in iPAGE CNAME records
+4. Good to go
+
