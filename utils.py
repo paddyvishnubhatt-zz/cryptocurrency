@@ -21,12 +21,20 @@ firebase_server_key = "key=AIzaSyDxwE1m7WjI6400WD9GadNJqoZfJvBmjGs"
 fcm_server = "https://fcm.googleapis.com/fcm/send"
 fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'Authorization' : firebase_server_key}
 sender_address = "DAR Admin <jaisairam0170@gmail.com>   "
-
+total_max_limit = 1000
 gae_environments = {'daranalysis-200000' : 'blue',
                 'daranalysis-160000' : 'red',
                 'daranalysis-201000' : 'amber',
                 'daranalysis-202000' : 'yellow',
                 'daranalysis-203000' : 'green'}
+super_user_name = "Superuser"
+CREATE_MODE = "__CREATE__"
+ENTRY_SAVED_TITLE = "DAR Entry Saved"
+ENTRY_SAVED_MESSAGE = "Hello {toUser}, {aboutUser} has just saved DAR entry"
+DAR_TITLE = 'This is my {string} formatted with {args} arguments'
+PROJECT_REMINDER_TITLE = "DAR Project Reminder ({env}) : Your DAR needs to completed"
+PROJECT_REMINDER_MESSAGE = "As an admin your DAR {projectId} in {env} environment, \
+                                it needs to be attended to, please remind users using Manage button"
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
@@ -37,7 +45,7 @@ def get_projects_from_db(userId):
         project_query = Project.query(Project.userIds.IN([userId]))
     else:
         project_query = Project.query()
-    return project_query.fetch(100)
+    return project_query.fetch(total_max_limit)
 
 #Gets evaluation_criteria from db - this needs to implement evaluation_criteria-lifecycle - right now it is a singleton
 def get_project_from_db(projectId):
@@ -56,11 +64,11 @@ def get_entry_from_db(projectId, userId):
 
 def get_entrys_from_given_project_db(projectId):
     entrys_query = Entry.query(Entry.project.projectId == projectId)
-    return entrys_query.fetch(100)
+    return entrys_query.fetch(total_max_limit)
 
 def get_entrys_from_given_user_db(projectId, userId):
     entrys_query = Entry.query(Entry.user.identity == userId, Entry.project.projectId == projectId)
-    return entrys_query.fetch(100)
+    return entrys_query.fetch(total_max_limit)
 
 def get_users_from_db(projectId=None):
     if projectId and projectId != "":
@@ -73,8 +81,8 @@ def get_users_from_db(projectId=None):
                 users.append(user)
             return users
     else:
-        users_q = User.query(User.type != "Superuser")
-        users = users_q.fetch(1000)
+        users_q = User.query(User.type != super_user_name)
+        users = users_q.fetch(total_max_limit)
         return users
 
     return None
@@ -107,7 +115,7 @@ def update_user(userId, email, type, password, projectIds):
     user.password = password
     if projectIds:
         for projId in projectIds:
-            if projId and projId != "__CREATE__"and projId not in user.projectIds:
+            if projId and projId != CREATE_MODE and projId not in user.projectIds:
                     user.projectIds.append(projId)
                     project = get_project_from_db(projId)
                     if project:
@@ -404,7 +412,7 @@ def get_vendors_from_db(projectId=None):
             return vendors
     else:
         vendors_q = Vendor.query()
-        vendors = vendors_q.fetch(1000)
+        vendors = vendors_q.fetch(total_max_limit)
         return vendors
 
     return None
@@ -426,7 +434,7 @@ def update_vendor(vendorId, email, projectIds):
     vendor.email = email
     if projectIds:
         for projId in projectIds:
-            if projId and projId != "__CREATE__"and projId not in vendor.projectIds:
+            if projId and projId != CREATE_MODE and projId not in vendor.projectIds:
                     vendor.projectIds.append(projId)
                     project = get_project_from_db(projId)
                     if project:
@@ -536,48 +544,23 @@ def get_business_objectives_from_db(projectId, withCalc):
     print str(time.clock() - start)
     return bos_db, criteria_to_users_map
 
-def send_notification(toaddr, title, content):
-    print 'send_notification ' + toaddr + ", " + title + ", " + content
-    headers = fcm_headers
-    url = fcm_server
-
-    data = {'priority': 'high', 'to': toaddr, \
-            'notification' : {'badge': '1', 'sound' : 'default', 'title' : title, 'body' : content}}
-
-    try:
-        opener = urllib2.build_opener()
-        req = urllib2.Request(url, data=json.dumps(data), headers=headers)
-        resp = opener.open(req)
-        print "OK - Notification sent"
-    except urllib2.HTTPError as e:
-        error_message = e.read()
-        print error_message
-
 def send_reminders(tolist, title, content):
     for toaddr in tolist:
         user = get_user_from_db(toaddr)
-        print user.email + ": " + content
-        mail.send_mail(sender=sender_address,
-                       to=user.email,
-                       subject=title,
-                       body = content)
-        if user.token:
-            send_notification(user.token, title, content)
+        send_message(user, title, content)
 
 def send_entry_completion(projectId, userId):
     user = get_admin_user(projectId)
     if user:
-        tolist = [user.identity]
-        title = "DAR Entry Saved"
-        content = "Hello " + user.identity + ", " + userId + " has just saved DAR entry"
-        send_reminders(tolist, title, content)
+        title = ENTRY_SAVED_TITLE
+        content = ENTRY_SAVED_MESSAGE.format(toUser=user.identity, aboutUser=userId)
+        send_message(user, title, content)
 
 def get_admin_user(projectId):
     users = get_users_from_db(projectId)
     for user in users:
         if user.type != "User":
             return user
-
     return None
 
 def run_manage():
@@ -591,7 +574,7 @@ def run_manage():
     if gae_app_id is None and gae_env is None:
         gae_env = "purple"
     project_query = Project.query()
-    projects = project_query.fetch(100)
+    projects = project_query.fetch(total_max_limit)
     if projects:
         print "Managing " + str(len(projects))
     count = 0
@@ -606,32 +589,34 @@ def run_manage():
             user = get_admin_user(project.projectId)
             print "\tAdmin to " + project.projectId + " is " + user.identity
             if user:
-                send_project_reminder(user, gae_env, project.projectId)
+                title = PROJECT_REMINDER_TITLE.format(env=gae_env)
+                message = PROJECT_REMINDER_MESSAGE.format(projectId=project.projectId, env=gae_env)
+                send_message(user, title, message)
                 time.sleep(2)
 
-
-def send_project_reminder(user, env,  projectId):
-    print "Sending email to " + user.email
-    if env is None:
-        env = " X "
-    title = "DAR Project Reminder (" + env + ") : Your DAR needs to completed"
-    content = "As an admin your DAR " + projectId + " in " + env + " environment, it needs to be attended to, please remind users using Manage button"
-    mail.send_mail(sender=sender_address,
-                   to=user.email,
-                   subject=title,
-                   body=content)
-    print "Done sending email " + str(user.token)
-    if hasattr(user, 'token') and user.token:
-        print "Sending notification : " + user.token
-        send_notification(user.token, title, content)
-
 def send_message(user, title, message):
+    print "Sending email to " + user.email
     mail.send_mail(sender=sender_address,
                    to=user.email,
                    subject=title,
                    body=message)
     if hasattr(user, 'token') and user.token:
         send_notification(user.token, title, message)
+
+def send_notification(toaddr, title, content):
+    print 'send_notification ' + toaddr + ", " + title + ", " + content
+    headers = fcm_headers
+    url = fcm_server
+    data = {'priority': 'high', 'to': toaddr, \
+            'notification' : {'badge': '1', 'sound' : 'default', 'title' : title, 'body' : content}}
+    try:
+        opener = urllib2.build_opener()
+        req = urllib2.Request(url, data=json.dumps(data), headers=headers)
+        resp = opener.open(req)
+        print "OK - Notification sent"
+    except urllib2.HTTPError as e:
+        error_message = e.read()
+        print error_message
 
 def update_token(userId, token):
     print "In update_token: " + userId + ", " + token

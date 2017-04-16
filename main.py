@@ -11,6 +11,14 @@ import os
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 import utils
 import base64
+from utils import CREATE_MODE
+
+PROJECT_REMINDER_TITLE = "DAR Entry Reminder: Your DAR entry needs to completed"
+ADMIN_WELCOME_TITLE = "DAR Admin User Created"
+ADMIN_WELCOME_MESSAGE = "Admin user for {username } created. Please go ahead and create DAR project and add/invite users to the project"
+USER_WELCOME_TITLE="Welcome to DAR {projectId}"
+USER_WELCOME_MESSAGE="Hello {userId}\nYou have been chosen as a subject matter expert to help w/ DAR {projectId}. " + \
+                        "Please login at your earliest and complete your entry, Thank you."
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
@@ -142,7 +150,7 @@ def show_project(projectId):
     vendor_objs = utils.get_vendors_from_db(None)
     users = utils.get_users_from_db(None)
     cu = current_user.identity
-    if projectId is not None and projectId != "___CREATE___" :
+    if projectId is not None and projectId != CREATE_MODE :
         project = utils.get_project_from_db(projectId)
         userlist = project.userIds
         vendorlist = project.vendorIds
@@ -326,8 +334,7 @@ def submitted_admin_user():
         password = request.form.get('password')
         user = utils.update_user(username, email, "Admin", password, None)
         try:
-            utils.send_message(user, "DAR Admin User Created", "Admin user for " + username + \
-                               " created. Please go ahead and create DAR project and add/invite users to the project")
+            utils.send_message(user, ADMIN_WELCOME_TITLE, ADMIN_WELCOME_MESSAGE.format(username=username))
         except RuntimeError as e:
             print e
         return render_template('root.html')
@@ -337,7 +344,7 @@ def submitted_admin_user():
 def show_user(projectId, identity):
     user = utils.get_user_from_db(identity)
     projects = utils.get_projects_from_db(None)
-    if user is not None and identity != "___CREATE___" :
+    if user is not None and identity != CREATE_MODE :
         # edit current/existing user
         cu = current_user.identity
         return render_template(
@@ -347,7 +354,7 @@ def show_user(projectId, identity):
             user=user)
     else:
         # edit/create user for a projectId
-        if projectId and projectId !=  "__CREATE__":
+        if projectId and projectId !=  CREATE_MODE:
             if projectId == "None":
                 projectId = None
             project = utils.get_project_from_db(projectId)
@@ -408,9 +415,8 @@ def submitted_user():
     user = utils.update_user(userId, email, type, password, projectIds)
     if newProject:
         try:
-            utils.send_message(user, "Welcome to DAR " + projectId,
-                           "Hello " + user.identity + "\nYou have been chosen as a subject matter expert to help w/ DAR " + \
-                           projectId + ", please login and complete your entry, Thank you.")
+            utils.send_message(user, USER_WELCOME_TITLE.format(projectId=projectId),
+                           USER_WELCOME_MESSAGE.format(userId=user.identity, projectId=projectId))
         except RuntimeError:
             pass
     if current_user.type == "Superuser":
@@ -433,7 +439,7 @@ def show_vendors():
 def show_vendor(projectId, identity):
     vendor = utils.get_vendor_from_db(identity)
     projects = utils.get_projects_from_db(None)
-    if vendor is not None and identity != "___CREATE___" :
+    if vendor is not None and identity != CREATE_MODE :
         # edit current/existing vendor
         cu = current_user.identity
         return render_template(
@@ -443,7 +449,7 @@ def show_vendor(projectId, identity):
             vendor=vendor)
     else:
         # edit/create vendor for a projectId
-        if projectId and projectId !=  "__CREATE__":
+        if projectId and projectId !=  CREATE_MODE:
             if projectId == "None":
                 projectId = None
             project = utils.get_project_from_db(projectId)
@@ -480,7 +486,7 @@ def submitted_vendor():
 def send_email():
     content =  request.form.get('content')
     tolist = request.form.getlist('tolist[]')
-    title = "DAR Entry Reminder: Your DAR entry needs to completed"
+    title = PROJECT_REMINDER_TITLE
     utils.send_reminders(tolist, title, content)
     return "OK", 200
 
