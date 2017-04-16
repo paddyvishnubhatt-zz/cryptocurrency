@@ -11,6 +11,8 @@
     <link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/css/bootstrap-editable.css"
           rel="stylesheet"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.1/bootstrap3-editable/js/bootstrap-editable.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-show-password/1.0.3/bootstrap-show-password.min.js"></script>
+
     <script type="text/javascript" src="/static/common.js"></script>
     <script type="text/javascript" src="/static/objective.js"></script>
     <link href="/static/objective.css" rel="stylesheet">
@@ -38,7 +40,7 @@
         <div id="bs-example-navbar-collapse-1"class="collapse navbar-collapse pull-right">
             <ul class="nav navbar-nav">
                 <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
-                <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
+                <li><a href='javascript:showUser({{ get_current_user() }})'><span class="glyphicon glyphicon-user"></span>{{ current_user.identity }}</a></li>
             </ul>
         </div>
     </div>
@@ -49,7 +51,6 @@
 <script>
     var business_objectives = [];
     var editMode = false;
-
     function getECLength(boid) {
         for (var kk = 0; kk < business_objectives.length; kk++) {
             var mbo = JSON.parse(business_objectives[kk]);
@@ -172,7 +173,7 @@
             type: "GET",
             url: "/api/v1/check_for_project/"+projectId,
             success: function(response, textStatus, xhr) {
-                pExists = response;
+                pExists = response == "true" ? true : false;
             },
             error : function(response, textStatus, xhr) {
             },
@@ -186,7 +187,10 @@
         if (projectId == "") {
             return false;
         }
-        if (checkIfProjectExists(projectId) && window.location.pathname.indexOf("___CREATE___") >= 0) {
+        var pExists = checkIfProjectExists(projectId);
+        var pathName = window.location.pathname;
+        var isCreateMode = pathName.indexOf("___CREATE___") >= 0;
+        if (pExists && isCreateMode) {
             popup("Project " + projectId + " already exists", "Please chose another ID for your project and retry");
             return false;
         }
@@ -589,10 +593,7 @@
     }
 
     $(document).ready(function () {
-        $('#checkbox').on('change', function () {
-            $('#password').attr('type', $('#checkbox').prop('checked') == true ? "text" : "password");
-        });
-
+        $("#password").password('toggle');
         $('#tabs').tab();
 
         initializeModel();
@@ -818,9 +819,8 @@
                                         <div class="col-sm-10">
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                                <input class="form-control" id="password" type="password" name="password" value="{{ defp }}">
+                                                <input class="form-control" id="password" type="password" data-toggle="password" name="password" value="{{ defp }}">
                                             </div>
-                                            <input type="checkbox" id="checkbox"> <span class="glyphicon glyphicon-eye-open"/>
                                         </div>
                                     </div>
                                 </td>

@@ -22,18 +22,13 @@
                 <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
+                <li><a href='javascript:showUser({{ get_current_user() }})'><span class="glyphicon glyphicon-user"></span>{{ current_user.identity }}</a></li>
             </ul>
         </div>
       </div>
   </nav>
   <body>
   <script>
-    $(document).ready(function(){
-        $('#checkbox').on('change', function(){
-            $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
-        });
-    });
     </script>
     <div id="container">
       <div id="main">

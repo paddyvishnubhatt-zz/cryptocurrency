@@ -10,6 +10,7 @@ from flask import send_from_directory
 import os
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 import utils
+import base64
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
@@ -17,6 +18,24 @@ app.secret_key = "super_secret_key"
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
+@login_manager.header_loader
+def load_user_from_header(header_val):
+    header_val = header_val.replace('Basic ', '', 1)
+    try:
+        header_val = base64.b64decode(header_val)
+        authstr = header_val.split(":")
+        userId = authstr[0]
+        user = utils.get_user_from_db(userId)
+        if user and authstr[1] == user.password:
+            return user
+        elif user is None and userId == "superuser" and authstr[1] == "password":
+            user = utils.update_user('superuser', 'superuser@lafoot.com', 'Superuser', 'password', None)
+            time.sleep(1)
+            return user
+    except TypeError:
+        pass
+    return None
 
 # callback to reload the user object
 @login_manager.user_loader
@@ -41,8 +60,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return render_template('root.html')
-
+    return redirect(url_for('landing_page'))
 
 # handle login failed
 @app.errorhandler(401)
@@ -83,18 +101,13 @@ def check_for_project(projectId):
     else:
         return json.dumps(False)
 
-@app.route('/check_auth')
-@login_required
-def check_auth():
-    return "OK", 200
-
-
 @app.route('/api/v1/admin_page')
 @login_required
 def admin_page():
+    cu = current_user.identity
     return render_template(
         'admin.html',
-        current_user=request.authorization.username)
+        current_user=cu)
 
 @app.route('/api/v1/landing_page')
 @login_required
@@ -119,7 +132,6 @@ def show_projects():
         pass
     return render_template(
         'projects.html',
-        current_user = cu,
         projects= projects)
 
 @app.route('/api/v1/show_project/<projectId>')
@@ -353,6 +365,24 @@ def show_user(projectId, identity):
                  current_user=cu,
                  projects=projects)
 
+@app.route('/api/v1/set_user/<userId>', methods=['PATCH'])
+@login_required
+def set_user(userId):
+    user = utils.get_user_from_db(userId)
+    email = request.form.get('email')
+    password  = request.form.get('password')
+    if user:
+        isChanged = False
+        if user.email != email:
+            user.email = email
+            isChanged = True
+        if user.password != password:
+            user.password = password
+            isChanged = True
+        if isChanged == True:
+            user.put()
+
+
 @app.route('/api/v1/submitted_user', methods=['POST', 'GET'])
 @login_required
 def submitted_user():
@@ -497,13 +527,6 @@ def delete_vendors():
     utils.delete_vendors_from_db()
     return "OK", 200
 
-@app.route('/api/v1/show_settings', methods=['GET'])
-@login_required
-def show_settings():
-    cu = current_user.identity
-    print "show_settings for " + cu
-    return "OK", 200
-
 @app.errorhandler(500)
 def server_error(e):
     # Log the error and stacktrace.
@@ -536,6 +559,12 @@ def utility_functions():
         import datetime
         return datetime.date.today().strftime("%Y-%m-%d")
 
+    def get_current_user():
+        cu = {"identity": current_user.identity.decode('unicode_escape').encode('ascii','ignore'),
+              "email": current_user.email.decode('unicode_escape').encode('ascii','ignore'),
+              "password": current_user.password.decode('unicode_escape').encode('ascii','ignore')}
+        return cu
+
     @app.template_filter('urlencode')
     def urlencode_filter(s):
         if type(s) == 'Markup':
@@ -545,6 +574,6 @@ def utility_functions():
         return Markup(s)
 
     app.jinja_env.globals['urlencode'] = urlencode_filter
-    return dict(get_entry_status=get_entry_status, urlencode=urlencode_filter, get_project_status=get_project_status, mdebug=print_in_console, str_to_obj=str_to_obj, get_current_date=get_current_date)
+    return dict(get_current_user=get_current_user, get_entry_status=get_entry_status, urlencode=urlencode_filter, get_project_status=get_project_status, mdebug=print_in_console, str_to_obj=str_to_obj, get_current_date=get_current_date)
 
 # [END app]

@@ -9,6 +9,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-show-password/1.0.3/bootstrap-show-password.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
   </head>
   <nav class="navbar navbar-inverse navbar-static-top" >
@@ -27,9 +28,7 @@
   <body>
   <script>
     $(document).ready(function(){
-        $('#checkbox').on('change', function(){
-            $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
-        });
+        $("#password").password('toggle');
     });
 
     function checkIfUserExists(username) {
@@ -59,9 +58,9 @@
         return true;
     }
     </script>
-    <div id="container">
+    <div class="container">
       <div id="main">
-          <form method="post" action="{{ url_for('submitted_admin_user') }}"  onsubmit="return validateForm()>
+          <form method="post" action="{{ url_for('submitted_admin_user') }}"  onsubmit="return validateForm()">
             <table class="table table-striped">
                 <TR>
                     <td align="left">
@@ -76,8 +75,7 @@
                         Password
                     </td>
                     <td>
-                        <input class="form-control" id="password" type="password" name="password">
-                        <input type="checkbox" id="checkbox"> Show Password
+                        <input class="form-control" id="password" type="password" data-toggle="password" name="password">
                     </td>
                 </TR>
                 <TR>

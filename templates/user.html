@@ -9,6 +9,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-show-password/1.0.3/bootstrap-show-password.min.js"></script>
     <script type="text/javascript" src="/static/common.js"></script>
   </head>
   <nav class="navbar navbar-inverse navbar-static-top" >
@@ -22,7 +23,7 @@
                 <li><a href="/api/v1/about_page"><span class="glyphicon glyphicon-lamp"></span>About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="javascript:popup('Notice', 'User Settings will be available in V2')"><span class="glyphicon glyphicon-user"></span>{{ current_user }}</a></li>
+                <li><a href='javascript:showUser({{ get_current_user() }})'><span class="glyphicon glyphicon-user"></span>{{ current_user.identity }}</a></li>
             </ul>
         </div>
       </div>
@@ -30,9 +31,7 @@
   <body>
   <script>
     $(document).ready(function(){
-        $('#checkbox').on('change', function(){
-            $('#password').attr('type',$('#checkbox').prop('checked')==true?"text":"password");
-        });
+        $("#password").password('toggle');
     });
     </script>
     <div id="container">
@@ -99,8 +98,7 @@
                                 {% set passval = defaultPassword %}
                             {% endif %}
                         {% endif %}
-                        <input class="form-control" id="password" type="password" name="password" value={{ passval }}>
-                        <input type="checkbox" id="checkbox"> Show Password
+                        <input class="form-control" id="password" type="password" name="password" data-toggle="password" value={{ passval }}>
                     </td>
                 </TR>
                 <TR>

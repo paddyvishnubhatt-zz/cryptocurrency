@@ -23,10 +23,9 @@ fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'Auth
 
 gae_environments = {'daranalysis-200000' : 'blue',
                 'daranalysis-160000' : 'red',
-                'daranalysis-200000' : 'amber',
-                'daranalysis-200000' : 'yellow',
-                'daranalysis-200000' : 'green',
-                'daranalysis-200000' : 'purple'}
+                'daranalysis-201000' : 'amber',
+                'daranalysis-202000' : 'yellow',
+                'daranalysis-203000' : 'green'}
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
@@ -255,22 +254,25 @@ def get_entry_status(projectId, userId):
             if evaluation_criteriaIds:
                 lene += len(evaluation_criteriaIds)
     tlenv = lene * lenv
-    if entry.vendor_output:
+    if entry and entry.vendor_output:
         vsplits = json.loads(entry.vendor_output)
         elenv = len(vsplits.keys())
-    if entry.evaluation_criteria_output is None or (
-        entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) == 0) or \
-            (entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) < lene) or \
-                entry.vendor_output is None or \
-        (entry.vendor_output and elenv == 0) or \
-        (entry.vendor_output and elenv < tlenv):
-        cur_date = datetime.datetime.now()
-        if project.due_date < cur_date:
-            return "Late"
-        else:
-            return "Incomplete"
+    if  entry is None:
+        return "Incomplete"
     else:
-        return "OK"
+        if (entry and entry.evaluation_criteria_output is None) or \
+            (entry and entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) == 0) or \
+            (entry and entry.evaluation_criteria_output and len(entry.evaluation_criteria_output) < lene) or \
+            (entry and entry.vendor_output is None) or \
+            (entry and entry.vendor_output and elenv == 0) or \
+            (entry and entry.vendor_output and elenv < tlenv):
+            cur_date = datetime.datetime.now()
+            if project.due_date < cur_date:
+                return "Late"
+            else:
+                return "Incomplete"
+        else:
+            return "OK"
 
 
 def get_project_status(projectId):
@@ -586,6 +588,8 @@ def run_manage():
         print "Running in " + gae_env + " : " + gae_app_id
     else:
         print 'Running in ' + gae_app_id
+    if gae_app_id is None and gae_env is None:
+        gae_env = "purple"
     project_query = Project.query()
     projects = project_query.fetch(100)
     if projects:
@@ -638,26 +642,6 @@ def update_token(userId, token):
         user.token = token
         user.put()
 
-def check_auth(identity, password):
-    """This function is called to check if a username /
-        password combination is valid.
-        """
-    user = get_user_from_db(identity)
-    if user:
-        if user.password == password:
-            session['username'] = identity
-            return True
-        else:
-            session['username'] = None
-            return False
-    else:
-        if identity == 'superuser' and password == 'password':
-            update_user('superuser', 'superuser@lafoot.com', 'Superuser', 'password', None)
-            time.sleep(1)
-            return True
-        else:
-            return False
-
 def get_user_type_from_db(identity):
     user = get_user_from_db(identity)
     return user.type
@@ -666,21 +650,4 @@ def is_user_first_login(identity):
     user = get_user_from_db(identity)
     return user.isFirstLogin
 
-def authenticate():
-    """Sends a 401 response that enables basic auth"""
-    return Response(
-    'Could not verify your access level for that URL.\n'
-    'You have to login with proper credentials', 401,
-    {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        #print "***** " + str(request.authorization)
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        else:
-            return f(*args, **kwargs)
-
-    return decorated
