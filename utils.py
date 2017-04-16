@@ -20,6 +20,7 @@ import urllib2
 firebase_server_key = "key=AIzaSyDxwE1m7WjI6400WD9GadNJqoZfJvBmjGs"
 fcm_server = "https://fcm.googleapis.com/fcm/send"
 fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'Authorization' : firebase_server_key}
+sender_address = "DAR Admin <jaisairam0170@gmail.com>   "
 
 gae_environments = {'daranalysis-200000' : 'blue',
                 'daranalysis-160000' : 'red',
@@ -553,7 +554,6 @@ def send_notification(toaddr, title, content):
         print error_message
 
 def send_reminders(tolist, title, content):
-    sender_address = "jaisairam0170@gmail.com"
     for toaddr in tolist:
         user = get_user_from_db(toaddr)
         print user.email + ": " + content
@@ -599,7 +599,7 @@ def run_manage():
         print project.projectId
         count += 1
         if count > 5    :
-            time.sleep(5)
+            time.sleep(2)
         status, percentage = get_project_status(project.projectId)
         print "\t" + str(status) + ", " + str(percentage)
         if status != "OK" or percentage < 100:
@@ -607,12 +607,11 @@ def run_manage():
             print "\tAdmin to " + project.projectId + " is " + user.identity
             if user:
                 send_project_reminder(user, gae_env, project.projectId)
-                time.sleep(5)
+                time.sleep(2)
 
 
 def send_project_reminder(user, env,  projectId):
     print "Sending email to " + user.email
-    sender_address = "jaisairam0170@gmail.com"
     if env is None:
         env = " X "
     title = "DAR Project Reminder (" + env + ") : Your DAR needs to completed"
@@ -627,7 +626,6 @@ def send_project_reminder(user, env,  projectId):
         send_notification(user.token, title, content)
 
 def send_message(user, title, message):
-    sender_address = "jaisairam0170@gmail.com"
     mail.send_mail(sender=sender_address,
                    to=user.email,
                    subject=title,
