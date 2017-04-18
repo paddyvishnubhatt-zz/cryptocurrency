@@ -4,7 +4,7 @@ function ok (value) {}
 function fail (error) {}
 
 var current_token;
-var proto = "https";
+var proto = "http";
 var environment_name;
 var environment;
 
@@ -28,6 +28,7 @@ function launchApp(url) {
 }
 
 function onResume() {
+    console.log("***** Javascript.onResume **** : ");
 	// get any notification variables for use in your app
 	window.FirebasePlugin.onNotificationOpen(function(notification){
 		//Check if notification exists then do something with the payload vars
@@ -62,6 +63,12 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
+		var container = document.getElementById('SwipeArea');
+		var hammertime = new Hammer(container);
+		hammertime.on('swipe', function(ev) { 
+			console.log("swiped");
+			plugins.appPreferences.show(null, null); 
+		});
         var str 		= device.platform;
 		console.log(" *** " + str);
 		plugins.appPreferences.fetch('environment_preference').then(function(result) {
@@ -69,17 +76,19 @@ var app = {
 		}, fail);
 		setTimeout(function() {
 			if (environment_name == "purple") {
-				proto = "http";
 				environment = "10.1.0.160:8080";
 			} else if (environment_name == "blue") {
 				environment = "blue.flawlessdecisions.com";
 			} else if (environment_name == "red") {
 				environment ="red.flawlessdecisions.com";
 			} else if (environment_name == "yellow") {
+				proto = "https";
 				environment ="daranalysis-201000.appspot.com";
 			} else if (environment_name == "amber") {
+				proto = "https";
 				environment ="daranalysis-202000.appspot.com";
 			} else if (environment_name == "green") {
+				proto = "https";
 				environment ="daranalysis-203000.appspot.com";
 			}
 			console.log(" *** url = " + environment_name + " : "  + proto + "://" + environment);
