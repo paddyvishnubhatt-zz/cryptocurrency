@@ -207,8 +207,6 @@ def submitted_project():
 @app.route('/api/v1/show_summary/<projectId>')
 @login_required
 def show_summary(projectId):
-    if checkIfAdminUser() == False:
-        return "Unauthorized", 404
     userId = current_user.identity
     start = time.clock()
     bos_db, criteria_to_users_map = utils.get_business_objectives_from_db(projectId, True)

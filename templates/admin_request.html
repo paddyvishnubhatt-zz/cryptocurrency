@@ -37,7 +37,7 @@
             type: "GET",
             url: "/api/v1/check_for_user/"+username,
             success: function(response, textStatus, xhr) {
-                uExists = response;
+                uExists = (response != "false");
             },
             error : function(response, textStatus, xhr) {
             },
