@@ -40,13 +40,13 @@
 
  - Android sdk is in  (find ~/Library/Android/ -name zipalign)
  - Generate key and key store:
- - keytool -genkey -v -keystore dar.ks -alias dar -keyalg RSA -keysize 2048 -validity 10000 (shenba)
+ - keytool -genkey -v -keystore crypto.ks -alias crypto -keyalg RSA -keysize 2048 -validity 10000 (shenba)
  - Build
   - cordova build --release android
  - Sign
-  - jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore dar.ks platforms/android/build/outputs/apk/android-release-unsigned.apk dar 
+  - jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore crypto.ks platforms/android/build/outputs/apk/android-release-unsigned.apk crypto 
  - Zipalign
-  - ~/Library/Android//sdk/build-tools/23.0.3/zipalign -v 4 platforms/android/build/outputs/apk/android-release-unsigned.apk platforms/android/build/outputs/apk/Dar.apk
+  - ~/Library/Android//sdk/build-tools/23.0.3/zipalign -v 4 platforms/android/build/outputs/apk/android-release-unsigned.apk platforms/android/build/outputs/apk/rypto.apk
  - Publish
   - Publish using google/play-store console
   
@@ -57,13 +57,12 @@
 3. Login into google cloud from command line (this will prompt browser login/oauth): 
  - gcloud auth login
 4. Deploy app using:
- - gcloud app deploy app.yaml index.yaml cron.yaml --project daranalysis-160000
+ - gcloud app deploy app.yaml index.yaml cron.yaml --project cryptocurrency-1001
 5. gcloud app browser --project ...
 
   
 - DNS:
 -----
-1. Create a custom domain in GAE e.g. red, blue, etc
 2. When asked to verify w/ iPage, use CNAME
 3. Get the CNAME records from the GAE utility and plunk them in iPAGE CNAME records
 4. Good to go
