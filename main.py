@@ -1,5 +1,4 @@
 import logging
-import utils
 from flask import Flask, Response, session, render_template, request, url_for, redirect, abort
 import datetime
 import json
@@ -9,9 +8,10 @@ import time
 from flask import send_from_directory
 import os
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
-import utils
 import base64
-from utils import CREATE_MODE
+
+from utils.utils import CREATE_MODE
+import utils
 
 PROJECT_REMINDER_TITLE = "DAR Entry Reminder: Your DAR entry needs to completed"
 ADMIN_WELCOME_TITLE = "DAR Admin User Created"
