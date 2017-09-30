@@ -1,6 +1,9 @@
 *.pyc 
 *.swp
 lib/*.pyc
+utils/*.pyc
+exchange/*.pyc
+models/*.pyc
 .idea/workspace.xml
 .idea
 mobile-dar/platforms/android/.gradle
