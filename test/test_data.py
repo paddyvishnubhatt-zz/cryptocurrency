@@ -17,16 +17,15 @@ def create_users():
     for u_idx in range(0, num_users):
         form_params = {}
         if u_idx == 1:
-            userId = "Ad-" + projectId
+            userId = "Admin"
             form_params["identity"] = userId
             form_params["type"] = "Admin"
         else:
-            userId = "Us-" + projectId + "-" + str(u_idx)
+            userId = "User-" + "-" + str(u_idx)
             form_params["identity"] = userId
             form_params["type"] = "User"
-        form_params["email"] = userId + "@sellerforce.com"
+        form_params["email"] = userId + "@crytocurrency.com"
         form_params["password"] = "defaultPassword"
-        form_params["projectIds"] = projectId
         requests.post(url,
                       data=form_params,
                       headers={"Authorization": "Basic %s" % b64Val})
