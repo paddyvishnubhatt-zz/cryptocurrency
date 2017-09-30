@@ -57,7 +57,7 @@
 3. Login into google cloud from command line (this will prompt browser login/oauth): 
  - gcloud auth login
 4. Deploy app using:
- - gcloud app deploy app.yaml index.yaml cron.yaml --project cryptocurrency-1001
+ - gcloud app deploy app.yaml index.yaml cron.yaml --project cryptocurrency-1003
 5. gcloud app browser --project ...
 
   
