@@ -16,7 +16,7 @@ fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'Auth
 sender_address = "DAR Admin <jaisairam0170@gmail.com>   "
 total_max_limit = 1000
 gae_environments = {'cryptocurrency-1003' : 'yellow'}
-super_user_name = "Superuser"
+SUPER_USER_NAME = "Superuser"
 
 CREATE_MODE = "__CREATE__"
 ENTRY_SAVED_TITLE = "DAR Entry Saved"
@@ -29,22 +29,10 @@ PROJECT_REMINDER_MESSAGE = "As an admin your DAR {projectId} in {env} environmen
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
 
-def get_users_from_db(projectId=None):
-    if projectId and projectId != "":
-        project = get_project_from_db(projectId)
-        if project is not None:
-            userIds = project.userIds
-            users = []
-            for userId in userIds:
-                user = get_user_from_db(userId)
-                users.append(user)
-            return users
-    else:
-        users_q = User.query(User.type != super_user_name)
-        users = users_q.fetch(total_max_limit)
-        return users
-
-    return None
+def get_users_from_db():
+    users_q = User.query(User.type != SUPER_USER_NAME)
+    users = users_q.fetch(total_max_limit)
+    return users
 
 def get_user_from_db(userId):
     if "@" in userId:
@@ -56,13 +44,7 @@ def get_user_from_db(userId):
     else:
         return users_q.fetch(1)[-1]
 
-def update_users_project(projectId, userIds):
-    project = get_project_from_db(projectId)
-    project.userIds = userIds
-    project.put()
-    return project
-
-def update_user(userId, email, type, password, projectIds):
+def update_user(userId, email, type, password):
     user = get_user_from_db(userId)
     if user is None:
         project_name = get_project_db_name()
@@ -72,27 +54,8 @@ def update_user(userId, email, type, password, projectIds):
     user.email = email
     user.type = type
     user.password = password
-    if projectIds:
-        for projId in projectIds:
-            if projId and projId != CREATE_MODE and projId not in user.projectIds:
-                    user.projectIds.append(projId)
-                    project = get_project_from_db(projId)
-                    if project:
-                        project.userIds.append(userId)
-                        project.put()
-
     user.put()
     time.sleep(1)
-
-    #repeat to create empty entrys by default
-    if projectIds:
-        for projId in projectIds:
-            project = get_project_from_db(projId)
-            if project:
-                entry = get_entry_from_db(projId, userId)
-                if entry is None:
-                    update_entry(projId, userId, None, None, None, None)
-
     return user
 
 def get_admin_user(projectId):

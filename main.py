@@ -1,6 +1,5 @@
 import logging
 from flask import Flask, Response, session, render_template, request, url_for, redirect, abort
-import datetime
 import json
 import urllib
 from markupsafe import Markup
@@ -11,7 +10,9 @@ from flask_login import LoginManager, login_required, login_user, logout_user, c
 import base64
 
 from utils.utils import CREATE_MODE
-import utils
+import utils.utils as utils
+import exchange.exchange as exchange
+import portfolio.portfolio as portfolio
 
 PROJECT_REMINDER_TITLE = "DAR Entry Reminder: Your DAR entry needs to completed"
 ADMIN_WELCOME_TITLE = "DAR Admin User Created"
@@ -114,11 +115,11 @@ def landing_page():
     user = current_user
     print user.identity + ", " + user.type
     if user.type == "Admin":
-        return show_projects()
+        return exchange.show_markets()
     elif user.type == "Superuser":
         return admin_page()
     else:
-        return show_entrys_given_user(user.identity)
+        return portfolio.show_portfolio(user.identity)
 
 @app.route('/api/v1/show_users')
 @login_required
@@ -143,7 +144,7 @@ def submitted_admin_user():
     else:
         email = request.form.get('email')
         password = request.form.get('password')
-        user = utils.update_user(username, email, "Admin", password, None)
+        user = utils.update_user(username, email, "Admin", password)
         try:
             utils.send_message(user, ADMIN_WELCOME_TITLE, ADMIN_WELCOME_MESSAGE.format(username=username))
         except RuntimeError as e:
