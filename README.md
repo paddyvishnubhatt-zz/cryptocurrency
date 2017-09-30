@@ -1,11 +1,13 @@
-# daranalysis 
-Decision and Resolution Analysis
+# cryptocurrency 
+Exchange for exchanges
 
 Introduction:
 
- - Create, administer and manage Projects, requirements
- - Vendor Management
- - User Management
+ - Create users
+ - Allow users to login
+ - Mediate multiple exchanges
+ - Get cryptocurrencis - instantaneously
+ - Display
  
 Deployment:
  - Available on GAE
