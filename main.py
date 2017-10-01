@@ -159,11 +159,11 @@ def submitted_admin_user():
             print e
         return render_template('root.html')
 
-@app.route('/api/v1/show_user/<projectId>/<identity>')
+@app.route('/api/v1/show_user/<identity>')
 @login_required
-def show_user(projectId, identity):
+def show_user(identity):
     user = utils.get_user_from_db(identity)
-    if user is not None and identity != CREATE_MODE :
+    if user is not None and identity == "__CREATE__":
         # edit current/existing user
         cu = current_user.identity
         return render_template(

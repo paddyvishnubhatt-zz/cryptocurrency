@@ -104,7 +104,7 @@
             Users
         </th>
         <th tyle="text-align:justify">
-           {%  set urlx = "/api/v1/show_user/__CREATE__/__CREATE__" %}
+           {%  set urlx = "/api/v1/show_user/__CREATE__" %}
             <a href={{ urlx }}>
                 <span class="glyphicon glyphicon-plus"></span>
             </a>
@@ -116,11 +116,7 @@
         </th>
         {% if users %}
             {% for iuser in users %}
-                {% if iuser.projectIds %}
-                    {% set urlx = "/api/v1/show_user/None/" + iuser.identity %}
-                {% else %}
-                    {% set urlx = "/api/v1/show_user/__CREATE__/" + iuser.identity %}
-                {% endif %}
+                {% set urlx = "/api/v1/show_user/" + iuser.identity %}
                 <TR onclick="location.href='{{ urlx }}'">
                     <td>
                         {{ iuser.identity }}
