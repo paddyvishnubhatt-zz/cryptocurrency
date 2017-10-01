@@ -9,7 +9,6 @@ import os
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 import base64
 
-from utils.utils import CREATE_MODE
 import utils.utils as utils
 import exchange.exchange as exchange
 import portfolio.portfolio as portfolio
@@ -215,14 +214,10 @@ def submitted_user():
     user = utils.update_user(userId, email, type, password)
     try:
         utils.send_message(user, USER_WELCOME_TITLE,
-                       USER_WELCOME_MESSAGE.format(userId=user.identity)
+           USER_WELCOME_MESSAGE.format(userId=user.identity))
     except RuntimeError:
         pass
-    if current_user.type == "Superuser":
-        return redirect(url_for('show_users'))
-    else:
-        return redirect(url_for('show_project', projectId=projectId))
-
+    return landing_page()
 
 @app.route('/api/v1/send_email', methods=['POST'])
 def send_email():
