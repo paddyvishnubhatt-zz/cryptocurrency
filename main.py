@@ -115,7 +115,7 @@ def landing_page():
     user = current_user
     print user.identity + ", " + user.type
     if user.type == "Admin":
-        return exchange.show_markets()
+        return admin_page()
     elif user.type == "Superuser":
         return admin_page()
     else:
@@ -124,12 +124,17 @@ def landing_page():
 @app.route('/api/v1/show_users')
 @login_required
 def show_users():
-    users = utils.get_users_from_db(None)
+    users = utils.get_users_from_db()
     cu = current_user.identity
     return render_template(
         'users.html',
         current_user=cu,
         users= users)
+
+@app.route('/api/v1/show_markets')
+@login_required
+def show_markets():
+    return exchange.show_markets()
 
 @app.route('/api/v1/submitted_admin_user', methods=['POST'])
 def submitted_admin_user():
@@ -155,34 +160,19 @@ def submitted_admin_user():
 @login_required
 def show_user(projectId, identity):
     user = utils.get_user_from_db(identity)
-    projects = utils.get_projects_from_db(None)
     if user is not None and identity != CREATE_MODE :
         # edit current/existing user
         cu = current_user.identity
         return render_template(
             'user.html',
             current_user = cu,
-            projects=projects,
             user=user)
     else:
-        # edit/create user for a projectId
-        if projectId and projectId !=  CREATE_MODE:
-            if projectId == "None":
-                projectId = None
-            project = utils.get_project_from_db(projectId)
-            cu = current_user.identity
-            return render_template(
-                'user.html',
-                current_user=cu,
-                defaultPassword=project.defaultPassword,
-                projectId=projectId)
-        else:
-            # create new user
-            cu = current_user.identity
-            return render_template(
-                'user.html',
-                 current_user=cu,
-                 projects=projects)
+        # create new user
+        cu = current_user.identity
+        return render_template(
+            'user.html',
+             current_user=cu)
 
 @app.route('/api/v1/set_user/<userId>', methods=['PATCH'])
 @login_required
