@@ -14,12 +14,12 @@ import utils.utils as utils
 import exchange.exchange as exchange
 import portfolio.portfolio as portfolio
 
-PROJECT_REMINDER_TITLE = "DAR Entry Reminder: Your DAR entry needs to completed"
-ADMIN_WELCOME_TITLE = "DAR Admin User Created"
-ADMIN_WELCOME_MESSAGE = "Admin user for {username } created. Please go ahead and create DAR project and add/invite users to the project"
-USER_WELCOME_TITLE="Welcome to DAR {projectId}"
-USER_WELCOME_MESSAGE="Hello {userId}\nYou have been chosen as a subject matter expert to help w/ DAR {projectId}. " + \
-                        "Please login at your earliest and complete your entry, Thank you."
+PROJECT_REMINDER_TITLE = "CC Reminder: Your CC Balance needs to checked"
+ADMIN_WELCOME_TITLE = "CC Admin User Created"
+ADMIN_WELCOME_MESSAGE = "Admin user for {username } created. Please go ahead and create and add/invite users to the exchange"
+USER_WELCOME_TITLE="Welcome to CC"
+USER_WELCOME_MESSAGE="Hello {userId}\nA user has been created for you in the exchange. " + \
+                        "Please login at your earliest and review your balance and check out the markets, Thank you."
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
@@ -211,20 +211,13 @@ def submitted_user():
     email = request.form.get('email')
     type = request.form.get('type')
     password = request.form.get('password')
-    projectIds = request.form.getlist('projectIds[]')
-    projectId = request.form.get("projectId")
-    newProject = False
-    if projectId and projectId not in projectIds:
-        projectIds.append(projectId)
-        newProject = True
-    print "user: " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password) + ", "  + str(projectIds)
+    print "user: " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password)
     user = utils.update_user(userId, email, type, password)
-    if newProject:
-        try:
-            utils.send_message(user, USER_WELCOME_TITLE.format(projectId=projectId),
-                           USER_WELCOME_MESSAGE.format(userId=user.identity, projectId=projectId))
-        except RuntimeError:
-            pass
+    try:
+        utils.send_message(user, USER_WELCOME_TITLE,
+                       USER_WELCOME_MESSAGE.format(userId=user.identity)
+    except RuntimeError:
+        pass
     if current_user.type == "Superuser":
         return redirect(url_for('show_users'))
     else:

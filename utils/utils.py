@@ -1,7 +1,6 @@
 
 import json
 import time
-import datetime
 from google.appengine.api import mail
 from google.appengine.api import app_identity
 import urllib2
@@ -13,18 +12,14 @@ from models.models import project_db_key
 firebase_server_key = "key=AIzaSyDxwE1m7WjI6400WD9GadNJqoZfJvBmjGs"
 fcm_server = "https://fcm.googleapis.com/fcm/send"
 fcm_headers = {'Content-type': 'application/json', 'Accept': 'text/plain', 'Authorization' : firebase_server_key}
-sender_address = "DAR Admin <jaisairam0170@gmail.com>   "
+sender_address = "CC Admin <jaisairam0170@gmail.com>   "
 total_max_limit = 1000
 gae_environments = {'cryptocurrency-1003' : 'yellow'}
 SUPER_USER_NAME = "Superuser"
 
-CREATE_MODE = "__CREATE__"
-ENTRY_SAVED_TITLE = "DAR Entry Saved"
-ENTRY_SAVED_MESSAGE = "Hello {toUser}, {aboutUser} has just saved DAR entry"
-DAR_TITLE = 'This is my {string} formatted with {args} arguments'
-PROJECT_REMINDER_TITLE = "DAR Project Reminder ({env}) : Your DAR needs to completed"
-PROJECT_REMINDER_MESSAGE = "As an admin your DAR {projectId} in {env} environment, \
-                                it needs to be attended to, please remind users using Manage button"
+PROJECT_REMINDER_TITLE = "CC Reminder ({env}) : Your balance needs to be checked"
+PROJECT_REMINDER_MESSAGE = "As an admin your users and markets in {env} environment, \
+                                needs to be attended to, please manage/remind users using Manage button"
 
 def get_project_db_name(rname=DEFAULT_PROJECT_NAME):
     return rname
@@ -58,8 +53,8 @@ def update_user(userId, email, type, password):
     time.sleep(1)
     return user
 
-def get_admin_user(projectId):
-    users = get_users_from_db(projectId)
+def get_admin_user():
+    users = get_users_from_db()
     for user in users:
         if user.type != "User":
             return user
@@ -75,26 +70,13 @@ def run_manage():
         print 'Running in ' + gae_app_id
     if gae_app_id is None and gae_env is None:
         gae_env = "purple"
-    project_query = Project.query()
-    projects = project_query.fetch(total_max_limit)
-    if projects:
-        print "Managing " + str(len(projects))
-    count = 0
-    for project in projects:
-        print project.projectId
-        count += 1
-        if count > 5    :
-            time.sleep(2)
-        status, percentage = get_project_status(project.projectId)
-        print "\t" + str(status) + ", " + str(percentage)
-        if status != "OK" or percentage < 100:
-            user = get_admin_user(project.projectId)
-            print "\tAdmin to " + project.projectId + " is " + user.identity
-            if user:
-                title = PROJECT_REMINDER_TITLE.format(env=gae_env)
-                message = PROJECT_REMINDER_MESSAGE.format(projectId=project.projectId, env=gae_env)
-                send_message(user, title, message)
-                time.sleep(2)
+    user = get_admin_user()
+    print "\tAdmin is " + user.identity
+    if user:
+        title = PROJECT_REMINDER_TITLE.format(env=gae_env)
+        message = PROJECT_REMINDER_MESSAGE.format(env=gae_env)
+        send_message(user, title, message)
+        time.sleep(2)
 
 def send_message(user, title, message):
     print "Sending email to " + user.email
