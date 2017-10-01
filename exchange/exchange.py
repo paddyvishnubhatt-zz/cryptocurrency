@@ -13,8 +13,9 @@ class Exchange:
 def show_markets():
     exchange_names = ["BitfinexUSD",
                       "BitstampUSD",
+                      "OKCoinUSD",
                       "KrakenUSD",
-                      "OKCoinUSD"]
+                      "GeminiUSD"]
     exchanges = get_exchanges(exchange_names)
     return render_template('exchanges.html',
                             exchanges=exchanges)
@@ -37,6 +38,9 @@ def get_exchange(exchange_name):
                 url = 'https://www.bitstamp.net/api/order_book/'
             elif exchange_name == 'OKCoinUSD':
                 url = 'https://www.okcoin.cn/api/depth.do?symbol=btc_usd'
+            elif exchange_name == "GeminiUSD":
+                url = 'https://api.gemini.com/v1/book/btcusd'
+
             req = urllib2.Request(url, None, headers={
                                         "Content-Type": "application/x-www-form-urlencoded",
                                         "Accept": "*/*",
@@ -46,20 +50,27 @@ def get_exchange(exchange_name):
             jsonstr = res.read().decode('utf8')
             raw_exchange = json.loads(jsonstr)
             if raw_exchange:
+
                 rexchange = Exchange()
                 rexchange.name = exchange_name
                 rexchange.cc = "BTC"
                 rexchange.currency = "USD"
+
                 if exchange_name == 'OKCoinUSD':
                     rexchange.price = raw_exchange.get('asks')[0][0]
                 elif exchange_name == 'KrakenUSD':
                     rexchange.time  = raw_exchange.get('result').get('XXBTZUSD').get('asks')[0][2]
                     rexchange.price = raw_exchange.get('result').get('XXBTZUSD').get('asks')[0][0]
+                elif exchange_name == 'GeminiUSD':
+                    rexchange.price = raw_exchange.get('asks')[0][0]
+                    rexchange.time = raw_exchange.get('asks')[0][2]
                 else:
                     rexchange.time = long(raw_exchange.get('timestamp'))
                     rexchange.price = raw_exchange.get('asks')[0][0]
+
                 rexchange.price = float("{0:.2f}".format(float(rexchange.price)))
                 rexchange.time = datetime.datetime.utcfromtimestamp(rexchange.time).strftime('%Y-%m-%dT%H:%M:%SZ')
+
                 return rexchange
             else:
                 return None
