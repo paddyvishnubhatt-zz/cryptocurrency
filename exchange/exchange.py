@@ -1,6 +1,7 @@
 import urllib2
 import urllib
 import logging
+import datetime
 
 import json
 
@@ -43,7 +44,6 @@ def get_exchange(exchange_name):
 
             res = urllib2.urlopen(req)
             jsonstr = res.read().decode('utf8')
-            print jsonstr
             raw_exchange = json.loads(jsonstr)
             if raw_exchange:
                 rexchange = Exchange()
@@ -56,8 +56,10 @@ def get_exchange(exchange_name):
                     rexchange.time  = raw_exchange.get('result').get('XXBTZUSD').get('asks')[0][2]
                     rexchange.price = raw_exchange.get('result').get('XXBTZUSD').get('asks')[0][0]
                 else:
-                    rexchange.time = raw_exchange.get('timestamp')
+                    rexchange.time = long(raw_exchange.get('timestamp'))
                     rexchange.price = raw_exchange.get('asks')[0][0]
+                rexchange.price = float("{0:.2f}".format(float(rexchange.price)))
+                rexchange.time = datetime.datetime.utcfromtimestamp(rexchange.time).strftime('%Y-%m-%dT%H:%M:%SZ')
                 return rexchange
             else:
                 return None
@@ -70,9 +72,11 @@ def get_exchange(exchange_name):
                 rexchange = Exchange()
                 rexchange.name = exchange_name
                 rexchange.cc = "BTC"
-                rexchange.time = exchange[0].get('timestamp')
-                rexchange.price = exchange[0].get('price')
+                rexchange.time = str(exchange[0].get('timestamp')).split(".", 1)[0]
+                rexchange.time = long(rexchange.time)
+                rexchange.price = float("{0:.2f}".format(float(exchange[0].get('price'))))
                 rexchange.currency = "USD"
+                rexchange.time = datetime.datetime.utcfromtimestamp(rexchange.time).strftime('%Y-%m-%dT%H:%M:%SZ')
                 return rexchange
             else:
                 return None
