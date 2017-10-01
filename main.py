@@ -74,7 +74,11 @@ def logout():
 # handle login failed
 @app.errorhandler(401)
 def page_not_found(e):
-    return Response('<p>Login failed</p>')
+    return render_template(
+        "entry_error.html",
+        h1Message="Authentication Error, Go back and re-enter",
+        title="Invalid User Error",
+        message="Please go back and use another identity and retry. If you do not have an account, please request the Administrator")
 
 @app.route('/favicon.ico')
 def favicon():
