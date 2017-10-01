@@ -218,7 +218,7 @@ def submitted_user():
         projectIds.append(projectId)
         newProject = True
     print "user: " + str(userId) + ", " + str(email) + ", " + str(type) + ", " + str(password) + ", "  + str(projectIds)
-    user = utils.update_user(userId, email, type, password, projectIds)
+    user = utils.update_user(userId, email, type, password)
     if newProject:
         try:
             utils.send_message(user, USER_WELCOME_TITLE.format(projectId=projectId),

@@ -101,34 +101,6 @@
                         <input class="form-control" id="password" type="password" name="password" data-toggle="password" value={{ passval }}>
                     </td>
                 </TR>
-                <TR>
-                    <td>
-                        Project
-                    </td>
-                    <td>
-                        {% if projectId is defined and projectId != "__CREATE__" %}
-                            <input class="form-control" id="projectId" name="projectId" value="{{ projectId }}" readonly>
-                        {% else %}
-                            {% if projects is defined  and projects | length > 0%}
-                                <select class="form-control" name="projectIds[]" multiple size={{ projects |length }}>
-
-                                    {% for iproject in projects %}
-                                        {% if user is defined %}
-                                            {% if iproject.projectId in user.projectIds %}
-                                                <option value="{{  iproject.projectId }}" selected> {{ iproject.projectId }}</option>
-                                            {% else %}
-                                                <option value="{{  iproject.projectId }}"> {{ iproject.projectId }}</option>
-                                            {% endif %}
-                                        {% else %}
-                                            <option value="{{  iproject.projectId }}"> {{ iproject.projectId }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-
-                                </select>
-                            {% endif %}
-                        {% endif %}
-                    </td>
-                </TR>
             </table>
             <input type="submit" value="Save" >
           </form>
